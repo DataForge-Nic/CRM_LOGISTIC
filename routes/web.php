@@ -2,11 +2,27 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\FacturacionController;
+use App\Http\Controllers\InventarioController;
+use App\Models\Inventario;
+use App\Models\Cliente;
+use App\Models\User;
+use App\Models\Facturacion;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    $totalClientes = \App\Models\Cliente::count();
+    $totalUsuarios = \App\Models\User::count();
+    $totalFacturas = \App\Models\Facturacion::count();
+    $totalPaquetes = \App\Models\Inventario::count();
+    $ultimosPaquetes = \App\Models\Inventario::with(['cliente', 'servicio'])
+        ->latest('fecha_ingreso')
+        ->take(5)
+        ->get();
+    return view('welcome', compact('totalClientes', 'totalUsuarios', 'totalFacturas', 'totalPaquetes', 'ultimosPaquetes'));
+})->name('welcome');
 
+// Rutas para usuarios
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('usuarios.index');
     Route::get('/crear', [UserController::class, 'create'])->name('usuarios.create');
@@ -14,4 +30,38 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/{id}/editar', [UserController::class, 'edit'])->name('usuarios.edit');
     Route::put('/{id}', [UserController::class, 'update'])->name('usuarios.update');
     Route::delete('/{id}', [UserController::class, 'destroy'])->name('usuarios.destroy');
+});
+
+// Rutas para clientes
+Route::prefix('clientes')->group(function () {
+    Route::get('/', [ClienteController::class, 'index'])->name('clientes.index');
+    Route::get('/crear', [ClienteController::class, 'create'])->name('clientes.create');
+    Route::post('/', [ClienteController::class, 'store'])->name('clientes.store');
+    Route::get('/{id}/editar', [ClienteController::class, 'edit'])->name('clientes.edit');
+    Route::put('/{id}', [ClienteController::class, 'update'])->name('clientes.update');
+    Route::delete('/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+});
+
+// Rutas para facturación
+Route::prefix('facturacion')->group(function () {
+    Route::get('/', [FacturacionController::class, 'index'])->name('facturacion.index');
+    Route::get('/crear', [FacturacionController::class, 'create'])->name('facturacion.create');
+    Route::post('/', [FacturacionController::class, 'store'])->name('facturacion.store');
+    Route::get('/{id}/editar', [FacturacionController::class, 'edit'])->name('facturacion.edit');
+    Route::put('/{id}', [FacturacionController::class, 'update'])->name('facturacion.update');
+    Route::delete('/{id}', [FacturacionController::class, 'destroy'])->name('facturacion.destroy');
+    Route::get('/{id}/pdf', [FacturacionController::class, 'descargarPDF'])->name('facturacion.pdf');
+    Route::get('/{id}/preview', [FacturacionController::class, 'previsualizarPDF'])->name('facturacion.preview');
+    Route::post('/preview-live', [FacturacionController::class, 'previewLivePDF'])->name('facturacion.preview-live');
+});
+
+//Ruta para inventario 
+Route::prefix('inventario')->group(function () {
+    Route::get('/', [InventarioController::class, 'index'])->name('inventario.index');
+    Route::get('/crear', [InventarioController::class, 'create'])->name('inventario.create');
+    Route::post('/', [InventarioController::class, 'store'])->name('inventario.store');
+    Route::get('/{id}/editar', [InventarioController::class, 'edit'])->name('inventario.edit');
+    Route::put('/{id}', [InventarioController::class, 'update'])->name('inventario.update');
+    Route::delete('/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
+    Route::get('/{id}', [InventarioController::class, 'show'])->name('inventario.show');
 });

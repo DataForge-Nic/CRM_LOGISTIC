@@ -13,30 +13,43 @@ class Inventario extends Model
 
     protected $fillable = [
         'cliente_id',
+        'servicio_id',
+        'factura_id',
         'peso_lb',
         'volumen_pie3',
         'tarifa_manual',
-        'factura_id',
         'monto_calculado',
         'fecha_ingreso',
         'estado',
         'numero_guia',
         'notas',
-        'servicio_id',
+        'created_by',
+        'updated_by',
     ];
 
+    // Relaciones
     public function cliente()
     {
-        return $this->belongsTo(Cliente::class, 'cliente_id');
+        return $this->belongsTo(Cliente::class);
     }
 
     public function factura()
     {
-        return $this->belongsTo(Facturacion::class, 'factura_id');
+        return $this->belongsTo(Facturacion::class);
     }
 
     public function servicio()
     {
-        return $this->belongsTo(Servicio::class, 'servicio_id');
+        return $this->belongsTo(Servicio::class);
+    }
+
+    public function creador()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function editor()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }
