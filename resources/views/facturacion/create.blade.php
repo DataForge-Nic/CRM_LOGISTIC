@@ -72,7 +72,69 @@
                             @endif
                             @if(request('cliente_id'))
                             <div class="mb-3">
+                                <div class="card border-info mb-2">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-2"><i class="fas fa-user text-info me-2"></i>Resumen del Cliente</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Nombre:</strong> {{ $clienteSel->nombre_completo ?? '' }}</p>
+                                                <p class="mb-1"><strong>Dirección:</strong> {{ $clienteSel->direccion ?? '' }}</p>
+                                                <p class="mb-1"><strong>Teléfono:</strong> {{ $clienteSel->telefono ?? '' }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Total de facturas:</strong> {{ $clienteSel->facturas->count() }}</p>
+                                                <p class="mb-1"><strong>Facturas pendientes/parciales:</strong> <span class="text-{{ $facturasPendientes > 0 ? 'danger' : 'success' }} fw-bold">{{ $facturasPendientes }}</span></p>
+                                            </div>
+                                        </div>
+                                        @if($facturasPendientes > 0)
+                                            <div class="alert alert-warning mt-2 mb-0"><i class="fas fa-exclamation-triangle me-1"></i> Este cliente tiene facturas pendientes o parciales.</div>
+                                        @endif
+                                        <div class="mt-3">
+                                            <h6 class="fw-semibold">Últimas 5 facturas</h6>
+                                            <table class="table table-sm table-bordered mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Fecha</th>
+                                                        <th>Monto</th>
+                                                        <th>Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @forelse($historialFacturas as $fact)
+                                                        <tr>
+                                                            <td>{{ $fact->id }}</td>
+                                                            <td>{{ $fact->fecha_factura }}</td>
+                                                            <td>${{ number_format($fact->monto_total,2) }}</td>
+                                                            <td>
+                                                                @if($fact->estado_pago == 'pagado')
+                                                                    <span class="badge bg-success">Pagado</span>
+                                                                @elseif($fact->estado_pago == 'parcial')
+                                                                    <span class="badge bg-warning text-dark">Parcial</span>
+                                                                @else
+                                                                    <span class="badge bg-danger">Pendiente</span>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr><td colspan="4" class="text-center text-muted">Sin historial</td></tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label fw-semibold">Selecciona los paquetes a facturar</label>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <input type="text" id="busquedaPaquete" class="form-control w-50" placeholder="Buscar por guía, tracking, descripción...">
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary ms-2" id="seleccionarTodosBtn">Seleccionar todos</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" id="deseleccionarTodosBtn">Deseleccionar todos</button>
+                                    </div>
+                                </div>
+                                <div class="mb-2"><span class="fw-bold">Seleccionados: <span id="contadorSeleccionados">0</span></span></div>
                                 <table class="table table-bordered align-middle">
                                     <thead class="table-light">
                                         <tr>
@@ -83,57 +145,40 @@
                                             <th>Servicio</th>
                                             <th>Precio Unitario</th>
                                             <th>Valor</th>
+                                            <th>Vista</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="paquetesTableBody">
                                         @foreach($inventarios as $inv)
                                         <tr>
-                                            <td>
-                                                <input type="checkbox" class="paquete-checkbox" name="paquetes[]" value="{{ $inv->id }}" data-monto="{{ $inv->monto_calculado }}" data-guia="{{ $inv->numero_guia }}" data-descripcion="{{ $inv->notas }}" data-tracking="{{ $inv->tracking_codigo }}" data-servicio="{{ $inv->servicio ? $inv->servicio->tipo_servicio : '' }}" data-tarifa="{{ $inv->tarifa_manual ?? $inv->monto_calculado }}">
-                                                <input type="hidden" name="paquete_guia_{{ $inv->id }}" value="{{ $inv->numero_guia }}">
-                                                <input type="hidden" name="paquete_descripcion_{{ $inv->id }}" value="{{ $inv->notas }}">
-                                                <input type="hidden" name="paquete_tracking_{{ $inv->id }}" value="{{ $inv->tracking_codigo }}">
-                                                <input type="hidden" name="paquete_servicio_{{ $inv->id }}" value="{{ $inv->servicio ? $inv->servicio->tipo_servicio : '' }}">
-                                                <input type="hidden" name="paquete_tarifa_{{ $inv->id }}" value="{{ $inv->tarifa_manual ?? $inv->monto_calculado }}">
-                                                <input type="hidden" name="paquete_valor_{{ $inv->id }}" value="{{ $inv->monto_calculado }}">
-                                            </td>
+                                            <td><input type="checkbox" class="paquete-checkbox" name="paquetes[]" value="{{ $inv->id }}" data-monto="{{ $inv->monto_calculado }}" data-guia="{{ $inv->numero_guia }}" data-descripcion="{{ $inv->notas }}" data-tracking="{{ $inv->tracking_codigo }}" data-servicio="{{ $inv->servicio ? $inv->servicio->tipo_servicio : '' }}" data-tarifa="{{ $inv->tarifa_manual ?? $inv->monto_calculado }}"></td>
                                             <td>{{ $inv->numero_guia ?? '-' }}</td>
                                             <td>{{ $inv->notas ?? '-' }}</td>
                                             <td>{{ $inv->tracking_codigo ?? '-' }}</td>
-                                            <td>
-                                                @if($inv->servicio)
-                                                    {{ Str::contains(strtolower($inv->servicio->tipo_servicio), 'mar') ? 'Mar' : 'Air' }}
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
+                                            <td>{{ $inv->servicio ? $inv->servicio->tipo_servicio : '-' }}</td>
                                             <td>${{ number_format($inv->tarifa_manual ?? $inv->monto_calculado,2) }}</td>
                                             <td>${{ number_format($inv->monto_calculado,2) }}</td>
+                                            <td><button type="button" class="btn btn-sm btn-info ver-detalle-btn" data-id="{{ $inv->id }}">Ver</button></td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                                 <div class="fw-bold mt-2">Total seleccionado: $<span id="totalSeleccionado">0.00</span></div>
                             </div>
-                            <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const checkboxes = document.querySelectorAll('.paquete-checkbox');
-                                const totalSpan = document.getElementById('totalSeleccionado');
-                                const montoTotalInput = document.querySelector('input[name="monto_total"]');
-                                function updateTotal() {
-                                    let total = 0;
-                                    checkboxes.forEach(cb => {
-                                        if (cb.checked) {
-                                            total += parseFloat(cb.dataset.monto);
-                                        }
-                                    });
-                                    totalSpan.textContent = total.toFixed(2);
-                                    if(montoTotalInput) montoTotalInput.value = total.toFixed(2);
-                                }
-                                checkboxes.forEach(cb => cb.addEventListener('change', updateTotal));
-                                updateTotal();
-                            });
-                            </script>
+                            <!-- Modal para vista previa de producto -->
+                            <div class="modal fade" id="detallePaqueteModal" tabindex="-1" aria-labelledby="detallePaqueteLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="detallePaqueteLabel">Detalle del Paquete</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                  </div>
+                                  <div class="modal-body" id="detallePaqueteBody">
+                                    <!-- Detalles dinámicos -->
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                             @endif
                             <div class="mb-3">
                                 <label for="fecha_factura" class="form-label fw-semibold">Fecha de Factura</label>
@@ -183,7 +228,7 @@
                                 @error('nota') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                             <div class="d-flex gap-2 justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="guardarFacturaBtn">
                                     <i class="fas fa-save me-1"></i> Guardar
                                 </button>
                                 <a href="{{ route('facturacion.index') }}" class="btn btn-secondary">Cancelar</a>
@@ -244,6 +289,116 @@
     });
     window.addEventListener('DOMContentLoaded', function() {
         updatePreview();
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // AJAX para recargar productos al cambiar cliente
+        const clienteSelect = document.querySelector('select[name="cliente_id"]');
+        const paquetesTableBody = document.querySelector('#paquetesTableBody');
+        const totalSpan = document.getElementById('totalSeleccionado');
+        const montoTotalInput = document.querySelector('input[name="monto_total"]');
+        const guardarBtn = document.querySelector('#guardarFacturaBtn');
+
+        function updateTotal() {
+            let total = 0;
+            let checked = 0;
+            document.querySelectorAll('.paquete-checkbox').forEach(cb => {
+                if (cb.checked) {
+                    total += parseFloat(cb.dataset.monto);
+                    checked++;
+                }
+            });
+            totalSpan.textContent = total.toFixed(2);
+            if(montoTotalInput) montoTotalInput.value = total.toFixed(2);
+            if(guardarBtn) guardarBtn.disabled = checked === 0;
+        }
+
+        if (clienteSelect) {
+            clienteSelect.addEventListener('change', function() {
+                const clienteId = this.value;
+                if (!clienteId) return;
+                fetch(`/facturacion/paquetes-por-cliente/${clienteId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        paquetesTableBody.innerHTML = '';
+                        if (data.length === 0) {
+                            paquetesTableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No hay productos disponibles para facturar.</td></tr>';
+                            updateTotal();
+                            return;
+                        }
+                        data.forEach(inv => {
+                            paquetesTableBody.innerHTML += `
+                            <tr>
+                                <td><input type="checkbox" class="paquete-checkbox" name="paquetes[]" value="${inv.id}" data-monto="${inv.monto_calculado}" data-guia="${inv.numero_guia}" data-descripcion="${inv.notas}" data-tracking="${inv.tracking_codigo}" data-servicio="${inv.servicio}" data-tarifa="${inv.tarifa_manual ?? inv.monto_calculado}"></td>
+                                <td>${inv.numero_guia ?? '-'}</td>
+                                <td>${inv.notas ?? '-'}</td>
+                                <td>${inv.tracking_codigo ?? '-'}</td>
+                                <td>${inv.servicio ?? '-'}</td>
+                                <td>$${parseFloat(inv.tarifa_manual ?? inv.monto_calculado).toFixed(2)}</td>
+                                <td>$${parseFloat(inv.monto_calculado).toFixed(2)}</td>
+                            </tr>`;
+                        });
+                        document.querySelectorAll('.paquete-checkbox').forEach(cb => cb.addEventListener('change', updateTotal));
+                        updateTotal();
+                    });
+            });
+        }
+        document.querySelectorAll('.paquete-checkbox').forEach(cb => cb.addEventListener('change', updateTotal));
+        updateTotal();
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Selección masiva
+        const seleccionarTodosBtn = document.getElementById('seleccionarTodosBtn');
+        const deseleccionarTodosBtn = document.getElementById('deseleccionarTodosBtn');
+        const contadorSeleccionados = document.getElementById('contadorSeleccionados');
+        function updateContadorSeleccionados() {
+            const total = document.querySelectorAll('.paquete-checkbox:checked').length;
+            if(contadorSeleccionados) contadorSeleccionados.textContent = total;
+        }
+        if(seleccionarTodosBtn) seleccionarTodosBtn.onclick = function() {
+            document.querySelectorAll('.paquete-checkbox').forEach(cb => { cb.checked = true; });
+            updateTotal(); updateContadorSeleccionados();
+        };
+        if(deseleccionarTodosBtn) deseleccionarTodosBtn.onclick = function() {
+            document.querySelectorAll('.paquete-checkbox').forEach(cb => { cb.checked = false; });
+            updateTotal(); updateContadorSeleccionados();
+        };
+        document.querySelectorAll('.paquete-checkbox').forEach(cb => cb.addEventListener('change', updateContadorSeleccionados));
+        updateContadorSeleccionados();
+        // Filtro de búsqueda
+        const busquedaPaquete = document.getElementById('busquedaPaquete');
+        if(busquedaPaquete) {
+            busquedaPaquete.addEventListener('input', function() {
+                const val = this.value.toLowerCase();
+                document.querySelectorAll('#paquetesTableBody tr').forEach(tr => {
+                    const texto = tr.textContent.toLowerCase();
+                    tr.style.display = texto.includes(val) ? '' : 'none';
+                });
+            });
+        }
+        // Modal de vista previa
+        document.querySelectorAll('.ver-detalle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tr = this.closest('tr');
+                const guia = tr.querySelector('[data-guia]')?.dataset.guia || '-';
+                const descripcion = tr.querySelector('[data-descripcion]')?.dataset.descripcion || '-';
+                const tracking = tr.querySelector('[data-tracking]')?.dataset.tracking || '-';
+                const servicio = tr.querySelector('[data-servicio]')?.dataset.servicio || '-';
+                const tarifa = tr.querySelector('[data-tarifa]')?.dataset.tarifa || '-';
+                const valor = tr.querySelector('[data-monto]')?.dataset.monto || '-';
+                document.getElementById('detallePaqueteBody').innerHTML = `
+                    <p><strong>Guía:</strong> ${guia}</p>
+                    <p><strong>Descripción:</strong> ${descripcion}</p>
+                    <p><strong>Tracking:</strong> ${tracking}</p>
+                    <p><strong>Servicio:</strong> ${servicio}</p>
+                    <p><strong>Tarifa:</strong> $${parseFloat(tarifa).toFixed(2)}</p>
+                    <p><strong>Valor:</strong> $${parseFloat(valor).toFixed(2)}</p>
+                `;
+                var modal = new bootstrap.Modal(document.getElementById('detallePaqueteModal'));
+                modal.show();
+            });
+        });
     });
 </script>
 @endsection

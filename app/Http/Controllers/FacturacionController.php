@@ -22,12 +22,21 @@ class FacturacionController extends Controller
     {
         $clientes = \App\Models\Cliente::all();
         $inventarios = collect();
+        $historialFacturas = collect();
+        $facturasPendientes = 0;
         if (request('cliente_id')) {
             $inventarios = \App\Models\Inventario::where('cliente_id', request('cliente_id'))
                 ->whereNull('factura_id')
                 ->get();
+            $historialFacturas = \App\Models\Facturacion::where('cliente_id', request('cliente_id'))
+                ->orderByDesc('fecha_factura')
+                ->take(5)
+                ->get();
+            $facturasPendientes = \App\Models\Facturacion::where('cliente_id', request('cliente_id'))
+                ->whereIn('estado_pago', ['pendiente', 'parcial'])
+                ->count();
         }
-        return view('facturacion.create', compact('clientes', 'inventarios'));
+        return view('facturacion.create', compact('clientes', 'inventarios', 'historialFacturas', 'facturasPendientes'));
     }
 
     // Guardar nueva factura
@@ -158,5 +167,28 @@ class FacturacionController extends Controller
         $factura->paquetes = collect($paquetes);
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('facturacion.pdf', compact('factura'));
         return $pdf->stream('preview.pdf');
+    }
+
+    /**
+     * Retorna los productos del inventario de un cliente para facturación (AJAX)
+     */
+    public function paquetesPorCliente($clienteId)
+    {
+        $inventarios = \App\Models\Inventario::where('cliente_id', $clienteId)
+            ->whereNull('factura_id')
+            ->with('servicio')
+            ->get()
+            ->map(function($inv) {
+                return [
+                    'id' => $inv->id,
+                    'numero_guia' => $inv->numero_guia,
+                    'notas' => $inv->notas,
+                    'tracking_codigo' => $inv->tracking_codigo,
+                    'servicio' => $inv->servicio ? $inv->servicio->tipo_servicio : null,
+                    'tarifa_manual' => $inv->tarifa_manual,
+                    'monto_calculado' => $inv->monto_calculado,
+                ];
+            });
+        return response()->json($inventarios);
     }
 }

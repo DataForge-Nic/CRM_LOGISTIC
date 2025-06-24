@@ -13,6 +13,7 @@ use App\Models\Cliente;
 use App\Models\User;
 use App\Models\Facturacion;
 
+// RUTA PRINCIPAL ÚNICA PARA DASHBOARD
 Route::get('/', function () {
     $totalClientes = \App\Models\Cliente::count();
     $totalUsuarios = \App\Models\User::count();
@@ -56,6 +57,7 @@ Route::prefix('facturacion')->group(function () {
     Route::get('/{id}/pdf', [FacturacionController::class, 'descargarPDF'])->name('facturacion.pdf');
     Route::get('/{id}/preview', [FacturacionController::class, 'previsualizarPDF'])->name('facturacion.preview');
     Route::post('/preview-live', [FacturacionController::class, 'previewLivePDF'])->name('facturacion.preview-live');
+    Route::get('/paquetes-por-cliente/{cliente}', [FacturacionController::class, 'paquetesPorCliente'])->name('facturacion.paquetes-por-cliente');
 });
 
 //Ruta para inventario 

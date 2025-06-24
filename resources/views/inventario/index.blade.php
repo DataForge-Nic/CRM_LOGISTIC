@@ -204,10 +204,6 @@
                                 Peso
                             </th>
                             <th class="border-0 px-4 py-3 fw-semibold text-dark">
-                                <i class="fas fa-cube me-1 text-muted"></i>
-                                Volumen
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
                                 <i class="fas fa-barcode me-1 text-muted"></i>
                                 Guía
                             </th>
@@ -251,9 +247,6 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="fw-semibold">{{ number_format($item->peso_lb, 2) }} lb</div>
-                                </td>
-                                <td class="px-4 py-3">
-                                    <div class="fw-semibold">{{ number_format($item->volumen_pie3, 2) }} ft³</div>
                                 </td>
                                 <td class="px-4 py-3">
                                     <code class="bg-light px-2 py-1 rounded">{{ $item->numero_guia }}</code>
