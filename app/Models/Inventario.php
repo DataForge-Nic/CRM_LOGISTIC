@@ -16,7 +16,6 @@ class Inventario extends Model
         'servicio_id',
         'factura_id',
         'peso_lb',
-        'volumen_pie3',
         'tarifa_manual',
         'monto_calculado',
         'fecha_ingreso',
@@ -25,6 +24,7 @@ class Inventario extends Model
         'notas',
         'created_by',
         'updated_by',
+        'tracking_codigo',
     ];
 
     // Relaciones

@@ -22,9 +22,11 @@ class DatabaseSeeder extends Seeder
             'estado' => 1,
         ]);
 
-        // Ejecutar seeder de servicios
+        // Ejecutar seeders
         $this->call([
             ServicioSeeder::class,
+            NotificacionSeeder::class,
+            TrackingSeeder::class,
         ]);
     }
 }

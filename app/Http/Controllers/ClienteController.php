@@ -49,7 +49,9 @@ class ClienteController extends Controller
     public function edit($id)
     {
         $cliente = Cliente::findOrFail($id);
-        return view('clientes.edit', compact('cliente'));
+        $tarifas = \App\Models\TarifaCliente::where('cliente_id', $id)->with('servicio')->get();
+        $servicios = \App\Models\Servicio::all();
+        return view('clientes.edit', compact('cliente', 'tarifas', 'servicios'));
     }
 
     // Actualizar cliente

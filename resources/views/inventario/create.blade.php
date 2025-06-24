@@ -101,19 +101,15 @@
                                 </div>
                             </div>
 
-                            <!-- Volumen -->
+                            <!-- Tracking -->
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="volumen_pie3" class="form-label fw-semibold">
-                                        <i class="fas fa-cube me-1 text-muted"></i>
-                                        Volumen (ft³) *
+                                    <label for="tracking_codigo" class="form-label fw-semibold">
+                                        <i class="fas fa-barcode me-1 text-muted"></i>
+                                        Código de Tracking
                                     </label>
-                                    <div class="input-group">
-                                        <input type="number" step="0.01" name="volumen_pie3" class="form-control @error('volumen_pie3') is-invalid @enderror" 
-                                               value="{{ old('volumen_pie3') }}" required placeholder="0.00">
-                                        <span class="input-group-text">ft³</span>
-                                    </div>
-                                    @error('volumen_pie3')
+                                    <input type="text" name="tracking_codigo" class="form-control @error('tracking_codigo') is-invalid @enderror" value="{{ old('tracking_codigo') }}" placeholder="Ingrese el código de tracking">
+                                    @error('tracking_codigo')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -340,41 +336,71 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-calculate monto based on peso and servicio
     const pesoInput = document.querySelector('input[name="peso_lb"]');
     const servicioSelect = document.querySelector('select[name="servicio_id"]');
+    const clienteSelect = document.querySelector('select[name="cliente_id"]');
     const montoInput = document.querySelector('input[name="monto_calculado"]');
-    
+    const tarifaManualInput = document.querySelector('input[name="tarifa_manual"]');
+
     function calculateMonto() {
         const peso = parseFloat(pesoInput.value) || 0;
         const servicio = servicioSelect.value;
-        
-        // Basic calculation (you can adjust these rates)
         let rate = 0;
-        switch(servicio) {
-            case '1': // Express
-                rate = 15;
-                break;
-            case '2': // Estándar
-                rate = 10;
-                break;
-            case '3': // Económico
-                rate = 7;
-                break;
-            default:
-                rate = 10;
+        if (tarifaManualInput.value) {
+            rate = parseFloat(tarifaManualInput.value) || 0;
+        } else {
+            switch(servicio) {
+                case '1': rate = 15; break;
+                case '2': rate = 10; break;
+                case '3': rate = 7; break;
+                default: rate = 10;
+            }
         }
-        
         const monto = peso * rate;
         montoInput.value = monto.toFixed(2);
     }
-    
+
     pesoInput.addEventListener('input', calculateMonto);
-    servicioSelect.addEventListener('change', calculateMonto);
-    
+    servicioSelect.addEventListener('change', function() {
+        obtenerTarifaCliente();
+        calculateMonto();
+    });
+    clienteSelect.addEventListener('change', function() {
+        obtenerTarifaCliente();
+        calculateMonto();
+    });
+    tarifaManualInput.addEventListener('input', calculateMonto);
+
+    function obtenerTarifaCliente() {
+        const clienteId = clienteSelect.value;
+        const servicioId = servicioSelect.value;
+        if (clienteId && servicioId) {
+            fetch("{{ route('inventario.obtener-tarifa') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
+                },
+                body: JSON.stringify({ cliente_id: clienteId, servicio_id: servicioId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.tarifa !== null) {
+                    tarifaManualInput.value = data.tarifa;
+                } else {
+                    tarifaManualInput.value = '';
+                }
+                calculateMonto();
+            });
+        } else {
+            tarifaManualInput.value = '';
+            calculateMonto();
+        }
+    }
+
     // Form validation
     const form = document.getElementById('inventarioForm');
     form.addEventListener('submit', function(e) {
         const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
-        
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
                 field.classList.add('is-invalid');
@@ -383,7 +409,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 field.classList.remove('is-invalid');
             }
         });
-        
         if (!isValid) {
             e.preventDefault();
             alert('Por favor, completa todos los campos requeridos.');

@@ -5,6 +5,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\FacturacionController;
 use App\Http\Controllers\InventarioController;
+use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\TrackingController;
+use App\Http\Controllers\TarifaClienteController;
 use App\Models\Inventario;
 use App\Models\Cliente;
 use App\Models\User;
@@ -64,4 +67,42 @@ Route::prefix('inventario')->group(function () {
     Route::put('/{id}', [InventarioController::class, 'update'])->name('inventario.update');
     Route::delete('/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
     Route::get('/{id}', [InventarioController::class, 'show'])->name('inventario.show');
+    Route::post('obtener-tarifa', [InventarioController::class, 'obtenerTarifa'])->name('inventario.obtener-tarifa');
 });
+
+// Rutas para notificaciones
+Route::prefix('notificaciones')->group(function () {
+    Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');
+    Route::get('/crear', [NotificacionController::class, 'create'])->name('notificaciones.create');
+    Route::post('/', [NotificacionController::class, 'store'])->name('notificaciones.store');
+    Route::get('/{notificacion}', [NotificacionController::class, 'show'])->name('notificaciones.show');
+    Route::get('/{notificacion}/editar', [NotificacionController::class, 'edit'])->name('notificaciones.edit');
+    Route::put('/{notificacion}', [NotificacionController::class, 'update'])->name('notificaciones.update');
+    Route::delete('/{notificacion}', [NotificacionController::class, 'destroy'])->name('notificaciones.destroy');
+    
+    // Rutas adicionales para funcionalidades específicas
+    Route::patch('/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar-leida');
+    Route::get('/no-leidas', [NotificacionController::class, 'noLeidas'])->name('notificaciones.no-leidas');
+    Route::patch('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.marcar-todas-leidas');
+});
+
+// Rutas para tracking
+Route::prefix('tracking')->group(function () {
+    Route::get('/', [TrackingController::class, 'index'])->name('tracking.index');
+    Route::get('/dashboard', [TrackingController::class, 'dashboard'])->name('tracking.dashboard');
+    Route::get('/crear', [TrackingController::class, 'create'])->name('tracking.create');
+    Route::post('/', [TrackingController::class, 'store'])->name('tracking.store');
+    Route::get('/{tracking}', [TrackingController::class, 'show'])->name('tracking.show');
+    Route::get('/{tracking}/editar', [TrackingController::class, 'edit'])->name('tracking.edit');
+    Route::put('/{tracking}', [TrackingController::class, 'update'])->name('tracking.update');
+    Route::delete('/{tracking}', [TrackingController::class, 'destroy'])->name('tracking.destroy');
+    
+    // Rutas adicionales para funcionalidades específicas
+    Route::post('/{tracking}/actualizar-estado', [TrackingController::class, 'actualizarEstado'])->name('tracking.actualizar-estado');
+    Route::get('/buscar', [TrackingController::class, 'buscarPorCodigo'])->name('tracking.buscar');
+    Route::get('/proximos-vencer', [TrackingController::class, 'proximosVencer'])->name('tracking.proximos-vencer');
+    Route::get('/verificar-recordatorios', [TrackingController::class, 'verificarRecordatorios'])->name('tracking.verificar-recordatorios');
+});
+
+Route::post('tarifas-clientes', [TarifaClienteController::class, 'store'])->name('tarifas-clientes.store');
+Route::delete('tarifas-clientes/{id}', [TarifaClienteController::class, 'destroy'])->name('tarifas-clientes.destroy');

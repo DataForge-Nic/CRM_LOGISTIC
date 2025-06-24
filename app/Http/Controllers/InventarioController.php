@@ -104,4 +104,15 @@ class InventarioController extends Controller
         $paquete = \App\Models\Inventario::with(['cliente', 'servicio', 'factura'])->findOrFail($id);
         return view('inventario.show', compact('paquete'));
     }
+
+    // Endpoint para obtener tarifa de cliente y servicio (AJAX)
+    public function obtenerTarifa(Request $request)
+    {
+        $clienteId = $request->input('cliente_id');
+        $servicioId = $request->input('servicio_id');
+        $tarifa = \App\Models\TarifaCliente::where('cliente_id', $clienteId)
+            ->where('servicio_id', $servicioId)
+            ->first();
+        return response()->json(['tarifa' => $tarifa ? $tarifa->tarifa : null]);
+    }
 }

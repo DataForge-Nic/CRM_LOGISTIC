@@ -36,8 +36,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="volumen_pie3" class="form-label">Volumen (ft³)</label>
-            <input type="number" step="0.01" name="volumen_pie3" class="form-control" value="{{ $paquete->volumen_pie3 }}">
+            <label for="tracking_codigo" class="form-label">Código de Tracking</label>
+            <input type="text" name="tracking_codigo" class="form-control" value="{{ $paquete->tracking_codigo }}">
         </div>
 
         <div class="mb-3">
@@ -69,4 +69,44 @@
         <a href="{{ route('inventario.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const clienteSelect = document.querySelector('select[name="cliente_id"]');
+    const servicioSelect = document.querySelector('select[name="servicio_id"]');
+    const tarifaManualInput = document.querySelector('input[name="tarifa_manual"]');
+    const pesoInput = document.querySelector('input[name="peso_lb"]');
+    const volumenInput = document.querySelector('input[name="volumen_pie3"]');
+
+    function obtenerTarifaCliente() {
+        const clienteId = clienteSelect.value;
+        const servicioId = servicioSelect.value;
+        if (clienteId && servicioId) {
+            fetch("{{ route('inventario.obtener-tarifa') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name=_token]').value
+                },
+                body: JSON.stringify({ cliente_id: clienteId, servicio_id: servicioId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.tarifa !== null) {
+                    tarifaManualInput.value = data.tarifa;
+                } else {
+                    tarifaManualInput.value = '';
+                }
+            });
+        } else {
+            tarifaManualInput.value = '';
+        }
+    }
+
+    clienteSelect.addEventListener('change', obtenerTarifaCliente);
+    servicioSelect.addEventListener('change', obtenerTarifaCliente);
+});
+</script>
 @endsection

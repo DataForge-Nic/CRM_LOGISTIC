@@ -20,8 +20,14 @@ class FacturacionController extends Controller
     // Mostrar formulario de creación
     public function create()
     {
-        $clientes = Cliente::all();
-        return view('facturacion.create', compact('clientes'));
+        $clientes = \App\Models\Cliente::all();
+        $inventarios = collect();
+        if (request('cliente_id')) {
+            $inventarios = \App\Models\Inventario::where('cliente_id', request('cliente_id'))
+                ->whereNull('factura_id')
+                ->get();
+        }
+        return view('facturacion.create', compact('clientes', 'inventarios'));
     }
 
     // Guardar nueva factura
@@ -37,9 +43,11 @@ class FacturacionController extends Controller
             'monto_local'    => 'required|numeric',
             'estado_pago'    => 'required|in:pendiente,parcial,pagado',
             'nota'           => 'nullable|string',
+            'paquetes'       => 'required|array|min:1',
+            'paquetes.*'     => 'exists:inventario,id',
         ]);
 
-        Facturacion::create([
+        $factura = Facturacion::create([
             'cliente_id'    => $request->cliente_id,
             'fecha_factura' => $request->fecha_factura,
             'numero_acta'   => $request->numero_acta,
@@ -51,6 +59,9 @@ class FacturacionController extends Controller
             'nota'          => $request->nota,
             'created_by'    => Auth::id(),
         ]);
+
+        // Asociar paquetes seleccionados a la factura
+        \App\Models\Inventario::whereIn('id', $request->paquetes)->update(['factura_id' => $factura->id]);
 
         return redirect()->route('facturacion.index')->with('success', 'Factura registrada correctamente.');
     }
@@ -107,7 +118,7 @@ class FacturacionController extends Controller
 
     public function descargarPDF($id)
     {
-        $factura = \App\Models\Facturacion::with(['cliente'])->findOrFail($id);
+        $factura = \App\Models\Facturacion::with(['cliente', 'paquetes.servicio'])->findOrFail($id);
         // Puedes agregar más relaciones si necesitas más datos
         $pdf = Pdf::loadView('facturacion.pdf', compact('factura'));
         return $pdf->download('factura_'.$factura->id.'.pdf');
@@ -115,7 +126,7 @@ class FacturacionController extends Controller
 
     public function previsualizarPDF($id)
     {
-        $factura = \App\Models\Facturacion::with(['cliente'])->findOrFail($id);
+        $factura = \App\Models\Facturacion::with(['cliente', 'paquetes.servicio'])->findOrFail($id);
         $pdf = Pdf::loadView('facturacion.pdf', compact('factura'));
         return $pdf->stream('factura_'.$factura->id.'.pdf');
     }
@@ -130,6 +141,21 @@ class FacturacionController extends Controller
             'direccion' => $request->input('cliente_direccion', ''),
             'telefono' => $request->input('cliente_telefono', ''),
         ];
+        // Simular paquetes seleccionados para la previsualización
+        $paquetes = [];
+        if ($request->has('paquetes')) {
+            foreach ($request->input('paquetes', []) as $i => $id) {
+                $paquetes[] = (object) [
+                    'numero_guia' => $request->input('paquete_guia_'.$id, ''),
+                    'notas' => $request->input('paquete_descripcion_'.$id, ''),
+                    'tracking_codigo' => $request->input('paquete_tracking_'.$id, ''),
+                    'servicio' => (object) ['tipo_servicio' => $request->input('paquete_servicio_'.$id, '')],
+                    'tarifa_manual' => $request->input('paquete_tarifa_'.$id, 0),
+                    'monto_calculado' => $request->input('paquete_valor_'.$id, 0),
+                ];
+            }
+        }
+        $factura->paquetes = collect($paquetes);
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('facturacion.pdf', compact('factura'));
         return $pdf->stream('preview.pdf');
     }

@@ -127,19 +127,33 @@
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th>Warehouse</th>
                     <th>Descripción</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unit</th>
+                    <th>Tracking</th>
+                    <th>Servicio</th>
+                    <th>Precio Unitario</th>
                     <th>Valor</th>
                 </tr>
             </thead>
             <tbody>
+            @php $total = 0; @endphp
+            @foreach($factura->paquetes as $paquete)
                 <tr>
-                    <td>Servicio de Envío</td>
-                    <td>1</td>
-                    <td>${{ number_format($factura->monto_total, 2) }}</td>
-                    <td>${{ number_format($factura->monto_total, 2) }}</td>
+                    <td>{{ $paquete->numero_guia ?? '-' }}</td>
+                    <td>{{ $paquete->notas ?? '-' }}</td>
+                    <td>{{ $paquete->tracking_codigo ?? '-' }}</td>
+                    <td>
+                        @if($paquete->servicio)
+                            {{ Str::contains(strtolower($paquete->servicio->tipo_servicio), 'mar') ? 'Mar' : 'Air' }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>${{ number_format($paquete->tarifa_manual ?? $paquete->monto_calculado, 2) }}</td>
+                    <td>${{ number_format($paquete->monto_calculado, 2) }}</td>
                 </tr>
+                @php $total += $paquete->monto_calculado; @endphp
+            @endforeach
             </tbody>
         </table>
     </div>
@@ -147,11 +161,11 @@
     <table class="totals">
         <tr>
             <td class="label text-right">Subtotal:</td>
-            <td class="text-right">${{ number_format($factura->monto_total, 2) }}</td>
+            <td class="text-right">${{ number_format($total, 2) }}</td>
         </tr>
         <tr>
             <td class="label text-right">Total:</td>
-            <td class="text-right">${{ number_format($factura->monto_total, 2) }}</td>
+            <td class="text-right">${{ number_format($total, 2) }}</td>
         </tr>
     </table>
 

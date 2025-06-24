@@ -66,4 +66,71 @@
         </div>
     </div>
 </div>
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-7">
+        <div class="card p-4">
+            <h5 class="fw-bold mb-3"><i class="fas fa-dollar-sign text-primary me-2"></i>Tarifas por Servicio</h5>
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            <table class="table table-bordered align-middle mb-4">
+                <thead class="table-light">
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Tarifa (USD)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($tarifas as $tarifa)
+                    <tr>
+                        <td>{{ $tarifa->servicio->tipo_servicio ?? 'N/A' }}</td>
+                        <td>${{ number_format($tarifa->tarifa, 2) }}</td>
+                        <td>
+                            <form action="{{ route('tarifas-clientes.destroy', $tarifa->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar tarifa?')"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">No hay tarifas registradas para este cliente.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+            <form action="{{ route('tarifas-clientes.store') }}" method="POST" class="row g-2 align-items-end">
+                @csrf
+                <input type="hidden" name="cliente_id" value="{{ $cliente->id }}">
+                <div class="col-md-7">
+                    <label for="servicio_id" class="form-label">Servicio</label>
+                    <select name="servicio_id" class="form-select" required>
+                        <option value="">Seleccione un servicio</option>
+                        @foreach($servicios as $servicio)
+                            <option value="{{ $servicio->id }}">{{ $servicio->tipo_servicio }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="tarifa" class="form-label">Tarifa (USD)</label>
+                    <input type="number" step="0.01" name="tarifa" class="form-control" required placeholder="0.00">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-plus"></i> Agregar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection

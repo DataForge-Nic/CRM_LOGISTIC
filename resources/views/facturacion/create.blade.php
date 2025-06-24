@@ -41,16 +41,100 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="cliente_id" class="form-label fw-semibold">Cliente</label>
-                                <select name="cliente_id" class="form-select" required>
-                                    <option value="">Seleccione un cliente</option>
-                                    @foreach($clientes as $cliente)
-                                        <option value="{{ $cliente->id }}" {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>
-                                            {{ $cliente->nombre_completo }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <form id="clienteSelectForm" method="GET" action="{{ route('facturacion.create') }}">
+                                    <select name="cliente_id" class="form-select" required onchange="document.getElementById('clienteSelectForm').submit();">
+                                        <option value="">Seleccione un cliente</option>
+                                        @foreach($clientes as $cliente)
+                                            <option value="{{ $cliente->id }}" {{ request('cliente_id') == $cliente->id ? 'selected' : '' }}>
+                                                {{ $cliente->nombre_completo }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </form>
                                 @error('cliente_id') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
+                            @if(request('cliente_id'))
+                            @php
+                                $clienteSel = $clientes->where('id', (int)request('cliente_id'))->first();
+                            @endphp
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Nombre</label>
+                                <input type="text" class="form-control" value="{{ $clienteSel->nombre_completo ?? '' }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Dirección</label>
+                                <input type="text" class="form-control" value="{{ $clienteSel->direccion ?? '' }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Teléfono</label>
+                                <input type="text" class="form-control" value="{{ $clienteSel->telefono ?? '' }}" readonly>
+                            </div>
+                            @endif
+                            @if(request('cliente_id'))
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Selecciona los paquetes a facturar</label>
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th></th>
+                                            <th>Warehouse</th>
+                                            <th>Descripción</th>
+                                            <th>Tracking</th>
+                                            <th>Servicio</th>
+                                            <th>Precio Unitario</th>
+                                            <th>Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($inventarios as $inv)
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" class="paquete-checkbox" name="paquetes[]" value="{{ $inv->id }}" data-monto="{{ $inv->monto_calculado }}" data-guia="{{ $inv->numero_guia }}" data-descripcion="{{ $inv->notas }}" data-tracking="{{ $inv->tracking_codigo }}" data-servicio="{{ $inv->servicio ? $inv->servicio->tipo_servicio : '' }}" data-tarifa="{{ $inv->tarifa_manual ?? $inv->monto_calculado }}">
+                                                <input type="hidden" name="paquete_guia_{{ $inv->id }}" value="{{ $inv->numero_guia }}">
+                                                <input type="hidden" name="paquete_descripcion_{{ $inv->id }}" value="{{ $inv->notas }}">
+                                                <input type="hidden" name="paquete_tracking_{{ $inv->id }}" value="{{ $inv->tracking_codigo }}">
+                                                <input type="hidden" name="paquete_servicio_{{ $inv->id }}" value="{{ $inv->servicio ? $inv->servicio->tipo_servicio : '' }}">
+                                                <input type="hidden" name="paquete_tarifa_{{ $inv->id }}" value="{{ $inv->tarifa_manual ?? $inv->monto_calculado }}">
+                                                <input type="hidden" name="paquete_valor_{{ $inv->id }}" value="{{ $inv->monto_calculado }}">
+                                            </td>
+                                            <td>{{ $inv->numero_guia ?? '-' }}</td>
+                                            <td>{{ $inv->notas ?? '-' }}</td>
+                                            <td>{{ $inv->tracking_codigo ?? '-' }}</td>
+                                            <td>
+                                                @if($inv->servicio)
+                                                    {{ Str::contains(strtolower($inv->servicio->tipo_servicio), 'mar') ? 'Mar' : 'Air' }}
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>${{ number_format($inv->tarifa_manual ?? $inv->monto_calculado,2) }}</td>
+                                            <td>${{ number_format($inv->monto_calculado,2) }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                                <div class="fw-bold mt-2">Total seleccionado: $<span id="totalSeleccionado">0.00</span></div>
+                            </div>
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const checkboxes = document.querySelectorAll('.paquete-checkbox');
+                                const totalSpan = document.getElementById('totalSeleccionado');
+                                const montoTotalInput = document.querySelector('input[name="monto_total"]');
+                                function updateTotal() {
+                                    let total = 0;
+                                    checkboxes.forEach(cb => {
+                                        if (cb.checked) {
+                                            total += parseFloat(cb.dataset.monto);
+                                        }
+                                    });
+                                    totalSpan.textContent = total.toFixed(2);
+                                    if(montoTotalInput) montoTotalInput.value = total.toFixed(2);
+                                }
+                                checkboxes.forEach(cb => cb.addEventListener('change', updateTotal));
+                                updateTotal();
+                            });
+                            </script>
+                            @endif
                             <div class="mb-3">
                                 <label for="fecha_factura" class="form-label fw-semibold">Fecha de Factura</label>
                                 <input type="date" name="fecha_factura" class="form-control" value="{{ old('fecha_factura', date('Y-m-d')) }}">
@@ -108,7 +192,7 @@
                     </div>
                     <div class="col-lg-6 p-3" style="min-width:320px;">
                         <h5 class="fw-bold mb-3"><i class="fas fa-eye text-primary me-2"></i>Previsualización</h5>
-                        <iframe id="preview-pdf" src="" style="width:100%; min-height:600px; border:1px solid #e9ecef; background:#fff;"></iframe>
+                        <iframe id="preview-pdf" src="" style="width:100%; min-height:600px; border:none; background:#fff;" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
@@ -143,7 +227,7 @@
         xhr.responseType = 'blob';
         xhr.onload = function() {
             if (xhr.status === 200) {
-                var url = URL.createObjectURL(xhr.response);
+                var url = URL.createObjectURL(xhr.response) + '#toolbar=0&navpanes=0&scrollbar=0';
                 document.getElementById('preview-pdf').src = url;
             }
         };
