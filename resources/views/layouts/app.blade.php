@@ -174,6 +174,7 @@
 <body>
     @php
         $hideSidebar = request()->routeIs('facturacion.create') || request()->routeIs('facturacion.edit');
+        $user = Auth::user();
     @endphp
     <div class="d-flex">
         @if(!$hideSidebar)
@@ -188,36 +189,46 @@
                         <i class="fas fa-home"></i> Dashboard
                     </a>
                 </li>
+                @if($user && in_array($user->rol, ['admin', 'contador', 'agente']))
                 <li>
                     <a href="{{ route('clientes.index') }}" class="nav-link @if(request()->routeIs('clientes.*')) active @endif">
                         <i class="fas fa-users"></i> Clientes
                     </a>
                 </li>
+                @endif
+                @if($user && in_array($user->rol, ['admin', 'agente']))
                 <li>
                     <a href="{{ route('inventario.index') }}" class="nav-link @if(request()->routeIs('inventario.*')) active @endif">
                         <i class="fas fa-boxes"></i> Inventario
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('facturacion.index') }}" class="nav-link @if(request()->routeIs('facturacion.*')) active @endif">
-                        <i class="fas fa-file-invoice-dollar"></i> Facturación
-                    </a>
-                </li>
+                @endif
                 <li>
                     <a href="{{ route('tracking.dashboard') }}" class="nav-link @if(request()->routeIs('tracking.*')) active @endif">
                         <i class="fas fa-stopwatch"></i> Tracking
                     </a>
                 </li>
+                @if($user && in_array($user->rol, ['admin', 'contador']))
+                <li>
+                    <a href="{{ route('facturacion.index') }}" class="nav-link @if(request()->routeIs('facturacion.*')) active @endif">
+                        <i class="fas fa-file-invoice-dollar"></i> Facturación
+                    </a>
+                </li>
+                @endif
+                @if($user && in_array($user->rol, ['admin', 'contador', 'agente']))
                 <li>
                     <a href="{{ route('notificaciones.index') }}" class="nav-link @if(request()->routeIs('notificaciones.*')) active @endif">
                         <i class="fas fa-bell"></i> Notificaciones
                     </a>
                 </li>
+                @endif
+                @if($user && $user->rol === 'admin')
                 <li>
                     <a href="{{ route('usuarios.index') }}" class="nav-link @if(request()->routeIs('usuarios.*')) active @endif">
                         <i class="fas fa-user-cog"></i> Usuarios
                     </a>
                 </li>
+                @endif
             </ul>
         </nav>
         @endif
@@ -250,7 +261,12 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="#">Perfil</a></li>
-                                <li><a class="dropdown-item" href="#">Cerrar sesión</a></li>
+                                <li class="dropdown-item">
+                                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline text-danger" style="text-decoration:none;">Cerrar sesión</button>
+                                    </form>
+                                </li>
                             </ul>
                         </li>
                     </ul>

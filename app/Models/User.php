@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',     // <- actualizado de 'nombre' a 'name'
+        'nombre',
         'email',
         'password',
         'rol',
@@ -43,4 +43,9 @@ class User extends Authenticatable
         'estado' => 'boolean',
         'password' => 'hashed',
     ];
+
+    public function username()
+    {
+        return 'nombre';
+    }
 }
