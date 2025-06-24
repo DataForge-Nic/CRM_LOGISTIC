@@ -205,7 +205,7 @@
                             </th>
                             <th class="border-0 px-4 py-3 fw-semibold text-dark">
                                 <i class="fas fa-barcode me-1 text-muted"></i>
-                                Guía
+                                Warehouse
                             </th>
                             <th class="border-0 px-4 py-3 fw-semibold text-dark">
                                 <i class="fas fa-info-circle me-1 text-muted"></i>
@@ -298,6 +298,8 @@
                                            title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </a>
+                                        @php $user = Auth::user(); @endphp
+                                        @if($user && $user->rol === 'admin')
                                         <button type="button" 
                                                 class="btn btn-outline-danger btn-sm" 
                                                 onclick="confirmDelete({{ $item->id }})"
@@ -305,6 +307,7 @@
                                                 title="Eliminar paquete">
                                             <i class="fas fa-trash"></i>
                                         </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

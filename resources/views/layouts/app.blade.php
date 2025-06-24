@@ -177,7 +177,7 @@
         $user = Auth::user();
     @endphp
     <div class="d-flex">
-        @if(!$hideSidebar)
+        @if(!$hideSidebar && !request()->routeIs('inventario.edit'))
         <!-- Sidebar -->
         <nav id="sidebar" class="sidebar d-flex flex-column p-3 min-vh-100">
             <div class="sidebar-logo">
@@ -228,6 +228,12 @@
                         <i class="fas fa-user-cog"></i> Usuarios
                     </a>
                 </li>
+                <li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <a href="{{ route('logs_inventario.index') }}" class="nav-link @if(request()->routeIs('logs_inventario.*')) active @endif" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-history"></i>
+                        <span style="font-size: 1rem;">Historial Inventario</span>
+                    </a>
+                </li>
                 @endif
             </ul>
         </nav>
@@ -236,7 +242,7 @@
         <div class="flex-grow-1">
             <nav class="navbar navbar-expand-lg navbar-light px-4 py-2" style="z-index:1050;">
                 <div class="container-fluid">
-                    <span class="navbar-brand fw-bold">@yield('page-title', 'SkylinkOne CRM')</span>
+                    <span class="navbar-brand fw-bold">SkylinkOne CRM</span>
                     @if(!$hideSidebar)
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item dropdown position-relative">
@@ -257,7 +263,7 @@
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle"></i> Usuario
+                                <i class="fas fa-user-circle"></i> {{ $user->nombre ?? 'Usuario' }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="#">Perfil</a></li>

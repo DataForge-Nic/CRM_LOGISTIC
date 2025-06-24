@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Inventario;
 use App\Models\Cliente;
 use App\Models\Servicio;
+use App\Models\LogInventario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class InventarioController extends Controller
 {
@@ -45,7 +47,19 @@ class InventarioController extends Controller
 
         $data['monto_calculado'] = $data['tarifa_manual'] ?? ($tarifaBase * max($peso, $volumen));
 
-        Inventario::create($data);
+        $inventario = Inventario::create($data);
+
+        // Log solo si es agente
+        $user = Auth::user();
+        if ($user && $user->rol === 'agente') {
+            LogInventario::create([
+                'user_id' => $user->id,
+                'inventario_id' => $inventario->id,
+                'accion' => 'crear',
+                'antes' => null,
+                'despues' => $inventario->toArray(),
+            ]);
+        }
 
         return redirect()->route('inventario.index')->with('success', 'Paquete registrado correctamente.');
     }
@@ -65,6 +79,7 @@ class InventarioController extends Controller
     public function update(Request $request, $id)
     {
         $inventario = Inventario::findOrFail($id);
+        $antes = $inventario->toArray();
 
         $request->validate([
             'cliente_id'      => 'required|exists:clientes,id',
@@ -87,6 +102,18 @@ class InventarioController extends Controller
         $data['monto_calculado'] = $data['tarifa_manual'] ?? ($tarifaBase * max($peso, $volumen));
 
         $inventario->update($data);
+
+        // Log solo si es agente
+        $user = Auth::user();
+        if ($user && $user->rol === 'agente') {
+            LogInventario::create([
+                'user_id' => $user->id,
+                'inventario_id' => $inventario->id,
+                'accion' => 'editar',
+                'antes' => $antes,
+                'despues' => $inventario->toArray(),
+            ]);
+        }
 
         return redirect()->route('inventario.index')->with('success', 'Paquete actualizado correctamente.');
     }

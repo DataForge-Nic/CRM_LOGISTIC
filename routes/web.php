@@ -13,6 +13,7 @@ use App\Models\Cliente;
 use App\Models\User;
 use App\Models\Facturacion;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LogInventarioController;
 
 // Login
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -75,10 +76,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [InventarioController::class, 'store'])->name('inventario.store');
         Route::get('/{id}/editar', [InventarioController::class, 'edit'])->name('inventario.edit');
         Route::put('/{id}', [InventarioController::class, 'update'])->name('inventario.update');
-        Route::delete('/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
         Route::get('/{id}', [InventarioController::class, 'show'])->name('inventario.show');
         Route::post('obtener-tarifa', [InventarioController::class, 'obtenerTarifa'])->name('inventario.obtener-tarifa');
     });
+    Route::delete('inventario/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy')->middleware(['auth', 'role:admin']);
 
     // Rutas para notificaciones (todos pueden ver, solo admin y agente pueden crear/editar/eliminar)
     Route::prefix('notificaciones')->group(function () {
@@ -113,4 +114,7 @@ Route::middleware('auth')->group(function () {
     // Tarifas solo para admin
     Route::post('tarifas-clientes', [TarifaClienteController::class, 'store'])->name('tarifas-clientes.store')->middleware('role:admin');
     Route::delete('tarifas-clientes/{id}', [TarifaClienteController::class, 'destroy'])->name('tarifas-clientes.destroy')->middleware('role:admin');
+
+    // Historial de inventario (solo admin)
+    Route::get('logs-inventario', [LogInventarioController::class, 'index'])->name('logs_inventario.index')->middleware(['auth', 'role:admin']);
 });
