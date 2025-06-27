@@ -43,9 +43,18 @@ class InventarioController extends Controller
         // Cálculo automático del monto
         $peso = floatval($data['peso_lb'] ?? 0);
         $volumen = floatval($data['volumen_pie3'] ?? 0);
-        $tarifaBase = 1.00; // cambiar según tarifa real
-
-        $data['monto_calculado'] = $data['tarifa_manual'] ?? ($tarifaBase * max($peso, $volumen));
+        $tarifa = null;
+        if (isset($data['tarifa_manual']) && $data['tarifa_manual'] !== null && $data['tarifa_manual'] !== '') {
+            $tarifa = floatval($data['tarifa_manual']);
+        } else if (isset($data['cliente_id'], $data['servicio_id'])) {
+            $tarifaCliente = \App\Models\TarifaCliente::where('cliente_id', $data['cliente_id'])
+                ->where('servicio_id', $data['servicio_id'])
+                ->first();
+            $tarifa = $tarifaCliente ? floatval($tarifaCliente->tarifa) : 1.00;
+        } else {
+            $tarifa = 1.00;
+        }
+        $data['monto_calculado'] = $peso * $tarifa;
 
         $inventario = Inventario::create($data);
 
@@ -97,9 +106,18 @@ class InventarioController extends Controller
         // Recalcular monto
         $peso = floatval($data['peso_lb'] ?? 0);
         $volumen = floatval($data['volumen_pie3'] ?? 0);
-        $tarifaBase = 1.00;
-
-        $data['monto_calculado'] = $data['tarifa_manual'] ?? ($tarifaBase * max($peso, $volumen));
+        $tarifa = null;
+        if (isset($data['tarifa_manual']) && $data['tarifa_manual'] !== null && $data['tarifa_manual'] !== '') {
+            $tarifa = floatval($data['tarifa_manual']);
+        } else if (isset($data['cliente_id'], $data['servicio_id'])) {
+            $tarifaCliente = \App\Models\TarifaCliente::where('cliente_id', $data['cliente_id'])
+                ->where('servicio_id', $data['servicio_id'])
+                ->first();
+            $tarifa = $tarifaCliente ? floatval($tarifaCliente->tarifa) : 1.00;
+        } else {
+            $tarifa = 1.00;
+        }
+        $data['monto_calculado'] = $peso * $tarifa;
 
         $inventario->update($data);
 

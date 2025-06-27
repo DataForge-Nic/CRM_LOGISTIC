@@ -170,14 +170,21 @@ class FacturacionController extends Controller
         // Solo agregar paquetes seleccionados, no duplicar
         if ($request->has('paquetes')) {
             foreach ($request->input('paquetes', []) as $i => $id) {
+                $peso = floatval($request->input('paquete_peso_'.$id, 0));
+                $tarifa = floatval($request->input('paquete_tarifa_'.$id, 0));
+                $monto = floatval($request->input('paquete_valor_'.$id, 0));
+                if ($monto == 0 && $peso > 0 && $tarifa > 0) {
+                    $monto = $peso * $tarifa;
+                }
                 $paquetes[] = [
                     'numero_guia' => $request->input('paquete_guia_'.$id, ''),
                     'notas' => $request->input('paquete_descripcion_'.$id, ''),
                     'tracking_codigo' => $request->input('paquete_tracking_'.$id, ''),
                     'servicio' => $request->input('paquete_servicio_'.$id, ''),
-                    'tarifa_manual' => $request->input('paquete_tarifa_'.$id, 0),
-                    'monto_calculado' => $request->input('paquete_valor_'.$id, 0),
-                    'peso_lb' => $request->input('paquete_peso_'.$id, ''),
+                    'peso_lb' => $peso,
+                    'tarifa_manual' => null,
+                    'tarifa' => $tarifa,
+                    'monto_calculado' => $monto,
                 ];
             }
         }

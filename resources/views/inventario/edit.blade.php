@@ -313,17 +313,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function calculateMonto() {
         const peso = parseFloat(pesoInput.value) || 0;
-        const servicio = servicioSelect.value;
         let rate = 0;
         if (tarifaManualInput.value) {
             rate = parseFloat(tarifaManualInput.value) || 0;
+        } else if (clienteSelect.value && servicioSelect.value) {
+            rate = parseFloat(tarifaManualInput.value) || 0;
         } else {
-            switch(servicio) {
-                case '1': rate = 15; break;
-                case '2': rate = 10; break;
-                case '3': rate = 7; break;
-                default: rate = 10;
-            }
+            rate = 1.00;
         }
         const monto = peso * rate;
         montoInput.value = monto.toFixed(2);

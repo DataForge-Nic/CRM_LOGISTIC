@@ -219,6 +219,10 @@
                                 <i class="fas fa-dollar-sign me-1 text-muted"></i>
                                 Monto
                             </th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
+                                <i class="fas fa-dollar-sign me-1 text-muted"></i>
+                                Precio Unitario
+                            </th>
                             <th class="border-0 px-4 py-3 fw-semibold text-dark text-center">
                                 <i class="fas fa-cogs me-1 text-muted"></i>
                                 Acciones
@@ -283,6 +287,9 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="fw-bold text-success">${{ number_format($item->monto_calculado, 2) }}</div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    ${{ number_format($item->tarifa_manual ?? ($item->tarifa ?? 1.00), 2) }}
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <div class="btn-group" role="group">

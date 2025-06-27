@@ -82,6 +82,35 @@
         .text-center {
             text-align: center;
         }
+        .pdf-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .pdf-table th {
+            background: #0d6efd;
+            color: #fff;
+            padding: 8px 6px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+        }
+        .pdf-table td {
+            background: #f8f9fa;
+            padding: 7px 6px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+        }
+        .pdf-table tr:nth-child(even) td {
+            background: #e9ecef;
+        }
+        .pdf-table tr:last-child td {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -152,7 +181,7 @@
                         @endif
                     </td>
                     <td>{{ is_object($paquete) ? ($paquete->peso_lb ?? '-') : ($paquete['peso_lb'] ?? '-') }}</td>
-                    <td>${{ number_format(is_object($paquete) ? ($paquete->tarifa_manual ?? $paquete->monto_calculado) : ($paquete['tarifa_manual'] ?? $paquete['monto_calculado']), 2) }}</td>
+                    <td>${{ number_format(is_object($paquete) ? ($paquete->tarifa_manual ?? ($paquete->tarifa ?? 1.00)) : ($paquete['tarifa_manual'] ?? ($paquete['tarifa'] ?? 1.00)), 2) }}</td>
                     <td>${{ number_format(is_object($paquete) ? ($paquete->monto_calculado ?? 0) : ($paquete['monto_calculado'] ?? 0), 2) }}</td>
                 </tr>
                 @php $total += is_object($paquete) ? ($paquete->monto_calculado ?? 0) : ($paquete['monto_calculado'] ?? 0); @endphp

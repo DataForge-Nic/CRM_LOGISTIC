@@ -160,7 +160,20 @@ $(document).ready(function() {
                     $('#paquetes_container').html('<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-1"></i> No hay paquetes disponibles para facturar a este cliente.</div>');
                     $('#btn_guardar_factura').prop('disabled', true);
                 } else {
-                    let tabla = `<table class="table table-bordered table-sm align-middle"><thead class="table-light"><tr><th></th><th>Guía</th><th>Notas</th><th>Tracking</th><th>Servicio</th><th>Peso (lb)</th><th>Monto</th></tr></thead><tbody>`;
+                    let tabla = `<table class="table table-hover table-bordered align-middle shadow-sm rounded-3" style="background:#fff;">
+                        <thead class="table-primary">
+                            <tr>
+                                <th></th>
+                                <th>Guía</th>
+                                <th>Notas</th>
+                                <th>Tracking</th>
+                                <th>Servicio</th>
+                                <th>Peso (lb)</th>
+                                <th>Precio Unitario</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
                     resp.paquetes.forEach(p => {
                         tabla += `<tr>
                             <td><input type="checkbox" class="paquete-checkbox" value="${p.id}"></td>
@@ -169,6 +182,7 @@ $(document).ready(function() {
                             <td>${p.tracking_codigo ?? '-'}</td>
                             <td>${p.servicio ?? '-'}</td>
                             <td>${p.peso_lb ?? '-'}</td>
+                            <td>$${parseFloat(p.tarifa_manual ?? p.tarifa ?? 1).toFixed(2)}</td>
                             <td>$${parseFloat(p.monto_calculado).toFixed(2)}</td>
                         </tr>`;
                     });
@@ -210,9 +224,9 @@ $(document).ready(function() {
             inputs += `<input type="hidden" name="paquete_descripcion_${id}" value="${fila.find('td').eq(2).text().trim()}">`;
             inputs += `<input type="hidden" name="paquete_tracking_${id}" value="${fila.find('td').eq(3).text().trim()}">`;
             inputs += `<input type="hidden" name="paquete_servicio_${id}" value="${fila.find('td').eq(4).text().trim()}">`;
-            inputs += `<input type="hidden" name="paquete_tarifa_${id}" value="0">`;
-            inputs += `<input type="hidden" name="paquete_valor_${id}" value="${parseFloat(fila.find('td').eq(6).text().replace('$','')) || 0}">`;
             inputs += `<input type="hidden" name="paquete_peso_${id}" value="${fila.find('td').eq(5).text().trim()}">`;
+            inputs += `<input type="hidden" name="paquete_tarifa_${id}" value="${parseFloat(fila.find('td').eq(6).text().replace('$','')) || 0}">`;
+            inputs += `<input type="hidden" name="paquete_valor_${id}" value="${parseFloat(fila.find('td').eq(7).text().replace('$','')) || 0}">`;
         });
         $('#inputs_paquetes').html(inputs);
         // Habilita o deshabilita el botón guardar
