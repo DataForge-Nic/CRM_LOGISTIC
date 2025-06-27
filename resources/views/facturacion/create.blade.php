@@ -40,19 +40,17 @@
                         <form id="factura-form" action="{{ route('facturacion.store') }}" method="POST">
                             @csrf
                             <div class="mb-3">
-                                <label for="cliente_select" class="form-label fw-semibold">Cliente</label>
-                                <select id="cliente_select" class="form-select" required>
+                                <label for="cliente_id" class="form-label fw-semibold">Cliente</label>
+                                <select id="cliente_id" name="cliente_id" class="form-select select2" required>
                                     <option value="">Seleccione un cliente</option>
                                     @foreach($clientes as $cliente)
                                         <option value="{{ $cliente->id }}">{{ $cliente->nombre_completo }}</option>
                                     @endforeach
                                 </select>
-                                <input type="hidden" name="cliente_id" id="cliente_id_hidden">
                             </div>
-
-                            <div id="clienteResumen" class="mb-3"></div>
-                            <div id="clienteHistorial" class="mb-3"></div>
-
+                            <div id="cliente_resumen" class="mb-3"></div>
+                            <div id="paquetes_container" class="mb-3"></div>
+                            <div id="facturas_historial" class="mb-3"></div>
                             <div class="mb-3">
                                 <label for="paquetes_select" class="form-label fw-semibold">Selección de paquetes</label>
                                 <select id="paquetes_select" name="paquetes[]" class="form-select" multiple style="width:100%"></select>
@@ -95,7 +93,7 @@
                                 @error('nota') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                             <div class="d-flex gap-2 justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary" id="guardarFacturaBtn">
+                                <button type="submit" class="btn btn-primary" id="btn_guardar_factura">
                                     <i class="fas fa-save me-1"></i> Guardar
                                 </button>
                                 <a href="{{ route('facturacion.index') }}" class="btn btn-secondary">Cancelar</a>
@@ -116,159 +114,103 @@
 @endpush
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const clienteSelect = document.getElementById('cliente_select');
-    const clienteHidden = document.getElementById('cliente_id_hidden');
-    const resumenDiv = document.getElementById('clienteResumen');
-    const historialDiv = document.getElementById('clienteHistorial');
-    const paquetesSelect = $('#paquetes_select');
-    const totalSpan = document.getElementById('totalSeleccionado');
-    const deliveryInput = document.getElementById('delivery');
-    const guardarBtn = document.getElementById('guardarFacturaBtn');
-
-    paquetesSelect.select2({
-        placeholder: 'Seleccione los paquetes a facturar',
-        allowClear: true,
+$(document).ready(function() {
+    $('#cliente_id').select2({
+        placeholder: 'Seleccione un cliente',
         width: '100%'
     });
-
-    function renderResumen(cliente) {
-        if (!cliente) { resumenDiv.innerHTML = ''; return; }
-        resumenDiv.innerHTML = `
-            <div class="card border-info mb-2">
-                <div class="card-body">
-                    <h5 class="card-title mb-2"><i class="fas fa-user text-info me-2"></i>Resumen del Cliente</h5>
-                    <p><strong>Nombre:</strong> ${cliente.nombre_completo ?? '-'}</p>
-                    <p><strong>Dirección:</strong> ${cliente.direccion ?? '-'}</p>
-                    <p><strong>Teléfono:</strong> ${cliente.telefono ?? '-'}</p>
-                </div>
-            </div>
-        `;
+    let paquetesSeleccionados = [];
+    function mostrarSpinner(contenedor) {
+        $(contenedor).html('<div class="text-center py-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>');
     }
-
-    function renderHistorial(historial) {
-        if (!historial || historial.length === 0) {
-            historialDiv.innerHTML = '<div class="alert alert-secondary">Sin historial de facturas.</div>';
-            return;
-        }
-        let rows = historial.map(f => `
-            <tr>
-                <td>${f.id}</td>
-                <td>${f.fecha_factura}</td>
-                <td>$${parseFloat(f.monto_total).toFixed(2)}</td>
-                <td>
-                    ${f.estado_pago === 'pagado' ? '<span class="badge bg-success">Pagado</span>' :
-                      f.estado_pago === 'parcial' ? '<span class="badge bg-warning text-dark">Parcial</span>' :
-                      '<span class="badge bg-danger">Pendiente</span>'}
-                </td>
-            </tr>
-        `).join('');
-        historialDiv.innerHTML = `
-            <div class="card mb-2">
-                <div class="card-body">
-                    <h6 class="fw-semibold">Últimas 5 facturas</h6>
-                    <table class="table table-sm table-bordered mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th><th>Fecha</th><th>Monto</th><th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                </div>
-            </div>
-        `;
+    function limpiarContenedores() {
+        $('#cliente_resumen').empty();
+        $('#paquetes_container').empty();
+        $('#facturas_historial').empty();
+        paquetesSeleccionados = [];
+        $('#btn_guardar_factura').prop('disabled', true);
     }
-
-    function renderPaquetes(paquetes) {
-        paquetesSelect.empty();
-        let alerta = document.getElementById('alertaPaquetes');
-        if (alerta) alerta.remove();
-        if (!paquetes || paquetes.length === 0) {
-            paquetesSelect.append(new Option('No hay paquetes disponibles para facturar a este cliente', '', false, false));
-            paquetesSelect.trigger('change');
-            const alertaDiv = document.createElement('div');
-            alertaDiv.id = 'alertaPaquetes';
-            alertaDiv.className = 'alert alert-warning mt-2';
-            alertaDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> No hay paquetes disponibles para facturar a este cliente.';
-            paquetesSelect.parent().append(alertaDiv);
-            return;
-        }
-        paquetes.forEach(inv => {
-            let text = `${inv.numero_guia ?? '-'} | ${inv.notas ?? '-'} | ${inv.tracking_codigo ?? '-'} | ${inv.servicio ?? '-'} | ${inv.peso_lb ?? '-'} lb | $${parseFloat(inv.monto_calculado).toFixed(2)}`;
-            let option = new Option(text, inv.id, false, false);
-            $(option).data({
-                monto: inv.monto_calculado,
-                guia: inv.numero_guia,
-                descripcion: inv.notas,
-                tracking: inv.tracking_codigo,
-                servicio: inv.servicio,
-                tarifa: inv.tarifa_manual ?? inv.monto_calculado,
-                peso: inv.peso_lb
-            });
-            paquetesSelect.append(option);
+    $('#cliente_id').on('change', function() {
+        const clienteId = $(this).val();
+        limpiarContenedores();
+        if (!clienteId) return;
+        mostrarSpinner('#cliente_resumen');
+        mostrarSpinner('#paquetes_container');
+        mostrarSpinner('#facturas_historial');
+        $.ajax({
+            url: `/api/clientes/${clienteId}`,
+            method: 'GET',
+            dataType: 'json',
+            success: function(resp) {
+                if (!resp.success) {
+                    $('#cliente_resumen').html('<div class="alert alert-danger">No se pudo cargar la información del cliente.</div>');
+                    return;
+                }
+                // Resumen cliente
+                const c = resp.cliente;
+                $('#cliente_resumen').html(`
+                    <div class="card border-info mb-2"><div class="card-body">
+                        <h5 class="card-title mb-2"><i class="fas fa-user text-info me-2"></i>Resumen del Cliente</h5>
+                        <p><strong>Nombre:</strong> ${c.nombre_completo ?? '-'}<br>
+                        <strong>Dirección:</strong> ${c.direccion ?? '-'}<br>
+                        <strong>Teléfono:</strong> ${c.telefono ?? '-'}</p>
+                    </div></div>
+                `);
+                // Paquetes
+                if (!resp.paquetes || resp.paquetes.length === 0) {
+                    $('#paquetes_container').html('<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-1"></i> No hay paquetes disponibles para facturar a este cliente.</div>');
+                    $('#btn_guardar_factura').prop('disabled', true);
+                } else {
+                    let tabla = `<table class="table table-bordered table-sm align-middle"><thead class="table-light"><tr><th></th><th>Guía</th><th>Notas</th><th>Tracking</th><th>Servicio</th><th>Peso (lb)</th><th>Monto</th></tr></thead><tbody>`;
+                    resp.paquetes.forEach(p => {
+                        tabla += `<tr>
+                            <td><input type="checkbox" class="paquete-checkbox" value="${p.id}"></td>
+                            <td>${p.numero_guia ?? '-'}</td>
+                            <td>${p.notas ?? '-'}</td>
+                            <td>${p.tracking_codigo ?? '-'}</td>
+                            <td>${p.servicio ?? '-'}</td>
+                            <td>${p.peso_lb ?? '-'}</td>
+                            <td>$${parseFloat(p.monto_calculado).toFixed(2)}</td>
+                        </tr>`;
+                    });
+                    tabla += '</tbody></table>';
+                    // Inputs ocultos para paquetes seleccionados
+                    tabla += '<div id="inputs_paquetes"></div>';
+                    $('#paquetes_container').html(tabla);
+                    $('#btn_guardar_factura').prop('disabled', true);
+                }
+                // Historial
+                if (!resp.historial || resp.historial.length === 0) {
+                    $('#facturas_historial').html('<div class="alert alert-secondary">Sin historial de facturas.</div>');
+                } else {
+                    let hist = `<div class="card mb-2"><div class="card-body"><h6 class="fw-semibold">Últimas 5 facturas</h6><table class="table table-sm table-bordered mb-0"><thead class="table-light"><tr><th>#</th><th>Fecha</th><th>Monto</th><th>Estado</th></tr></thead><tbody>`;
+                    resp.historial.forEach(f => {
+                        hist += `<tr><td>${f.id}</td><td>${f.fecha_factura}</td><td>$${parseFloat(f.monto_total).toFixed(2)}</td><td>${f.estado_pago === 'pagado' ? '<span class="badge bg-success">Pagado</span>' : f.estado_pago === 'parcial' ? '<span class="badge bg-warning text-dark">Parcial</span>' : '<span class="badge bg-danger">Pendiente</span>'}</td></tr>`;
+                    });
+                    hist += '</tbody></table></div></div>';
+                    $('#facturas_historial').html(hist);
+                }
+            },
+            error: function() {
+                $('#cliente_resumen').html('<div class="alert alert-danger">Error al cargar los datos del cliente.</div>');
+                $('#paquetes_container').html('');
+                $('#facturas_historial').html('');
+                $('#btn_guardar_factura').prop('disabled', true);
+            }
         });
-        paquetesSelect.trigger('change');
-    }
-
-    function updateTotal() {
-        let total = 0;
-        let selected = paquetesSelect.val() || [];
-        selected.forEach(function(id) {
-            let option = paquetesSelect.find('option[value="'+id+'"]');
-            total += parseFloat(option.data('monto') || 0);
-        });
-        let delivery = parseFloat(deliveryInput.value) || 0;
-        totalSpan.textContent = (total + delivery).toFixed(2);
-        guardarBtn.disabled = selected.length === 0;
-    }
-
-    function cargarDatosCliente(clienteId) {
-        if (!clienteId) {
-            renderResumen(null);
-            renderHistorial([]);
-            renderPaquetes([]);
-            updateTotal();
-            updatePreview();
-            return;
-        }
-        fetch(`/api/facturacion/cliente-detalle/${clienteId}`)
-            .then(res => res.json())
-            .then(data => {
-                renderResumen(data.cliente);
-                renderHistorial(data.historial);
-                renderPaquetes(data.paquetes);
-                updateTotal();
-                updatePreview();
-            });
-    }
-
-    clienteSelect.addEventListener('change', function() {
-        const clienteId = this.value;
-        clienteHidden.value = clienteId;
-        cargarDatosCliente(clienteId);
     });
-
-    paquetesSelect.on('change', function() {
-        updateTotal();
-        updatePreview();
-    });
-    if(deliveryInput) {
-        deliveryInput.addEventListener('input', function() {
-            updateTotal();
-            updatePreview();
+    // Manejo de selección de paquetes
+    $(document).on('change', '.paquete-checkbox', function() {
+        paquetesSeleccionados = $('.paquete-checkbox:checked').map(function(){ return this.value; }).get();
+        // Actualiza inputs ocultos
+        let inputs = '';
+        paquetesSeleccionados.forEach(id => {
+            inputs += `<input type="hidden" name="paquetes[]" value="${id}">`;
         });
-    }
-
-    document.getElementById('factura-form').addEventListener('submit', function(e) {
-        const paquetesSeleccionados = paquetesSelect.val() || [];
-        if (paquetesSeleccionados.length === 0) {
-            e.preventDefault();
-            alert('Debe seleccionar al menos un paquete para crear la factura.');
-            return false;
-        }
+        $('#inputs_paquetes').html(inputs);
+        // Habilita o deshabilita el botón guardar
+        $('#btn_guardar_factura').prop('disabled', paquetesSeleccionados.length === 0);
     });
 
     // PDF Preview (mantener tu lógica actual)

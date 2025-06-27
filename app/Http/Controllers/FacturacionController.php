@@ -20,23 +20,8 @@ class FacturacionController extends Controller
     // Mostrar formulario de creación
     public function create()
     {
-        $clientes = \App\Models\Cliente::all();
-        $inventarios = collect();
-        $historialFacturas = collect();
-        $facturasPendientes = 0;
-        if (request('cliente_id')) {
-            $inventarios = \App\Models\Inventario::where('cliente_id', request('cliente_id'))
-                ->whereNull('factura_id')
-                ->get();
-            $historialFacturas = \App\Models\Facturacion::where('cliente_id', request('cliente_id'))
-                ->orderByDesc('fecha_factura')
-                ->take(5)
-                ->get();
-            $facturasPendientes = \App\Models\Facturacion::where('cliente_id', request('cliente_id'))
-                ->whereIn('estado_pago', ['pendiente', 'parcial'])
-                ->count();
-        }
-        return view('facturacion.create', compact('clientes', 'inventarios', 'historialFacturas', 'facturasPendientes'));
+        $clientes = \App\Models\Cliente::select('id', 'nombre_completo')->orderBy('nombre_completo')->get();
+        return view('facturacion.create', compact('clientes'));
     }
 
     // Guardar nueva factura
@@ -57,6 +42,15 @@ class FacturacionController extends Controller
             'delivery'       => 'nullable|numeric',
         ]);
 
+        // Validar que los paquetes pertenezcan al cliente y no estén facturados
+        $paquetes = \App\Models\Inventario::whereIn('id', $request->paquetes)
+            ->where('cliente_id', $request->cliente_id)
+            ->whereNull('factura_id')
+            ->pluck('id')->toArray();
+        if (count($paquetes) !== count($request->paquetes)) {
+            return back()->withErrors(['paquetes' => 'Uno o más paquetes seleccionados no pertenecen al cliente o ya han sido facturados.'])->withInput();
+        }
+
         $factura = Facturacion::create([
             'cliente_id'    => $request->cliente_id,
             'fecha_factura' => $request->fecha_factura,
@@ -72,7 +66,7 @@ class FacturacionController extends Controller
         ]);
 
         // Asociar paquetes seleccionados a la factura
-        \App\Models\Inventario::whereIn('id', $request->paquetes)->update(['factura_id' => $factura->id]);
+        \App\Models\Inventario::whereIn('id', $paquetes)->update(['factura_id' => $factura->id]);
 
         return redirect()->route('facturacion.index')->with('success', 'Factura registrada correctamente.');
     }
@@ -220,11 +214,7 @@ class FacturacionController extends Controller
      */
     public function clienteDetalle($clienteId)
     {
-        $cliente = \App\Models\Cliente::findOrFail($clienteId);
-        $historial = \App\Models\Facturacion::where('cliente_id', $clienteId)
-            ->orderByDesc('fecha_factura')
-            ->take(5)
-            ->get(['id', 'fecha_factura', 'monto_total', 'estado_pago']);
+        $cliente = \App\Models\Cliente::select('id', 'nombre_completo', 'telefono', 'direccion')->findOrFail($clienteId);
         $paquetes = \App\Models\Inventario::where('cliente_id', $clienteId)
             ->whereNull('factura_id')
             ->with('servicio')
@@ -241,10 +231,15 @@ class FacturacionController extends Controller
                     'peso_lb' => $inv->peso_lb,
                 ];
             });
+        $historial = \App\Models\Facturacion::where('cliente_id', $clienteId)
+            ->orderByDesc('fecha_factura')
+            ->take(5)
+            ->get(['id', 'fecha_factura', 'monto_total', 'estado_pago']);
         return response()->json([
+            'success' => true,
             'cliente' => $cliente,
-            'historial' => $historial,
             'paquetes' => $paquetes,
+            'historial' => $historial,
         ]);
     }
 }
