@@ -87,4 +87,14 @@ class ClienteController extends Controller
 
         return redirect()->route('clientes.index')->with('success', 'Cliente eliminado correctamente.');
     }
+
+    // Obtener datos de un cliente (API)
+    public function show($id)
+    {
+        $cliente = Cliente::find($id);
+        if (!$cliente) {
+            return response()->json(['error' => 'Cliente no encontrado'], 404);
+        }
+        return response()->json($cliente);
+    }
 }

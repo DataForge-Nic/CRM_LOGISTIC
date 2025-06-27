@@ -58,7 +58,6 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('facturacion.edit', $factura->id) }}" class="btn btn-sm btn-accent" title="Editar"><i class="fas fa-edit"></i></a>
                                 <a href="{{ route('facturacion.preview', $factura->id) }}" class="btn btn-sm btn-info" title="Previsualizar" target="_blank"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('facturacion.pdf', $factura->id) }}" class="btn btn-sm btn-primary" title="Descargar PDF" target="_blank"><i class="fas fa-file-pdf"></i></a>
                                 <form action="{{ route('facturacion.destroy', $factura->id) }}" method="POST" style="display:inline;">

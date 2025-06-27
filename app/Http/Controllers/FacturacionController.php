@@ -160,19 +160,21 @@ class FacturacionController extends Controller
                     'numero_guia' => $inv->numero_guia,
                     'notas' => $inv->notas,
                     'tracking_codigo' => $inv->tracking_codigo,
-                    'servicio' => $inv->servicio,
+                    'servicio' => $inv->servicio ? $inv->servicio->tipo_servicio : null,
                     'tarifa_manual' => $inv->tarifa_manual,
                     'monto_calculado' => $inv->monto_calculado,
                     'peso_lb' => $inv->peso_lb,
                 ];
             }
-        } else if ($request->has('paquetes')) {
+        }
+        // Solo agregar paquetes seleccionados, no duplicar
+        if ($request->has('paquetes')) {
             foreach ($request->input('paquetes', []) as $i => $id) {
-                $paquetes[] = (object) [
+                $paquetes[] = [
                     'numero_guia' => $request->input('paquete_guia_'.$id, ''),
                     'notas' => $request->input('paquete_descripcion_'.$id, ''),
                     'tracking_codigo' => $request->input('paquete_tracking_'.$id, ''),
-                    'servicio' => (object) ['tipo_servicio' => $request->input('paquete_servicio_'.$id, '')],
+                    'servicio' => $request->input('paquete_servicio_'.$id, ''),
                     'tarifa_manual' => $request->input('paquete_tarifa_'.$id, 0),
                     'monto_calculado' => $request->input('paquete_valor_'.$id, 0),
                     'peso_lb' => $request->input('paquete_peso_'.$id, ''),

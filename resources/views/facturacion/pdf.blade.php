@@ -110,9 +110,9 @@
             </tr>
             <tr>
                 <td>
-                    {{ $factura->cliente->nombre_completo ?? '' }}<br>
-                    {{ $factura->cliente->direccion ?? '' }}<br>
-                    {{ $factura->cliente->telefono ?? '' }}
+                    {{ is_object($factura->cliente) ? ($factura->cliente->nombre_completo ?? '') : ($factura->cliente['nombre_completo'] ?? '') }}<br>
+                    {{ is_object($factura->cliente) ? ($factura->cliente->direccion ?? '') : ($factura->cliente['direccion'] ?? '') }}<br>
+                    {{ is_object($factura->cliente) ? ($factura->cliente->telefono ?? '') : ($factura->cliente['telefono'] ?? '') }}
                 </td>
                 <td>
                     SkyLink One<br>
@@ -140,21 +140,22 @@
             @php $total = 0; @endphp
             @foreach($factura->paquetes as $paquete)
                 <tr>
-                    <td>{{ $paquete->numero_guia ?? '-' }}</td>
-                    <td>{{ $paquete->notas ?? '-' }}</td>
-                    <td>{{ $paquete->tracking_codigo ?? '-' }}</td>
+                    <td>{{ is_object($paquete) ? ($paquete->numero_guia ?? '-') : ($paquete['numero_guia'] ?? '-') }}</td>
+                    <td>{{ is_object($paquete) ? ($paquete->notas ?? '-') : ($paquete['notas'] ?? '-') }}</td>
+                    <td>{{ is_object($paquete) ? ($paquete->tracking_codigo ?? '-') : ($paquete['tracking_codigo'] ?? '-') }}</td>
                     <td>
-                        @if($paquete->servicio)
-                            {{ Str::contains(strtolower($paquete->servicio->tipo_servicio), 'mar') ? 'Mar' : 'Air' }}
+                        @php $servicio = is_object($paquete) ? ($paquete->servicio ?? null) : ($paquete['servicio'] ?? null); @endphp
+                        @if($servicio)
+                            {{ is_object($servicio) ? (Str::contains(strtolower($servicio->tipo_servicio ?? ''), 'mar') ? 'Mar' : 'Air') : (Str::contains(strtolower($servicio), 'mar') ? 'Mar' : 'Air') }}
                         @else
                             -
                         @endif
                     </td>
-                    <td>{{ $paquete->peso_lb ?? '-' }}</td>
-                    <td>${{ number_format($paquete->tarifa_manual ?? $paquete->monto_calculado, 2) }}</td>
-                    <td>${{ number_format($paquete->monto_calculado, 2) }}</td>
+                    <td>{{ is_object($paquete) ? ($paquete->peso_lb ?? '-') : ($paquete['peso_lb'] ?? '-') }}</td>
+                    <td>${{ number_format(is_object($paquete) ? ($paquete->tarifa_manual ?? $paquete->monto_calculado) : ($paquete['tarifa_manual'] ?? $paquete['monto_calculado']), 2) }}</td>
+                    <td>${{ number_format(is_object($paquete) ? ($paquete->monto_calculado ?? 0) : ($paquete['monto_calculado'] ?? 0), 2) }}</td>
                 </tr>
-                @php $total += $paquete->monto_calculado; @endphp
+                @php $total += is_object($paquete) ? ($paquete->monto_calculado ?? 0) : ($paquete['monto_calculado'] ?? 0); @endphp
             @endforeach
             </tbody>
         </table>

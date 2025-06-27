@@ -52,11 +52,6 @@
                             <div id="paquetes_container" class="mb-3"></div>
                             <div id="facturas_historial" class="mb-3"></div>
                             <div class="mb-3">
-                                <label for="paquetes_select" class="form-label fw-semibold">Selección de paquetes</label>
-                                <select id="paquetes_select" name="paquetes[]" class="form-select" multiple style="width:100%"></select>
-                                <div class="fw-bold mt-2">Total seleccionado: $<span id="totalSeleccionado">0.00</span></div>
-                            </div>
-                            <div class="mb-3">
                                 <label for="delivery" class="form-label fw-semibold">Costo Delivery (opcional)</label>
                                 <input type="number" step="0.01" min="0" name="delivery" id="delivery" class="form-control" value="{{ old('delivery') }}">
                             </div>
@@ -92,6 +87,9 @@
                                 <textarea name="nota" class="form-control" rows="3">{{ old('nota') }}</textarea>
                                 @error('nota') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
+                            <div id="inputs_paquetes"></div>
+                            <input type="hidden" name="monto_total" id="monto_total" value="0">
+                            <input type="hidden" name="monto_local" id="monto_local" value="0">
                             <div class="d-flex gap-2 justify-content-end mt-4">
                                 <button type="submit" class="btn btn-primary" id="btn_guardar_factura">
                                     <i class="fas fa-save me-1"></i> Guardar
@@ -206,12 +204,31 @@ $(document).ready(function() {
         // Actualiza inputs ocultos
         let inputs = '';
         paquetesSeleccionados.forEach(id => {
+            var fila = $(".paquete-checkbox[value='"+id+"']").closest('tr');
             inputs += `<input type="hidden" name="paquetes[]" value="${id}">`;
+            inputs += `<input type="hidden" name="paquete_guia_${id}" value="${fila.find('td').eq(1).text().trim()}">`;
+            inputs += `<input type="hidden" name="paquete_descripcion_${id}" value="${fila.find('td').eq(2).text().trim()}">`;
+            inputs += `<input type="hidden" name="paquete_tracking_${id}" value="${fila.find('td').eq(3).text().trim()}">`;
+            inputs += `<input type="hidden" name="paquete_servicio_${id}" value="${fila.find('td').eq(4).text().trim()}">`;
+            inputs += `<input type="hidden" name="paquete_tarifa_${id}" value="0">`;
+            inputs += `<input type="hidden" name="paquete_valor_${id}" value="${parseFloat(fila.find('td').eq(6).text().replace('$','')) || 0}">`;
+            inputs += `<input type="hidden" name="paquete_peso_${id}" value="${fila.find('td').eq(5).text().trim()}">`;
         });
         $('#inputs_paquetes').html(inputs);
         // Habilita o deshabilita el botón guardar
         $('#btn_guardar_factura').prop('disabled', paquetesSeleccionados.length === 0);
+        actualizarMontosFactura();
     });
+
+    function actualizarMontosFactura() {
+        let total = 0;
+        $('.paquete-checkbox:checked').each(function() {
+            var fila = $(this).closest('tr');
+            total += parseFloat(fila.find('td').eq(6).text().replace('$','')) || 0;
+        });
+        $('#monto_total').val(total.toFixed(2));
+        $('#monto_local').val(total.toFixed(2)); // Si tienes lógica de moneda local, cámbiala aquí
+    }
 
     // PDF Preview (mantener tu lógica actual)
     function updatePreview() {
@@ -221,27 +238,20 @@ $(document).ready(function() {
         formData.append('cliente_nombre', cliente.nombre_completo || '');
         formData.append('cliente_direccion', cliente.direccion || '');
         formData.append('cliente_telefono', cliente.telefono || '');
-        
-        // Enviar los paquetes seleccionados
-        var paquetesSeleccionados = $('#paquetes_select').val() || [];
-        paquetesSeleccionados.forEach(function(id) {
-            var option = $('#paquetes_select').find('option[value="'+id+'"]');
-            formData.append('paquetes[]', id);
-            formData.append('paquete_guia_' + id, option.data('guia') || '');
-            formData.append('paquete_descripcion_' + id, option.data('descripcion') || '');
-            formData.append('paquete_tracking_' + id, option.data('tracking') || '');
-            formData.append('paquete_servicio_' + id, option.data('servicio') || '');
-            formData.append('paquete_tarifa_' + id, option.data('tarifa') || 0);
-            formData.append('paquete_valor_' + id, option.data('monto') || 0);
-            formData.append('paquete_peso_' + id, option.data('peso') || '');
-        });
-        
+
+        // Si no hay paquetes seleccionados, limpiar el PDF y no enviar nada
+        if ($('.paquete-checkbox:checked').length === 0) {
+            document.getElementById('preview-pdf').src = '';
+            return;
+        }
+        // Ya no agregamos los paquetes manualmente, los inputs ocultos lo hacen
+
         // Enviar delivery
         var deliveryInput = document.getElementById('delivery');
         if (deliveryInput && deliveryInput.value) {
             formData.set('delivery', deliveryInput.value);
         }
-        
+
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '{{ route('facturacion.preview-live') }}', true);
         xhr.responseType = 'blob';
@@ -254,8 +264,21 @@ $(document).ready(function() {
         xhr.send(formData);
     }
 
-    // Inicialización al cargar
-    cargarDatosCliente(clienteSelect.value);
+    function getClienteData() {
+        const clienteId = $('#cliente_id').val();
+        let cliente = {};
+        // Extraer datos del resumen del cliente si está presente
+        const resumen = $('#cliente_resumen').text();
+        cliente.nombre_completo = resumen.match(/Nombre:\s*([^\n]+)/) ? resumen.match(/Nombre:\s*([^\n]+)/)[1].trim() : '';
+        cliente.direccion = resumen.match(/Dirección:\s*([^\n]+)/) ? resumen.match(/Dirección:\s*([^\n]+)/)[1].trim() : '';
+        cliente.telefono = resumen.match(/Teléfono:\s*([^\n]+)/) ? resumen.match(/Teléfono:\s*([^\n]+)/)[1].trim() : '';
+        return cliente;
+    }
+
+    // Llamar updatePreview cuando se selecciona cliente o paquetes o cambia algún campo relevante
+    $('#cliente_id').on('change', function() { setTimeout(updatePreview, 300); });
+    $(document).on('change', '.paquete-checkbox', function() { setTimeout(updatePreview, 300); });
+    $('#factura-form').on('input change', 'input, select, textarea', function() { setTimeout(updatePreview, 300); });
 });
 </script>
 @endsection
