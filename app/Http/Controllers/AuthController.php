@@ -15,7 +15,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'nombre' => ['required', 'string'],
+            'username' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
@@ -25,7 +25,7 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'nombre' => 'Las credenciales no coinciden con nuestros registros.',
+            'username' => 'Las credenciales no coinciden con nuestros registros.',
         ])->withInput();
     }
 

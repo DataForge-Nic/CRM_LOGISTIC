@@ -99,6 +99,11 @@
                                 <textarea name="nota" class="form-control" rows="3">{{ $factura->nota }}</textarea>
                             </div>
 
+                            <div class="mb-3">
+                                <label for="delivery" class="form-label fw-semibold">Costo Delivery (opcional)</label>
+                                <input type="number" step="0.01" min="0" name="delivery" id="delivery" class="form-control" value="{{ old('delivery', $factura->delivery) }}">
+                            </div>
+
                             <div class="d-flex gap-2 justify-content-end mt-4">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-save me-1"></i> Actualizar

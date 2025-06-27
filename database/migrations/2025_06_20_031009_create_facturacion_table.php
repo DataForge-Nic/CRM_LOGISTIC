@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('nota')->nullable();
             $table->unsignedBigInteger('created_by')->nullable();
             $table->unsignedBigInteger('updated_by')->nullable();
+            $table->decimal('delivery', 10, 2)->nullable(); // Costo opcional de delivery
             $table->timestamps();
 
             $table->foreign('cliente_id')->references('id')->on('clientes')->onDelete('cascade');

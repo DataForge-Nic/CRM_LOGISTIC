@@ -54,6 +54,7 @@ class FacturacionController extends Controller
             'nota'           => 'nullable|string',
             'paquetes'       => 'required|array|min:1',
             'paquetes.*'     => 'exists:inventario,id',
+            'delivery'       => 'nullable|numeric',
         ]);
 
         $factura = Facturacion::create([
@@ -66,6 +67,7 @@ class FacturacionController extends Controller
             'monto_local'   => $request->monto_local,
             'estado_pago'   => $request->estado_pago,
             'nota'          => $request->nota,
+            'delivery'      => $request->delivery,
             'created_by'    => Auth::id(),
         ]);
 
@@ -98,6 +100,7 @@ class FacturacionController extends Controller
             'monto_local'    => 'required|numeric',
             'estado_pago'    => 'required|in:pendiente,parcial,pagado',
             'nota'           => 'nullable|string',
+            'delivery'       => 'nullable|numeric',
         ]);
 
         $factura->update([
@@ -110,6 +113,7 @@ class FacturacionController extends Controller
             'monto_local'   => $request->monto_local,
             'estado_pago'   => $request->estado_pago,
             'nota'          => $request->nota,
+            'delivery'      => $request->delivery,
             'updated_by'    => Auth::id(),
         ]);
 
@@ -150,9 +154,25 @@ class FacturacionController extends Controller
             'direccion' => $request->input('cliente_direccion', ''),
             'telefono' => $request->input('cliente_telefono', ''),
         ];
-        // Simular paquetes seleccionados para la previsualización
         $paquetes = [];
-        if ($request->has('paquetes')) {
+        // Si no se reciben paquetes pero hay cliente_id, traer todos los paquetes no facturados
+        if (!$request->has('paquetes') && $request->filled('cliente_id')) {
+            $inventarios = \App\Models\Inventario::where('cliente_id', $request->input('cliente_id'))
+                ->whereNull('factura_id')
+                ->with('servicio')
+                ->get();
+            foreach ($inventarios as $inv) {
+                $paquetes[] = (object) [
+                    'numero_guia' => $inv->numero_guia,
+                    'notas' => $inv->notas,
+                    'tracking_codigo' => $inv->tracking_codigo,
+                    'servicio' => $inv->servicio,
+                    'tarifa_manual' => $inv->tarifa_manual,
+                    'monto_calculado' => $inv->monto_calculado,
+                    'peso_lb' => $inv->peso_lb,
+                ];
+            }
+        } else if ($request->has('paquetes')) {
             foreach ($request->input('paquetes', []) as $i => $id) {
                 $paquetes[] = (object) [
                     'numero_guia' => $request->input('paquete_guia_'.$id, ''),
@@ -161,10 +181,12 @@ class FacturacionController extends Controller
                     'servicio' => (object) ['tipo_servicio' => $request->input('paquete_servicio_'.$id, '')],
                     'tarifa_manual' => $request->input('paquete_tarifa_'.$id, 0),
                     'monto_calculado' => $request->input('paquete_valor_'.$id, 0),
+                    'peso_lb' => $request->input('paquete_peso_'.$id, ''),
                 ];
             }
         }
         $factura->paquetes = collect($paquetes);
+        $factura->delivery = $request->input('delivery', 0);
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('facturacion.pdf', compact('factura'));
         return $pdf->stream('preview.pdf');
     }
@@ -187,8 +209,42 @@ class FacturacionController extends Controller
                     'servicio' => $inv->servicio ? $inv->servicio->tipo_servicio : null,
                     'tarifa_manual' => $inv->tarifa_manual,
                     'monto_calculado' => $inv->monto_calculado,
+                    'peso_lb' => $inv->peso_lb,
                 ];
             });
         return response()->json($inventarios);
+    }
+
+    /**
+     * API: Retorna datos del cliente, historial de facturas y paquetes no facturados
+     */
+    public function clienteDetalle($clienteId)
+    {
+        $cliente = \App\Models\Cliente::findOrFail($clienteId);
+        $historial = \App\Models\Facturacion::where('cliente_id', $clienteId)
+            ->orderByDesc('fecha_factura')
+            ->take(5)
+            ->get(['id', 'fecha_factura', 'monto_total', 'estado_pago']);
+        $paquetes = \App\Models\Inventario::where('cliente_id', $clienteId)
+            ->whereNull('factura_id')
+            ->with('servicio')
+            ->get()
+            ->map(function($inv) {
+                return [
+                    'id' => $inv->id,
+                    'numero_guia' => $inv->numero_guia,
+                    'notas' => $inv->notas,
+                    'tracking_codigo' => $inv->tracking_codigo,
+                    'servicio' => $inv->servicio ? $inv->servicio->tipo_servicio : null,
+                    'tarifa_manual' => $inv->tarifa_manual,
+                    'monto_calculado' => $inv->monto_calculado,
+                    'peso_lb' => $inv->peso_lb,
+                ];
+            });
+        return response()->json([
+            'cliente' => $cliente,
+            'historial' => $historial,
+            'paquetes' => $paquetes,
+        ]);
     }
 }

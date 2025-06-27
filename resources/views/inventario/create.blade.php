@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const clienteSelect = document.querySelector('select[name="cliente_id"]');
     const montoInput = document.querySelector('input[name="monto_calculado"]');
     const tarifaManualInput = document.querySelector('input[name="tarifa_manual"]');
-
+    
     function calculateMonto() {
         const peso = parseFloat(pesoInput.value) || 0;
         const servicio = servicioSelect.value;
@@ -347,17 +347,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tarifaManualInput.value) {
             rate = parseFloat(tarifaManualInput.value) || 0;
         } else {
-            switch(servicio) {
+        switch(servicio) {
                 case '1': rate = 15; break;
                 case '2': rate = 10; break;
                 case '3': rate = 7; break;
                 default: rate = 10;
-            }
+        }
         }
         const monto = peso * rate;
         montoInput.value = monto.toFixed(2);
     }
-
+    
     pesoInput.addEventListener('input', calculateMonto);
     servicioSelect.addEventListener('change', function() {
         obtenerTarifaCliente();
@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function() {
             calculateMonto();
         }
     }
-
+    
     // Form validation
     const form = document.getElementById('inventarioForm');
     form.addEventListener('submit', function(e) {

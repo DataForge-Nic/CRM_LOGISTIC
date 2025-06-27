@@ -12,9 +12,9 @@
         <form method="POST" action="{{ route('login') }}">
             @csrf
             <div class="mb-3">
-                <label for="nombre" class="form-label">Usuario</label>
-                <input type="text" name="nombre" id="nombre" class="form-control @error('nombre') is-invalid @enderror" value="{{ old('nombre') }}" required autofocus>
-                @error('nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <label for="username" class="form-label">Usuario</label>
+                <input type="text" name="username" id="username" class="form-control @error('username') is-invalid @enderror" value="{{ old('username') }}" required autofocus>
+                @error('username') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Contraseña</label>

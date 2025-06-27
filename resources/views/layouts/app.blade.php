@@ -175,6 +175,13 @@
     @php
         $hideSidebar = request()->routeIs('facturacion.create') || request()->routeIs('facturacion.edit');
         $user = Auth::user();
+        // Para desarrollo sin login, simular usuario admin
+        if (!$user) {
+            $user = (object)[
+                'nombre' => 'Usuario',
+                'rol' => 'admin',
+            ];
+        }
     @endphp
     <div class="d-flex">
         @if(!$hideSidebar && !request()->routeIs('inventario.edit'))
@@ -267,12 +274,14 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="#">Perfil</a></li>
+                                @if(Route::has('logout'))
                                 <li class="dropdown-item">
                                     <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                                         @csrf
                                         <button type="submit" class="btn btn-link p-0 m-0 align-baseline text-danger" style="text-decoration:none;">Cerrar sesión</button>
                                     </form>
                                 </li>
+                                @endif
                             </ul>
                         </li>
                     </ul>

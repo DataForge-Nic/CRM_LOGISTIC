@@ -23,6 +23,7 @@ class Facturacion extends Model
         'nota',
         'created_by',
         'updated_by',
+        'delivery',
     ];
 
     // Cliente relacionado
