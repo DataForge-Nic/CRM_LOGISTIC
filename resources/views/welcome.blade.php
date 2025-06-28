@@ -5,19 +5,19 @@
 
 @section('content')
 <div class="container-fluid px-4 pt-4">
-    <div class="row mb-4 align-items-center">
-        <div class="col-12 d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-3">
-                <img src="/logo_skylinkone.png" alt="SkyLink One Logo" style="height:40px;">
-                <div>
-                    <h1 class="h4 mb-0 fw-bold text-primary" style="letter-spacing:1px;">SkyLink One CRM</h1>
-                    <span class="text-muted" style="font-size:1rem;">Panel ejecutivo</span>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <i class="fas fa-chart-line text-primary" style="font-size:2.2rem;"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">SkyLink One CRM</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Panel ejecutivo</p>
+                    </div>
                 </div>
-            </div>
-            <div>
-                <span class="badge bg-light text-dark px-3 py-2" style="font-size:1rem;">
-                    {{ now()->format('d M Y') }}
-                </span>
+                <div class="text-end text-white-50 fw-semibold" style="font-size:1.1rem;">{{ \Carbon\Carbon::now()->format('d M Y') }}</div>
             </div>
         </div>
     </div>
@@ -163,6 +163,63 @@
     }
     .module-card {
         display: block;
+    }
+    .dashboard-card {
+        border-radius: 18px;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+        background: #fff;
+        padding: 1.5rem 1.2rem;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 1.2rem;
+    }
+    .dashboard-card .icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.06);
+    }
+    .dashboard-card .icon.clientes { background: #e3eafe; color: #1A2E75; }
+    .dashboard-card .icon.usuarios { background: #e0f7fa; color: #5C6AC4; }
+    .dashboard-card .icon.facturacion { background: #e6f4ea; color: #1A2E75; }
+    .dashboard-card .icon.inventario { background: #fffbe6; color: #f6c23e; }
+    .dashboard-card .icon.tracking { background: #f0f4f8; color: #1A2E75; }
+    .dashboard-card .icon.notificaciones { background: #fdeaea; color: #BF1E2E; }
+    .dashboard-card .metric-title {
+        font-size: 1.1rem;
+        color: #1A2E75;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+    .dashboard-card .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1A2E75;
+    }
+    .dashboard-table thead th {
+        background: #1A2E75 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        border-bottom: 3px solid #5C6AC4;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .dashboard-table tbody tr {
+        background: #fff;
+        transition: background 0.2s;
+    }
+    .dashboard-table tbody tr:hover {
+        background: #F5F7FA !important;
+    }
+    .dashboard-table {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
     }
 </style>
 @endpush

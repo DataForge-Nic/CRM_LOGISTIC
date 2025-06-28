@@ -66,6 +66,7 @@ Route::prefix('facturacion')->group(function () {
     Route::get('/{id}/preview', [FacturacionController::class, 'previsualizarPDF'])->name('facturacion.preview');
     Route::post('/preview-live', [FacturacionController::class, 'previewLivePDF'])->name('facturacion.preview-live');
     Route::get('/paquetes-por-cliente/{cliente}', [FacturacionController::class, 'paquetesPorCliente'])->name('facturacion.paquetes-por-cliente');
+    Route::post('/{id}/cambiar-estado', [FacturacionController::class, 'cambiarEstado'])->name('facturacion.cambiar-estado');
 });
 
 // Rutas para inventario

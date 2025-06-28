@@ -11,9 +11,25 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class FacturacionController extends Controller
 {
     // Listar facturas
-    public function index()
+    public function index(Request $request)
     {
-        $facturas = Facturacion::with('cliente')->latest()->get();
+        $facturas = Facturacion::with('cliente')
+            ->when($request->filled('cliente'), function($q) use ($request) {
+                $q->whereHas('cliente', function($q2) use ($request) {
+                    $q2->where('nombre_completo', 'like', '%'.$request->cliente.'%');
+                });
+            })
+            ->when($request->filled('fecha'), function($q) use ($request) {
+                $q->where('fecha_factura', $request->fecha);
+            })
+            ->when($request->filled('acta'), function($q) use ($request) {
+                $q->where('numero_acta', 'like', '%'.$request->acta.'%');
+            })
+            ->when($request->filled('estado'), function($q) use ($request) {
+                $q->where('estado_pago', $request->estado);
+            })
+            ->latest()
+            ->get();
         return view('facturacion.index', compact('facturas'));
     }
 
@@ -31,7 +47,6 @@ class FacturacionController extends Controller
             'cliente_id'     => 'required|exists:clientes,id',
             'fecha_factura'  => 'required|date',
             'numero_acta'    => 'nullable|string|max:100',
-            'monto_total'    => 'required|numeric',
             'moneda'         => 'required|in:USD,NIO',
             'tasa_cambio'    => 'nullable|numeric',
             'monto_local'    => 'required|numeric',
@@ -46,27 +61,37 @@ class FacturacionController extends Controller
         $paquetes = \App\Models\Inventario::whereIn('id', $request->paquetes)
             ->where('cliente_id', $request->cliente_id)
             ->whereNull('factura_id')
-            ->pluck('id')->toArray();
+            ->get();
         if (count($paquetes) !== count($request->paquetes)) {
             return back()->withErrors(['paquetes' => 'Uno o más paquetes seleccionados no pertenecen al cliente o ya han sido facturados.'])->withInput();
         }
+
+        // Calcular monto total real
+        $monto_total = 0;
+        foreach ($paquetes as $p) {
+            $peso = floatval($p->peso_lb ?? 0);
+            $tarifa = floatval($p->tarifa_manual ?? $p->tarifa ?? 1);
+            $monto_total += $peso * $tarifa;
+        }
+        $delivery = floatval($request->delivery ?? 0);
+        $monto_total += $delivery;
 
         $factura = Facturacion::create([
             'cliente_id'    => $request->cliente_id,
             'fecha_factura' => $request->fecha_factura,
             'numero_acta'   => $request->numero_acta,
-            'monto_total'   => $request->monto_total,
+            'monto_total'   => $monto_total,
             'moneda'        => $request->moneda,
             'tasa_cambio'   => $request->tasa_cambio,
             'monto_local'   => $request->monto_local,
             'estado_pago'   => $request->estado_pago,
             'nota'          => $request->nota,
-            'delivery'      => $request->delivery,
-            'created_by'    => Auth::id(),
+            'delivery'      => $delivery,
+            'created_by'    => \Auth::id(),
         ]);
 
         // Asociar paquetes seleccionados a la factura
-        \App\Models\Inventario::whereIn('id', $paquetes)->update(['factura_id' => $factura->id]);
+        \App\Models\Inventario::whereIn('id', $paquetes->pluck('id'))->update(['factura_id' => $factura->id]);
 
         return redirect()->route('facturacion.index')->with('success', 'Factura registrada correctamente.');
     }
@@ -250,5 +275,16 @@ class FacturacionController extends Controller
             'paquetes' => $paquetes,
             'historial' => $historial,
         ]);
+    }
+
+    public function cambiarEstado(Request $request, $id)
+    {
+        $factura = Facturacion::findOrFail($id);
+        $request->validate([
+            'estado_pago' => 'required|in:pendiente,parcial,pagado',
+        ]);
+        $factura->estado_pago = $request->estado_pago;
+        $factura->save();
+        return redirect()->route('facturacion.index')->with('success', 'Estado de la factura actualizado.');
     }
 }

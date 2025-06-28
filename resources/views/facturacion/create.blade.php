@@ -7,20 +7,23 @@
 <div class="container-fluid px-4 pt-4">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="bg-white rounded shadow-sm px-4 py-3 mb-4 d-flex align-items-center justify-content-between" style="min-height:70px;">
-                <div class="d-flex align-items-center">
-                    <a href="{{ route('facturacion.index') }}" class="btn btn-outline-secondary me-3">
-                        <i class="fas fa-arrow-left"></i> Volver
+            <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ route('facturacion.index') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#fff; color:#1A2E75; border:2px solid #1A2E75; box-shadow:0 2px 8px rgba(26,46,117,0.08); font-size:1.2rem;">
+                        <i class="fas fa-arrow-left me-2"></i> Volver
                     </a>
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <i class="fas fa-file-invoice-dollar text-primary" style="font-size:2.2rem;"></i>
+                    </div>
                     <div>
-                        <h1 class="h3 mb-1 text-dark fw-bold text-start">Registrar Factura</h1>
-                        <p class="text-muted mb-0 text-start">Completa los datos para registrar una nueva factura</p>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">Registrar Factura</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Completa los datos para registrar una nueva factura</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <a class="nav-link position-relative" href="#" title="Notificaciones"><i class="fas fa-bell fa-lg"></i></a>
+                    <a class="nav-link position-relative" href="#" title="Notificaciones"><i class="fas fa-bell fa-lg text-white"></i></a>
                     <div class="dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdownHeader" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" id="userDropdownHeader" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-circle fa-lg me-1"></i> Usuario
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownHeader">
@@ -148,19 +151,14 @@ $(document).ready(function() {
                 // Resumen cliente
                 const c = resp.cliente;
                 $('#cliente_resumen').html(`
-                    <div class="card border-info mb-2"><div class="card-body">
-                        <h5 class="card-title mb-2"><i class="fas fa-user text-info me-2"></i>Resumen del Cliente</h5>
-                        <p><strong>Nombre:</strong> ${c.nombre_completo ?? '-'}<br>
-                        <strong>Dirección:</strong> ${c.direccion ?? '-'}<br>
-                        <strong>Teléfono:</strong> ${c.telefono ?? '-'}</p>
-                    </div></div>
+                    <div class="resumen-cliente-card"><i class="fas fa-user resumen-cliente-icon"></i><div class="resumen-cliente-info"><p><strong>Nombre:</strong> ${c.nombre_completo ?? '-'}<br><strong>Dirección:</strong> ${c.direccion ?? '-'}<br><strong>Teléfono:</strong> ${c.telefono ?? '-'}</p></div></div>
                 `);
                 // Paquetes
                 if (!resp.paquetes || resp.paquetes.length === 0) {
                     $('#paquetes_container').html('<div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-1"></i> No hay paquetes disponibles para facturar a este cliente.</div>');
                     $('#btn_guardar_factura').prop('disabled', true);
                 } else {
-                    let tabla = `<table class="table table-hover table-bordered align-middle shadow-sm rounded-3" style="background:#fff;">
+                    let tabla = `<table class="table fact-table table-hover table-bordered align-middle shadow-sm rounded-3" style="background:#fff;">
                         <thead class="table-primary">
                             <tr>
                                 <th></th>
@@ -175,6 +173,9 @@ $(document).ready(function() {
                         </thead>
                         <tbody>`;
                     resp.paquetes.forEach(p => {
+                        const peso = parseFloat(p.peso_lb ?? 0);
+                        const tarifa = parseFloat(p.tarifa_manual ?? p.tarifa ?? 1);
+                        const monto = peso * tarifa;
                         tabla += `<tr>
                             <td><input type="checkbox" class="paquete-checkbox" value="${p.id}"></td>
                             <td>${p.numero_guia ?? '-'}</td>
@@ -182,8 +183,8 @@ $(document).ready(function() {
                             <td>${p.tracking_codigo ?? '-'}</td>
                             <td>${p.servicio ?? '-'}</td>
                             <td>${p.peso_lb ?? '-'}</td>
-                            <td>$${parseFloat(p.tarifa_manual ?? p.tarifa ?? 1).toFixed(2)}</td>
-                            <td>$${parseFloat(p.monto_calculado).toFixed(2)}</td>
+                            <td>$${tarifa.toFixed(2)}</td>
+                            <td>$${monto.toFixed(2)}</td>
                         </tr>`;
                     });
                     tabla += '</tbody></table>';
@@ -196,7 +197,7 @@ $(document).ready(function() {
                 if (!resp.historial || resp.historial.length === 0) {
                     $('#facturas_historial').html('<div class="alert alert-secondary">Sin historial de facturas.</div>');
                 } else {
-                    let hist = `<div class="card mb-2"><div class="card-body"><h6 class="fw-semibold">Últimas 5 facturas</h6><table class="table table-sm table-bordered mb-0"><thead class="table-light"><tr><th>#</th><th>Fecha</th><th>Monto</th><th>Estado</th></tr></thead><tbody>`;
+                    let hist = `<div class="card mb-2"><div class="card-body"><h6 class="fw-semibold">Últimas 5 facturas</h6><table class="table fact-table table-sm table-bordered mb-0"><thead class="table-light"><tr><th>#</th><th>Fecha</th><th>Monto</th><th>Estado</th></tr></thead><tbody>`;
                     resp.historial.forEach(f => {
                         hist += `<tr><td>${f.id}</td><td>${f.fecha_factura}</td><td>$${parseFloat(f.monto_total).toFixed(2)}</td><td>${f.estado_pago === 'pagado' ? '<span class="badge bg-success">Pagado</span>' : f.estado_pago === 'parcial' ? '<span class="badge bg-warning text-dark">Parcial</span>' : '<span class="badge bg-danger">Pendiente</span>'}</td></tr>`;
                     });
@@ -296,3 +297,97 @@ $(document).ready(function() {
 });
 </script>
 @endsection
+
+<style>
+    .fact-table thead th {
+        background: #1A2E75 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        border-bottom: 3px solid #5C6AC4;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-right: 1px solid #e3e6f0 !important;
+    }
+    .fact-table thead th:last-child {
+        border-right: none !important;
+    }
+    .fact-table thead tr {
+        border-radius: 0 !important;
+    }
+    .fact-table {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+    }
+    .fact-table tbody tr {
+        background: #fff;
+        transition: background 0.2s;
+    }
+    .fact-table tbody td {
+        border-right: 1px solid #e3e6f0 !important;
+    }
+    .fact-table tbody td:last-child {
+        border-right: none !important;
+    }
+    .fact-table tbody tr:hover {
+        background: #F5F7FA !important;
+    }
+    .resumen-cliente-card {
+        background: #fff;
+        border: 2px solid #5C6AC4;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+    }
+    .resumen-cliente-icon {
+        color: #1A2E75;
+        font-size: 2.2rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+    .resumen-cliente-info {
+        font-size: 1.08rem;
+    }
+    .resumen-cliente-info strong {
+        color: #1A2E75;
+        font-weight: 600;
+    }
+    .select2-container .select2-selection--single {
+        border-radius: 8px !important;
+        border: 1.5px solid #d1d5db;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+    .form-control, .form-select, textarea {
+        border-radius: 8px !important;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+    .card {
+        border-radius: 18px;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+    }
+    .btn-primary {
+        background: #1A2E75;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background: #223a7a;
+    }
+    .btn-secondary {
+        border-radius: 8px;
+    }
+    .table-primary {
+        background: #1A2E75 !important;
+        color: #fff !important;
+    }
+    .alert-secondary {
+        border-radius: 8px;
+    }
+</style>
