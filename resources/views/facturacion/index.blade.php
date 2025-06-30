@@ -182,7 +182,7 @@
                             <td>
                                 <form method="POST" action="{{ route('facturacion.cambiar-estado', $factura->id) }}" class="d-inline">
                                     @csrf
-                                    <select name="estado_pago" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                                    <select name="estado_pago" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()" @if($factura->estado_pago=='pagado') disabled @endif>
                                         <option value="pendiente" {{ $factura->estado_pago=='pendiente'?'selected':'' }}>Pendiente</option>
                                         <option value="parcial" {{ $factura->estado_pago=='parcial'?'selected':'' }}>Parcial</option>
                                         <option value="pagado" {{ $factura->estado_pago=='pagado'?'selected':'' }}>Pagado</option>
@@ -204,6 +204,87 @@
                 </tbody>
             </table>
         </div>
+        @if($facturas->hasPages())
+            <div class="d-flex justify-content-center">
+                {{ $facturas->links('vendor.pagination.custom') }}
+            </div>
+        @endif
     </div>
 </div>
+
+<!-- Estilos de animación y paginación igual a inventario -->
+<style>
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 32px 0 16px 0;
+    padding: 0;
+    list-style: none;
+}
+.pagination li {
+    display: inline-block;
+}
+.pagination a, .pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1.5px solid #1A2E75;
+    background: #fff;
+    color: #1A2E75;
+    font-weight: 600;
+    font-size: 1.08rem;
+    text-decoration: none !important;
+    transition: background 0.15s, color 0.15s;
+    margin: 0 2px;
+}
+.pagination .active span, .pagination a.active {
+    background: #1A2E75;
+    color: #fff;
+    border-color: #1A2E75;
+    cursor: default;
+}
+.pagination a:hover, .pagination a:focus {
+    background: #5C6AC4;
+    color: #fff;
+    border-color: #5C6AC4;
+}
+.pagination .disabled span, .pagination .disabled a {
+    color: #b0b0b0;
+    background: #f5f7fa;
+    border-color: #e3e6f0;
+    cursor: not-allowed;
+}
+.pagination .page-arrow {
+    font-size: 1.3rem;
+    padding: 0 10px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1.5px solid #1A2E75;
+    background: #fff;
+    color: #1A2E75;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.pagination .page-arrow:hover, .pagination .page-arrow:focus {
+    background: #5C6AC4;
+    color: #fff;
+    border-color: #5C6AC4;
+}
+</style>
 @endsection

@@ -11,7 +11,7 @@ class ClienteController extends Controller
     // Mostrar lista de clientes
     public function index()
     {
-        $clientes = Cliente::all();
+        $clientes = Cliente::orderBy('nombre_completo')->paginate(10);
         return view('clientes.index', compact('clientes'));
     }
 

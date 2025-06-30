@@ -8,24 +8,19 @@
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0 text-dark fw-bold">
-                        <i class="fas fa-boxes me-2 text-primary"></i>
-                        Inventario de Paquetes
-                    </h1>
-                    <p class="text-muted mb-0">Gestiona todos los paquetes en el sistema</p>
+            <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <i class="fas fa-boxes text-primary" style="font-size:2.2rem;"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">Inventario de Paquetes</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Gestiona todos los paquetes en el sistema</p>
+                    </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtersCollapse">
-                        <i class="fas fa-filter me-1"></i>
-                        Filtros
-                    </button>
-                    <a href="{{ route('inventario.create') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i>
-                        Nuevo Paquete
-                    </a>
-                </div>
+                <a href="{{ route('inventario.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff;">
+                    <i class="fas fa-plus me-2"></i> Nuevo Paquete
+                </a>
             </div>
         </div>
     </div>
@@ -188,7 +183,7 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0" id="inventarioTable">
+                <table class="table inventario-table table-hover align-middle mb-0" id="inventarioTable">
                     <thead class="table-light">
                         <tr>
                             <th class="border-0 px-4 py-3 fw-semibold text-dark">
@@ -294,13 +289,13 @@
                                 <td class="px-4 py-3 text-center">
                                     <div class="btn-group" role="group">
                                         <a href="{{ route('inventario.edit', $item->id) }}" 
-                                           class="btn btn-outline-primary btn-sm" 
+                                           class="btn btn-inv-action btn-inv-edit" 
                                            data-bs-toggle="tooltip" 
                                            title="Editar paquete">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="{{ route('inventario.show', $item->id) }}" 
-                                           class="btn btn-outline-info btn-sm" 
+                                           class="btn btn-inv-action btn-inv-view" 
                                            data-bs-toggle="tooltip" 
                                            title="Ver detalles">
                                             <i class="fas fa-eye"></i>
@@ -308,7 +303,7 @@
                                         @php $user = Auth::user(); @endphp
                                         @if($user && $user->rol === 'admin')
                                         <button type="button" 
-                                                class="btn btn-outline-danger btn-sm" 
+                                                class="btn btn-inv-action btn-inv-delete" 
                                                 onclick="confirmDelete({{ $item->id }})"
                                                 data-bs-toggle="tooltip" 
                                                 title="Eliminar paquete">
@@ -341,8 +336,8 @@
 
     <!-- Pagination -->
     @if($inventarios->hasPages())
-        <div class="d-flex justify-content-center mt-4">
-            {{ $inventarios->links() }}
+        <div class="d-flex justify-content-center">
+            {{ $inventarios->links('vendor.pagination.custom') }}
         </div>
     @endif
 </div>
@@ -434,6 +429,154 @@
     .table-responsive {
         font-size: 0.875rem;
     }
+}
+
+.inventario-table {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.inventario-table thead th {
+    background: #1A2E75 !important;
+    color: #fff !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: none !important;
+    padding: 12px 14px !important;
+    font-size: 1.05rem;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.inventario-table thead th i {
+    color: #fff !important;
+    font-size: 1.15em;
+    margin-right: 4px;
+    vertical-align: middle;
+    display: inline-block;
+}
+.inventario-table thead th:first-child {
+    border-top-left-radius: 16px;
+}
+.inventario-table thead th:last-child {
+    border-top-right-radius: 16px;
+}
+.inventario-table thead tr {
+    border-radius: 0 !important;
+}
+.inventario-table tbody tr {
+    background: #fff;
+    transition: background 0.2s;
+    border-bottom: 1.5px solid #e3e6f0;
+}
+.inventario-table tbody td {
+    border: none !important;
+    padding: 10px 14px !important;
+    vertical-align: middle !important;
+    font-size: 1.01rem;
+}
+.inventario-table tbody tr:hover {
+    background: #F0F4FF !important;
+}
+.btn-inv-action {
+    border-radius: 8px !important;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    box-shadow: none;
+    transition: background 0.15s;
+    margin-right: 4px;
+}
+.btn-inv-action:last-child {
+    margin-right: 0;
+}
+.btn-inv-view {
+    background: #1A2E75;
+    color: #fff;
+}
+.btn-inv-edit {
+    background: #5C6AC4;
+    color: #fff;
+}
+.btn-inv-delete {
+    background: #BF1E2E;
+    color: #fff;
+}
+.btn-inv-action:hover, .btn-inv-action:focus {
+    opacity: 0.92;
+    color: #fff;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 32px 0 16px 0;
+    padding: 0;
+    list-style: none;
+}
+.pagination li {
+    display: inline-block;
+}
+.pagination a, .pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1.5px solid #1A2E75;
+    background: #fff;
+    color: #1A2E75;
+    font-weight: 600;
+    font-size: 1.08rem;
+    text-decoration: none !important;
+    transition: background 0.15s, color 0.15s;
+    margin: 0 2px;
+}
+.pagination .active span, .pagination a.active {
+    background: #1A2E75;
+    color: #fff;
+    border-color: #1A2E75;
+    cursor: default;
+}
+.pagination a:hover, .pagination a:focus {
+    background: #5C6AC4;
+    color: #fff;
+    border-color: #5C6AC4;
+}
+.pagination .disabled span, .pagination .disabled a {
+    color: #b0b0b0;
+    background: #f5f7fa;
+    border-color: #e3e6f0;
+    cursor: not-allowed;
+}
+.pagination .page-arrow {
+    font-size: 1.3rem;
+    padding: 0 10px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1.5px solid #1A2E75;
+    background: #fff;
+    color: #1A2E75;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.pagination .page-arrow:hover, .pagination .page-arrow:focus {
+    background: #5C6AC4;
+    color: #fff;
+    border-color: #5C6AC4;
 }
 </style>
 

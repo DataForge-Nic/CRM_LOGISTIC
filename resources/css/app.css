@@ -9,3 +9,59 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Paginación moderna */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 1rem 0;
+    gap: 0.5rem;
+}
+.pagination li {
+    display: inline-block;
+}
+.pagination a,
+.pagination span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.2rem;
+    height: 2.2rem;
+    padding: 0 0.75rem;
+    border-radius: 9999px;
+    background: #fff;
+    color: #1a237e;
+    font-weight: 500;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1.5px solid #e3e8f0;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(26,35,126,0.04);
+}
+.pagination a:hover {
+    background: #e3e8f0;
+    color: #0d47a1;
+    text-decoration: none;
+}
+.pagination .active span {
+    background: #1a237e;
+    color: #fff;
+    border-color: #1a237e;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(26,35,126,0.10);
+}
+.pagination .disabled span,
+.pagination .disabled a {
+    background: #f3f4f6;
+    color: #b0b3c6;
+    cursor: not-allowed;
+    border-color: #e3e8f0;
+    box-shadow: none;
+}
+.page-arrow i {
+    font-size: 1.1rem;
+    vertical-align: middle;
+}

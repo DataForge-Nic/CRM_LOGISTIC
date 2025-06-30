@@ -3,23 +3,30 @@
 @section('title', 'Lista de Trackings - SkylinkOne CRM')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-900">Lista de Trackings</h1>
-            <p class="text-muted">Gestión completa de seguimientos y temporizadores</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('tracking.dashboard') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-chart-line me-2"></i>Dashboard
-            </a>
-            <a href="{{ route('tracking.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Nuevo Tracking
-            </a>
+<div class="container-fluid px-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <i class="fas fa-clock text-primary" style="font-size:2.2rem;"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">Lista de Trackings</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Gestión completa de seguimientos y temporizadores</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('tracking.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff;">
+                        <i class="fas fa-plus me-2"></i> Nuevo Tracking
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Success Message -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
@@ -28,51 +35,46 @@
     @endif
 
     <!-- Filtros -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-filter me-2"></i>Filtros
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <label for="filtroEstado" class="form-label">Estado</label>
-                    <select id="filtroEstado" class="form-select">
-                        <option value="">Todos los estados</option>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_proceso">En Proceso</option>
-                        <option value="completado">Completado</option>
-                        <option value="vencido">Vencido</option>
-                        <option value="cancelado">Cancelado</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="filtroCliente" class="form-label">Cliente</label>
-                    <select id="filtroCliente" class="form-select">
-                        <option value="">Todos los clientes</option>
-                        @foreach($trackings->pluck('cliente.nombre')->unique() as $nombreCliente)
-                            @if($nombreCliente)
-                                <option value="{{ $nombreCliente }}">{{ $nombreCliente }}</option>
-                            @endif
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label for="filtroFecha" class="form-label">Fecha de Vencimiento</label>
-                    <select id="filtroFecha" class="form-select">
-                        <option value="">Todas las fechas</option>
-                        <option value="hoy">Vence hoy</option>
-                        <option value="semana">Vence esta semana</option>
-                        <option value="mes">Vence este mes</option>
-                        <option value="vencido">Ya venció</option>
-                    </select>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <label class="form-label">&nbsp;</label>
-                    <div class="d-grid">
-                        <button class="btn btn-outline-primary" onclick="aplicarFiltros()">
-                            <i class="fas fa-search me-2"></i>Aplicar Filtros
+    <div class="collapse mb-4" id="filtersCollapse">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select id="filtroEstado" class="form-select">
+                            <option value="">Todos los estados</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="en_proceso">En Proceso</option>
+                            <option value="completado">Completado</option>
+                            <option value="vencido">Vencido</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Cliente</label>
+                        <select id="filtroCliente" class="form-select">
+                            <option value="">Todos los clientes</option>
+                            @foreach($trackings->pluck('cliente.nombre')->unique() as $nombreCliente)
+                                @if($nombreCliente)
+                                    <option value="{{ $nombreCliente }}">{{ $nombreCliente }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Fecha de Vencimiento</label>
+                        <select id="filtroFecha" class="form-select">
+                            <option value="">Todas las fechas</option>
+                            <option value="hoy">Vence hoy</option>
+                            <option value="semana">Vence esta semana</option>
+                            <option value="mes">Vence este mes</option>
+                            <option value="vencido">Ya venció</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button class="btn btn-outline-primary w-100" onclick="aplicarFiltros()">
+                            <i class="fas fa-search me-1"></i>
+                            Aplicar Filtros
                         </button>
                     </div>
                 </div>
@@ -80,52 +82,57 @@
         </div>
     </div>
 
-    <!-- Lista de Trackings -->
-    <div class="card shadow">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-list me-2"></i>Trackings ({{ $trackings->total() }})
-            </h6>
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-info" onclick="exportarTrackings()">
-                    <i class="fas fa-download me-1"></i>Exportar
-                </button>
-                <button class="btn btn-sm btn-outline-warning" onclick="verificarRecordatorios()">
-                    <i class="fas fa-sync me-1"></i>Verificar Recordatorios
-                </button>
+    <!-- Main Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-semibold text-dark">
+                    <i class="fas fa-list me-2 text-primary"></i>
+                    Lista de Trackings ({{ $trackings->total() }})
+                </h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="exportarTrackings()">
+                        <i class="fas fa-download me-1"></i>
+                        Exportar
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" onclick="verificarRecordatorios()">
+                        <i class="fas fa-sync me-1"></i>
+                        Verificar Recordatorios
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table inventario-table table-hover align-middle mb-0" id="trackingTable">
                     <thead class="table-light">
                         <tr>
-                            <th>Código</th>
-                            <th>Cliente</th>
-                            <th>Estado</th>
-                            <th>Temporizador</th>
-                            <th>Vence</th>
-                            <th>Creado por</th>
-                            <th>Acciones</th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark">Código</th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark">Cliente</th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark">Estado</th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark">Temporizador</th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark">Vence</th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark">Creado por</th>
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($trackings as $tracking)
-                        <tr class="tracking-row" 
+                        <tr class="tracking-row align-middle" 
                             data-estado="{{ $tracking->estado }}"
                             data-cliente="{{ $tracking->cliente->nombre ?? '' }}"
                             data-fecha="{{ $tracking->recordatorio_fecha }}">
-                            <td>
+                            <td class="px-4 py-3">
                                 <div class="fw-bold text-primary">{{ $tracking->tracking_codigo }}</div>
                                 @if($tracking->nota)
                                     <small class="text-muted">{{ Str::limit($tracking->nota, 50) }}</small>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-4 py-3">
                                 <div class="fw-medium">{{ $tracking->cliente->nombre_completo ?? 'Cliente no encontrado' }}</div>
                                 <small class="text-muted">{{ $tracking->cliente->correo ?? '' }}</small>
                             </td>
-                            <td>
+                            <td class="px-4 py-3">
                                 <span class="badge
                                     @switch($tracking->estado)
                                         @case('pendiente') bg-warning text-dark @break
@@ -139,7 +146,7 @@
                                     {{ ucfirst($tracking->estado) }}
                                 </span>
                             </td>
-                            <td>
+                            <td class="px-4 py-3">
                                 <div id="temporizador-{{ $tracking->id }}" class="temporizador-display">
                                     @if($tracking->recordatorio_fecha && $tracking->estado != 'completado')
                                         @php
@@ -163,7 +170,7 @@
                                     @endif
                                 </div>
                             </td>
-                            <td>
+                            <td class="px-4 py-3">
                                 <div class="small">
                                     @if($tracking->recordatorio_fecha)
                                         {{ \Carbon\Carbon::parse($tracking->recordatorio_fecha)->format('d/m/Y H:i') }}
@@ -172,7 +179,7 @@
                                     @endif
                                 </div>
                             </td>
-                            <td>
+                            <td class="px-4 py-3">
                                 <div class="small">
                                     {{ $tracking->creador->name ?? 'Usuario no encontrado' }}
                                 </div>
@@ -180,25 +187,24 @@
                                     {{ \Carbon\Carbon::parse($tracking->created_at)->format('d/m/Y') }}
                                 </small>
                             </td>
-                            <td>
-                                <div class="btn-group btn-group-sm" role="group">
+                            <td class="px-4 py-3 text-center">
+                                <div class="btn-group" role="group">
                                     <a href="{{ route('tracking.show', $tracking) }}" 
-                                       class="btn btn-outline-primary" title="Ver detalles">
+                                       class="btn btn-inv-action btn-inv-view" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Ver detalles">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('tracking.edit', $tracking) }}" 
-                                       class="btn btn-outline-warning" title="Editar">
+                                       class="btn btn-inv-action btn-inv-edit" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button type="button" 
-                                            class="btn btn-outline-success" 
-                                            onclick="cambiarEstado({{ $tracking->id }})"
-                                            title="Cambiar estado">
-                                        <i class="fas fa-exchange-alt"></i>
-                                    </button>
-                                    <button type="button" 
-                                            class="btn btn-outline-danger" 
+                                            class="btn btn-inv-action btn-inv-delete" 
                                             onclick="eliminarTracking({{ $tracking->id }})"
+                                            data-bs-toggle="tooltip" 
                                             title="Eliminar">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -207,12 +213,13 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                                    <p>No hay trackings disponibles</p>
+                                    <h5>No hay trackings disponibles</h5>
                                     <a href="{{ route('tracking.create') }}" class="btn btn-primary">
-                                        <i class="fas fa-plus me-2"></i>Crear Primer Tracking
+                                        <i class="fas fa-plus me-1"></i>
+                                        Crear Primer Tracking
                                     </a>
                                 </div>
                             </td>
@@ -221,16 +228,166 @@
                     </tbody>
                 </table>
             </div>
-
-            <!-- Paginación -->
-            @if($trackings->hasPages())
-                <div class="d-flex justify-content-center mt-4">
-                    {{ $trackings->links() }}
-                </div>
-            @endif
         </div>
     </div>
+
+    <!-- Pagination -->
+    @if($trackings->hasPages())
+        <div class="d-flex justify-content-center">
+            {{ $trackings->links('vendor.pagination.custom') }}
+        </div>
+    @endif
 </div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Estilos de inventario aplicados a tracking -->
+<style>
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+.inventario-table {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.inventario-table thead th {
+    background: #1A2E75 !important;
+    color: #fff !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: none !important;
+    padding: 12px 14px !important;
+    font-size: 1.05rem;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.inventario-table thead th:first-child {
+    border-top-left-radius: 16px;
+}
+.inventario-table thead th:last-child {
+    border-top-right-radius: 16px;
+}
+.inventario-table tbody tr {
+    background: #fff;
+    transition: background 0.2s;
+    border-bottom: 1.5px solid #e3e6f0;
+}
+.inventario-table tbody td {
+    border: none !important;
+    padding: 10px 14px !important;
+    vertical-align: middle !important;
+    font-size: 1.01rem;
+}
+.inventario-table tbody tr:hover {
+    background: #F0F4FF !important;
+}
+.btn-inv-action {
+    border-radius: 8px !important;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    box-shadow: none;
+    transition: background 0.15s;
+    margin-right: 4px;
+}
+.btn-inv-action:last-child {
+    margin-right: 0;
+}
+.btn-inv-view {
+    background: #1A2E75;
+    color: #fff;
+}
+.btn-inv-edit {
+    background: #5C6AC4;
+    color: #fff;
+}
+.btn-inv-delete {
+    background: #BF1E2E;
+    color: #fff;
+}
+.btn-inv-action:hover, .btn-inv-action:focus {
+    opacity: 0.92;
+    color: #fff;
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 32px 0 16px 0;
+    padding: 0;
+    list-style: none;
+}
+.pagination li {
+    display: inline-block;
+}
+.pagination a, .pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 8px;
+    border: 1.5px solid #1A2E75;
+    background: #fff;
+    color: #1A2E75;
+    font-weight: 600;
+    font-size: 1.08rem;
+    text-decoration: none !important;
+    transition: background 0.15s, color 0.15s;
+    margin: 0 2px;
+}
+.pagination .active span, .pagination a.active {
+    background: #1A2E75;
+    color: #fff;
+    border-color: #1A2E75;
+    cursor: default;
+}
+.pagination a:hover, .pagination a:focus {
+    background: #5C6AC4;
+    color: #fff;
+    border-color: #5C6AC4;
+}
+.pagination .disabled span, .pagination .disabled a {
+    color: #b0b0b0;
+    background: #f5f7fa;
+    border-color: #e3e6f0;
+    cursor: not-allowed;
+}
+.pagination .page-arrow {
+    font-size: 1.3rem;
+    padding: 0 10px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 8px;
+    border: 1.5px solid #1A2E75;
+    background: #fff;
+    color: #1A2E75;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.pagination .page-arrow:hover, .pagination .page-arrow:focus {
+    background: #5C6AC4;
+    color: #fff;
+    border-color: #5C6AC4;
+}
+</style>
 
 <!-- Modal para cambiar estado -->
 <div class="modal fade" id="estadoModal" tabindex="-1">

@@ -29,7 +29,7 @@ class FacturacionController extends Controller
                 $q->where('estado_pago', $request->estado);
             })
             ->latest()
-            ->get();
+            ->paginate(10);
         return view('facturacion.index', compact('facturas'));
     }
 

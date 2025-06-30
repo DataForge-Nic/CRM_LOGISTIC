@@ -3,91 +3,97 @@
 @section('title', 'Dashboard de Tracking - SkylinkOne CRM')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Header del Dashboard -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-900">Dashboard de Tracking</h1>
-            <p class="text-muted">Monitoreo y control de seguimientos con temporizadores</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('tracking.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Nuevo Tracking
-            </a>
-            <a href="{{ route('tracking.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-list me-2"></i>Ver Todos
-            </a>
+<div class="container-fluid px-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <i class="fas fa-chart-line text-primary" style="font-size:2.2rem;"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">Dashboard de Tracking</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Monitoreo y control de seguimientos con temporizadores</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('tracking.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff;">
+                        <i class="fas fa-plus me-2"></i> Nuevo Tracking
+                    </a>
+                    <a href="{{ route('tracking.index') }}" class="btn btn-outline-secondary btn-lg fw-semibold shadow-sm px-4">
+                        <i class="fas fa-list me-2"></i> Ver Todos
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Tarjetas de Estadísticas -->
+    <!-- Stats Cards -->
     <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Trackings
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-3">
+                                <i class="fas fa-calendar text-primary fs-4"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalTrackings }}</div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title text-muted mb-1">TOTAL TRACKINGS</h6>
+                            <h4 class="mb-0 fw-bold text-dark">{{ $totalTrackings }}</h4>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Pendientes
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-3">
+                                <i class="fas fa-clock text-warning fs-4"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $trackingsPendientes }}</div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title text-muted mb-1">PENDIENTES</h6>
+                            <h4 class="mb-0 fw-bold text-dark">{{ $trackingsPendientes }}</h4>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-danger shadow h-100 py-2">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                Vencidos
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-danger bg-opacity-10 rounded-circle p-3">
+                                <i class="fas fa-exclamation-triangle text-danger fs-4"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $trackingsVencidos }}</div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title text-muted mb-1">VENCIDOS</h6>
+                            <h4 class="mb-0 fw-bold text-dark">{{ $trackingsVencidos }}</h4>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Completados
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 rounded-circle p-3">
+                                <i class="fas fa-check-circle text-success fs-4"></i>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $trackingsCompletados }}</div>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="card-title text-muted mb-1">COMPLETADOS</h6>
+                            <h4 class="mb-0 fw-bold text-dark">{{ $trackingsCompletados }}</h4>
                         </div>
                     </div>
                 </div>
@@ -98,18 +104,13 @@
     <!-- Búsqueda Rápida -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-search me-2"></i>Búsqueda Rápida de Tracking
-                    </h6>
-                </div>
+            <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
+                    <div class="row align-items-center">
+                        <div class="col-md-8 mb-2 mb-md-0">
                             <div class="input-group">
-                                <input type="text" id="codigoTracking" class="form-control" 
-                                       placeholder="Ingresa el código de tracking...">
+                                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-primary"></i></span>
+                                <input type="text" id="codigoTracking" class="form-control border-start-0" placeholder="Ingresa el código de tracking...">
                                 <button class="btn btn-primary" type="button" onclick="buscarTracking()">
                                     <i class="fas fa-search me-2"></i>Buscar
                                 </button>
@@ -130,9 +131,9 @@
     <!-- Próximos a Vencer -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-warning">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-semibold text-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>Próximos a Vencer (7 días)
                     </h6>
                     <span class="badge bg-warning text-dark" id="contadorProximos">0</span>
@@ -158,12 +159,10 @@
                                         <strong>Vence:</strong> {{ \Carbon\Carbon::parse($tracking->recordatorio_fecha)->format('d/m/Y H:i') }}
                                     </p>
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="verTracking({{ $tracking->id }})">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="verTracking({{ $tracking->id }})">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-success" 
-                                                onclick="marcarCompletado({{ $tracking->id }})">
+                                        <button class="btn btn-sm btn-success" onclick="marcarCompletado({{ $tracking->id }})">
                                             <i class="fas fa-check"></i> Completar
                                         </button>
                                     </div>
@@ -185,9 +184,9 @@
     <!-- Temporizadores Activos -->
     <div class="row">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-info">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="mb-0 fw-semibold text-info">
                         <i class="fas fa-stopwatch me-2"></i>Temporizadores Activos
                     </h6>
                 </div>
@@ -200,6 +199,44 @@
         </div>
     </div>
 </div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Estilos de inventario aplicados a dashboard de tracking -->
+<style>
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+.bg-primary.bg-opacity-10, .bg-warning.bg-opacity-10, .bg-danger.bg-opacity-10, .bg-success.bg-opacity-10 {
+    background-color: rgba(26,46,117,0.08) !important;
+}
+.card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.btn-lg {
+    font-size: 1.08rem;
+    border-radius: 0.75rem;
+    padding: 0.75rem 2rem;
+}
+.btn-primary, .btn-outline-info {
+    border-radius: 0.75rem;
+}
+.btn-outline-secondary {
+    border-radius: 0.75rem;
+}
+.badge {
+    font-size: 0.85rem;
+    padding: 0.5em 0.75em;
+    border-radius: 0.75rem;
+}
+</style>
 
 <!-- Modal para Detalles del Tracking -->
 <div class="modal fade" id="trackingModal" tabindex="-1">
