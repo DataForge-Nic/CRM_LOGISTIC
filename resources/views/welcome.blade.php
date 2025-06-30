@@ -25,6 +25,9 @@
         </div>
     </div>
 
+    <!-- Estadísticas personalizadas y filtro de fecha -->
+    {{-- Eliminado: tarjetas generales de estadísticas --}}
+
     <!-- Módulos principales en recuadros grandes -->
     <div class="row g-4 mb-4">
         @php
@@ -97,29 +100,73 @@
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <!-- Gráfico profesional de paquetes e ingresos por cliente -->
+            <!-- Estadísticas por cliente -->
             <div class="card border-0 shadow-sm mb-4 dashboard-stats-card">
                 <div class="card-header bg-white fw-bold border-bottom-0 d-flex align-items-center gap-2">
-                    <i class="fas fa-chart-bar me-2 text-primary"></i>
-                    <span>Paquetes e Ingresos por Cliente (mes actual)</span>
+                    <i class="fas fa-user-friends me-2 text-primary"></i>
+                    <span>Estadísticas por Cliente (mes actual)</span>
                 </div>
                 <div class="card-body">
-                    <div class="mb-3">
-                        <label for="clienteAutocomplete" class="form-label fw-semibold">Buscar y seleccionar cliente:</label>
-                        <div class="autocomplete-wrapper position-relative" style="max-width: 350px;">
-                            <input type="text" id="clienteAutocomplete" class="form-control" placeholder="Escribe el nombre del cliente..." autocomplete="off">
-                            <ul id="autocompleteList" class="list-group position-absolute w-100 shadow-sm" style="z-index:10; display:none; max-height:180px; overflow-y:auto;"></ul>
+                    <div class="mb-3 d-flex flex-wrap align-items-end gap-4 justify-content-center dashboard-filtros-row">
+                        <div class="filtro-item">
+                            <label for="servicioSelect" class="form-label fw-semibold mb-1">Tipo de servicio:</label>
+                            <select id="servicioSelect" class="form-select filtro-select">
+                                <option value="todos">Todos</option>
+                                <option value="maritimo">Marítimo</option>
+                                <option value="aereo">Aéreo</option>
+                            </select>
+                        </div>
+                        <div class="filtro-item">
+                            <label for="clienteAutocomplete" class="form-label fw-semibold mb-1">Buscar cliente:</label>
+                            <div class="autocomplete-wrapper position-relative">
+                                <input type="text" id="clienteAutocomplete" class="form-control filtro-input" placeholder="Escribe el nombre del cliente..." autocomplete="off">
+                                <ul id="autocompleteList" class="list-group position-absolute w-100 shadow-sm" style="z-index:10; display:none; max-height:180px; overflow-y:auto;"></ul>
+                            </div>
+                        </div>
+                        <div class="filtro-item" style="min-width:240px;max-width:320px;">
+                            <label for="fechaRango" class="form-label fw-semibold mb-1">Rango de fechas:</label>
+                            <input type="text" id="fechaRango" class="form-control filtro-input" placeholder="Selecciona un rango..." autocomplete="off">
                         </div>
                     </div>
-                    <div id="noDataMsg" class="text-center text-muted py-4" style="display:none;">
-                        <i class="fas fa-info-circle fa-2x mb-2"></i><br>
-                        No hay datos de paquetes ni ingresos para este cliente en el mes actual.
+                    <div class="row g-4 justify-content-center dashboard-stats-row">
+                        <div class="col-md-4 col-12">
+                            <div class="stat-card">
+                                <div class="stat-icon stat-bg-blue">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-title">Total Paquetes</div>
+                                    <div class="stat-value" id="clienteTotalPaquetes">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="stat-card">
+                                <div class="stat-icon stat-bg-green">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-title">Dinero Ganado</div>
+                                    <div class="stat-value stat-money" id="clienteDinero">-</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <div class="stat-card">
+                                <div class="stat-icon stat-bg-cyan">
+                                    <i class="fas fa-weight-hanging"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-title">Libras</div>
+                                    <div class="stat-value stat-libras" id="clienteLibras">- lb</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div id="noClienteDataMsg" class="text-center text-muted py-4" style="display:none;">
                         <i class="fas fa-box-open fa-2x mb-2"></i><br>
                         Este cliente no tiene paquetes registrados este mes.
                     </div>
-                    <canvas id="graficoCliente" height="170"></canvas>
                 </div>
             </div>
             <div class="card border-0 shadow-sm mb-4 dashboard-stats-card">
@@ -158,13 +205,13 @@
         </div>
         <div class="col-lg-4">
             <!-- Gráfico de pastel de servicios -->
-            <div class="card border-0 shadow-sm mb-4 dashboard-stats-card">
+            <div class="card border-0 shadow-sm mb-4 dashboard-stats-card pie-card">
                 <div class="card-header bg-white fw-bold border-bottom-0 d-flex align-items-center gap-2">
                     <i class="fas fa-chart-pie me-2 text-info"></i>
                     <span>Distribución de Paquetes por Tipo de Servicio (mes actual)</span>
                 </div>
-                <div class="card-body">
-                    <canvas id="graficoServiciosPie" height="210"></canvas>
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <canvas id="graficoServiciosPie" height="210" style="max-width:260px;"></canvas>
                 </div>
             </div>
         </div>
@@ -173,6 +220,8 @@
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
 
 <style>
 .dashboard-module-card {
@@ -274,10 +323,164 @@
     color: #1A2E75;
     font-weight: 600;
 }
+.dashboard-stats-row {
+    margin-top: 1.2rem;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 1.2rem;
+}
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 1.2rem;
+    box-shadow: 0 4px 24px 0 rgba(26,46,117,0.10), 0 1.5px 6px 0 rgba(92,106,196,0.07);
+    padding: 1.2rem 0.7rem 1.1rem 0.7rem;
+    min-width: 180px;
+    max-width: 220px;
+    min-height: 150px;
+    height: 150px;
+    gap: 0.7rem;
+    border: 1.5px solid #f0f4fa;
+    position: relative;
+    overflow: hidden;
+    flex: 1 1 0;
+    transition: box-shadow 0.2s, transform 0.2s, background 0.18s;
+}
+.stat-card:hover {
+    box-shadow: 0 8px 32px 0 rgba(26,46,117,0.18), 0 2px 8px 0 rgba(92,106,196,0.10);
+    background: #f8fafd;
+    transform: translateY(-2px) scale(1.02);
+}
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(26,46,117,0.10);
+    flex-shrink: 0;
+    margin-bottom: 0.5rem;
+}
+.stat-bg-blue {
+    background: linear-gradient(135deg, #1A2E75 0%, #5C6AC4 100%);
+}
+.stat-bg-green {
+    background: linear-gradient(135deg, #1ecb7b 0%, #1A2E75 100%);
+}
+.stat-bg-cyan {
+    background: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
+}
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.stat-title {
+    font-size: 0.98rem;
+    color: #6c7a92;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+    text-align: center;
+}
+.stat-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #1A2E75;
+    letter-spacing: 1px;
+    line-height: 1.1;
+    text-align: center;
+}
+.stat-money {
+    color: #1ecb7b;
+}
+.stat-libras {
+    color: #00b6ff;
+}
+@media (max-width: 991px) {
+    .dashboard-stats-row { gap: 0.7rem; }
+    .stat-card { min-width: 120px; max-width: 100%; min-height: 110px; height: 110px; padding: 0.7rem 0.3rem 0.7rem 0.3rem; }
+    .stat-icon { width: 32px; height: 32px; font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .stat-title { font-size: 0.85rem; }
+    .stat-value { font-size: 1.01rem; }
+}
+@media (max-width: 767px) {
+    .dashboard-stats-row { flex-direction: column; gap: 0.7rem; flex-wrap: wrap; }
+    .stat-card { min-width: 100%; max-width: 100%; min-height: 90px; height: 90px; }
+}
+.dashboard-filtros-row {
+    margin-bottom: 0.7rem;
+    gap: 1.2rem !important;
+    justify-content: flex-start !important;
+    align-items: flex-end !important;
+}
+.filtro-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 170px;
+    max-width: 260px;
+}
+.filtro-select, .filtro-input {
+    font-size: 1.01rem;
+    border-radius: 0.7rem;
+    padding: 0.45rem 1rem;
+    border: 1.2px solid #C3C8D4;
+    background: #f8fafc;
+    color: #1A2E75;
+    font-weight: 500;
+    box-shadow: none;
+    transition: border 0.18s;
+    height: 42px;
+}
+.filtro-select:focus, .filtro-input:focus {
+    border-color: #5C6AC4;
+    outline: none;
+}
+.filtro-item label {
+    font-size: 0.98rem;
+    color: #1A2E75;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+@media (max-width: 991px) {
+    .dashboard-filtros-row { gap: 0.7rem !important; }
+    .filtro-item { min-width: 120px; }
+}
+@media (max-width: 767px) {
+    .dashboard-filtros-row { flex-direction: column !important; align-items: stretch !important; gap: 0.5rem !important; }
+    .filtro-item { min-width: 100%; max-width: 100%; }
+}
+.dashboard-stats-card.pie-card {
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 2.2rem;
+    padding-bottom: 2.2rem;
+}
+@media (max-width: 991px) {
+    .dashboard-stats-card.pie-card { min-height: 220px; padding-top: 1.2rem; padding-bottom: 1.2rem; }
+}
+@media (max-width: 767px) {
+    .dashboard-stats-card.pie-card { min-height: 160px; padding-top: 0.7rem; padding-bottom: 0.7rem; }
+}
 </style>
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 <script>
 console.log('Script ejecutado');
 const clientesData = @json($clientesData ?? []);
@@ -293,7 +496,40 @@ const skylinkPalette = [
 // --- Gráfico de barras (clientes) ---
 const input = document.getElementById('clienteAutocomplete');
 const list = document.getElementById('autocompleteList');
+const servicioSelect = document.getElementById('servicioSelect');
 let selectedClienteId = null;
+
+const idsCliente = {
+    total: document.getElementById('clienteTotalPaquetes'),
+    dinero: document.getElementById('clienteDinero'),
+    libras: document.getElementById('clienteLibras'),
+};
+
+function setClienteStats(data, servicio) {
+    if (!data) {
+        idsCliente.total.textContent = '-';
+        idsCliente.dinero.textContent = '-';
+        idsCliente.libras.textContent = '-';
+        return;
+    }
+    let total = 0, dinero = 0, libras = 0;
+    if (servicio === 'todos') {
+        total = (data.paquetes_aereo ?? 0) + (data.paquetes_maritimo ?? 0);
+        dinero = (data.ingresos_aereo ?? 0) + (data.ingresos_maritimo ?? 0);
+        libras = (data.libras_aereo ?? 0) + (data.libras_maritimo ?? 0);
+    } else if (servicio === 'aereo') {
+        total = data.paquetes_aereo ?? 0;
+        dinero = data.ingresos_aereo ?? 0;
+        libras = data.libras_aereo ?? 0;
+    } else if (servicio === 'maritimo') {
+        total = data.paquetes_maritimo ?? 0;
+        dinero = data.ingresos_maritimo ?? 0;
+        libras = data.libras_maritimo ?? 0;
+    }
+    idsCliente.total.textContent = total;
+    idsCliente.dinero.textContent = dinero.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    idsCliente.libras.textContent = libras.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+}
 
 function showSuggestions(term) {
     list.innerHTML = '';
@@ -309,7 +545,7 @@ function showSuggestions(term) {
             input.value = cliente.nombre_completo;
             selectedClienteId = cliente.id;
             list.style.display = 'none';
-            renderChart(cliente.id);
+            renderClienteStats(cliente.id);
         };
         list.appendChild(li);
     });
@@ -321,8 +557,7 @@ input.addEventListener('input', function() {
     if (term.length === 0) {
         list.style.display = 'none';
         selectedClienteId = null;
-        document.getElementById('graficoCliente').style.display = 'none';
-        document.getElementById('noDataMsg').style.display = '';
+        setClienteStats(null, servicioSelect.value);
         return;
     }
     showSuggestions(term);
@@ -333,84 +568,34 @@ input.addEventListener('focus', function() {
 });
 
 document.addEventListener('click', function(e) {
-    if (!input.contains(e.target) && !list.contains(e.target)) {
+    if (!list.contains(e.target) && e.target !== input) {
         list.style.display = 'none';
     }
 });
 
-const ctxCliente = document.getElementById('graficoCliente').getContext('2d');
-let chartCliente;
-function renderChart(clienteId) {
-    const data = clientesData[clienteId] || { paquetes: 0, ingresos: 0 };
-    const isEmpty = (data.paquetes === 0 && data.ingresos === 0);
-    document.getElementById('noDataMsg').style.display = 'none';
-    document.getElementById('noClienteDataMsg').style.display = isEmpty ? '' : 'none';
-    document.getElementById('graficoCliente').style.display = isEmpty ? 'none' : '';
-    if (isEmpty) {
-        if (chartCliente) chartCliente.destroy();
-        return;
-    }
-    if (chartCliente) chartCliente.destroy();
-    chartCliente = new Chart(ctxCliente, {
-        type: 'bar',
-        data: {
-            labels: ['Paquetes', 'Ingresos'],
-            datasets: [{
-                label: '',
-                data: [data.paquetes, data.ingresos],
-                backgroundColor: [skylinkPalette[0], skylinkPalette[1]],
-                borderRadius: 18,
-                borderSkipped: false,
-                maxBarThickness: 80,
-                hoverBackgroundColor: [skylinkPalette[2], skylinkPalette[3]]
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#1A2E75',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    borderColor: '#5C6AC4',
-                    borderWidth: 1.5,
-                    padding: 12,
-                    callbacks: {
-                        label: function(context) {
-                            if (context.dataIndex === 1) {
-                                return 'Ingresos: $' + context.parsed.y.toLocaleString();
-                            }
-                            return 'Paquetes: ' + context.parsed.y;
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#1A2E75', font: { weight: 'bold', size: 15 } }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#e3e8f0' },
-                    ticks: {
-                        color: '#5C6AC4',
-                        font: { weight: 'bold', size: 13 },
-                        callback: function(value, index, values) {
-                            return index === 1 ? '$' + value : value;
-                        }
-                    }
-                }
-            }
+function renderClienteStats(clienteId) {
+    const data = clientesData[clienteId] || null;
+    setClienteStats(data, servicioSelect.value);
+    document.getElementById('noClienteDataMsg').style.display = data && (
+        (servicioSelect.value === 'todos' && ((data.paquetes_aereo ?? 0) + (data.paquetes_maritimo ?? 0) > 0)) ||
+        (servicioSelect.value === 'aereo' && (data.paquetes_aereo ?? 0) > 0) ||
+        (servicioSelect.value === 'maritimo' && (data.paquetes_maritimo ?? 0) > 0)
+    ) ? 'none' : '';
+}
+
+servicioSelect.addEventListener('change', function() {
+    if (selectedClienteId) renderClienteStats(selectedClienteId);
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+    if (input.value && clientesList.length > 0) {
+        const cliente = clientesList.find(c => c.nombre_completo === input.value);
+        if (cliente) {
+            selectedClienteId = cliente.id;
+            renderClienteStats(cliente.id);
         }
-    });
-}
-// Inicializar con el primer cliente si existe
-if (clientesList.length > 0) {
-    input.value = clientesList[0].nombre_completo;
-    selectedClienteId = clientesList[0].id;
-    renderChart(selectedClienteId);
-}
+    }
+});
 
 // --- Gráfico de pastel (servicios) ---
 const ctxPie = document.getElementById('graficoServiciosPie').getContext('2d');
@@ -460,6 +645,67 @@ let chartPie = new Chart(ctxPie, {
         }
     }
 });
+
+// --- Flatpickr para rango de fechas ---
+let fechaDesde = null;
+let fechaHasta = null;
+flatpickr('#fechaRango', {
+    mode: 'range',
+    dateFormat: 'Y-m-d',
+    locale: 'es',
+    theme: 'airbnb',
+    onChange: function(selectedDates, dateStr) {
+        if (selectedDates.length === 2) {
+            fechaDesde = selectedDates[0].toISOString().slice(0,10);
+            fechaHasta = selectedDates[1].toISOString().slice(0,10);
+        } else {
+            fechaDesde = null;
+            fechaHasta = null;
+        }
+        fetchClienteStats();
+    }
+});
+
+servicioSelect.addEventListener('change', fetchClienteStats);
+input.addEventListener('change', fetchClienteStats);
+
+function setClienteStatsAjax(data) {
+    if (!data) {
+        idsCliente.total.textContent = '-';
+        idsCliente.dinero.textContent = '-';
+        idsCliente.libras.textContent = '-';
+        return;
+    }
+    idsCliente.total.textContent = data.total ?? '-';
+    idsCliente.dinero.textContent = data.dinero !== undefined ? parseFloat(data.dinero).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
+    idsCliente.libras.textContent = data.libras !== undefined ? parseFloat(data.libras).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
+}
+function setClienteStatsLoading() {
+    idsCliente.total.textContent = '...';
+    idsCliente.dinero.textContent = '...';
+    idsCliente.libras.textContent = '...';
+}
+function fetchClienteStats() {
+    if (!selectedClienteId) {
+        setClienteStatsAjax(null);
+        return;
+    }
+    setClienteStatsLoading();
+    let url = '/dashboard/estadisticas-paquetes-cliente';
+    const params = [];
+    params.push('cliente_id=' + encodeURIComponent(selectedClienteId));
+    params.push('tipo_servicio=' + encodeURIComponent(servicioSelect.value));
+    if (fechaDesde) params.push('desde=' + encodeURIComponent(fechaDesde));
+    if (fechaHasta) params.push('hasta=' + encodeURIComponent(fechaHasta));
+    url += '?' + params.join('&');
+    fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+        credentials: 'same-origin',
+    })
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(setClienteStatsAjax)
+    .catch(() => setClienteStatsAjax(null));
+}
 </script>
 @endpush
 

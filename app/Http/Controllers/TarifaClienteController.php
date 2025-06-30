@@ -21,14 +21,21 @@ class TarifaClienteController extends Controller
             ->where('servicio_id', $request->servicio_id)
             ->first();
         if ($existe) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['error' => 'Ya existe una tarifa para este servicio.'], 409);
+            }
             return redirect()->back()->with('error', 'Ya existe una tarifa para este servicio.');
         }
 
-        TarifaCliente::create([
+        $tarifa = TarifaCliente::create([
             'cliente_id' => $request->cliente_id,
             'servicio_id' => $request->servicio_id,
             'tarifa' => $request->tarifa,
         ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'tarifa' => $tarifa]);
+        }
 
         return redirect()->back()->with('success', 'Tarifa agregada correctamente.');
     }

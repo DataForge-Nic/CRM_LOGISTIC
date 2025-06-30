@@ -18,7 +18,8 @@ class ClienteController extends Controller
     // Formulario para crear cliente
     public function create()
     {
-        return view('clientes.create');
+        $servicios = \App\Models\Servicio::all();
+        return view('clientes.create', compact('servicios'));
     }
 
     // Guardar cliente nuevo
@@ -29,10 +30,10 @@ class ClienteController extends Controller
             'correo'          => 'nullable|email',
             'telefono'        => 'nullable|string|max:20',
             'direccion'       => 'nullable|string|max:255',
-            'tipo_cliente'    => 'required|in:normal,casillero', // 🔁 CORREGIDO
+            'tipo_cliente'    => 'required|in:normal,casillero,Normal,VIP',
         ]);
 
-        Cliente::create([
+        $cliente = Cliente::create([
             'nombre_completo' => $request->nombre_completo,
             'correo'          => $request->correo,
             'telefono'        => $request->telefono,
@@ -41,6 +42,32 @@ class ClienteController extends Controller
             'fecha_registro'  => now(),
             'created_by'      => Auth::id(),
         ]);
+
+        // Guardar tarifas
+        $servicios = \App\Models\Servicio::all();
+        $map = [
+            'aereo' => 'tarifa_aereo',
+            'maritimo' => 'tarifa_maritimo',
+            'express' => 'tarifa_express',
+        ];
+        foreach ($map as $tipo => $input) {
+            $servicio = $servicios->first(function($s) use ($tipo) {
+                return strtolower($s->tipo_servicio) === $tipo;
+            });
+            $valor = $request->input($input);
+            if ($servicio && $valor !== null && $valor !== '') {
+                \App\Models\TarifaCliente::updateOrCreate([
+                    'cliente_id' => $cliente->id,
+                    'servicio_id' => $servicio->id,
+                ], [
+                    'tarifa' => $valor,
+                ]);
+            }
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['id' => $cliente->id]);
+        }
 
         return redirect()->route('clientes.index')->with('success', 'Cliente creado correctamente.');
     }
@@ -64,7 +91,7 @@ class ClienteController extends Controller
             'correo'          => 'nullable|email',
             'telefono'        => 'nullable|string|max:20',
             'direccion'       => 'nullable|string|max:255',
-            'tipo_cliente'    => 'required|in:normal,casillero', // 🔁 CORREGIDO
+            'tipo_cliente'    => 'required|in:normal,casillero',
         ]);
 
         $cliente->update([
@@ -75,6 +102,28 @@ class ClienteController extends Controller
             'tipo_cliente'    => $request->tipo_cliente,
             'updated_by'      => Auth::id(),
         ]);
+
+        // Guardar o actualizar tarifas
+        $servicios = \App\Models\Servicio::all();
+        $map = [
+            'aereo' => 'tarifa_aereo',
+            'maritimo' => 'tarifa_maritimo',
+            'express' => 'tarifa_express',
+        ];
+        foreach ($map as $tipo => $input) {
+            $servicio = $servicios->first(function($s) use ($tipo) {
+                return strtolower($s->tipo_servicio) === $tipo;
+            });
+            $valor = $request->input($input);
+            if ($servicio && $valor !== null && $valor !== '') {
+                \App\Models\TarifaCliente::updateOrCreate([
+                    'cliente_id' => $cliente->id,
+                    'servicio_id' => $servicio->id,
+                ], [
+                    'tarifa' => $valor,
+                ]);
+            }
+        }
 
         return redirect()->route('clientes.index')->with('success', 'Cliente actualizado correctamente.');
     }
@@ -88,13 +137,12 @@ class ClienteController extends Controller
         return redirect()->route('clientes.index')->with('success', 'Cliente eliminado correctamente.');
     }
 
-    // Obtener datos de un cliente (API)
+    // Previsualización de cliente
     public function show($id)
     {
-        $cliente = Cliente::find($id);
-        if (!$cliente) {
-            return response()->json(['error' => 'Cliente no encontrado'], 404);
-        }
-        return response()->json($cliente);
+        $cliente = \App\Models\Cliente::findOrFail($id);
+        $tarifas = \App\Models\TarifaCliente::where('cliente_id', $id)->with('servicio')->get();
+        $servicios = \App\Models\Servicio::all();
+        return view('clientes.show', compact('cliente', 'tarifas', 'servicios'));
     }
 }

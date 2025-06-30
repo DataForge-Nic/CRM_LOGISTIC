@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Facturacion;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LogInventarioController;
+use App\Http\Controllers\DashboardController;
 
 // Login
 // Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -38,13 +39,34 @@ Route::get('/', function () {
     $clientesData = [];
     $inicioMes = \Carbon\Carbon::now()->startOfMonth()->toDateString();
     $finMes = \Carbon\Carbon::now()->endOfMonth()->toDateString();
+
+    // Función para normalizar el tipo de servicio (minúsculas y sin acentos)
+    function normalizarServicio($tipo) {
+        $tipo = strtolower($tipo ?? '');
+        $tipo = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $tipo);
+        return $tipo;
+    }
+
     foreach ($clientes as $cliente) {
-        $paquetes = \App\Models\Inventario::where('cliente_id', $cliente->id)
+        $paquetes = \App\Models\Inventario::with('servicio')
+            ->where('cliente_id', $cliente->id)
             ->whereBetween('fecha_ingreso', [$inicioMes, $finMes])
             ->get();
+
+        $paquetesAereo = $paquetes->filter(function($p) {
+            return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'aereo';
+        });
+        $paquetesMaritimo = $paquetes->filter(function($p) {
+            return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'maritimo';
+        });
+
         $clientesData[$cliente->id] = [
-            'paquetes' => $paquetes->count(),
-            'ingresos' => $paquetes->sum('monto_calculado'),
+            'paquetes_aereo' => $paquetesAereo->count(),
+            'paquetes_maritimo' => $paquetesMaritimo->count(),
+            'ingresos_aereo' => $paquetesAereo->sum('monto_calculado'),
+            'ingresos_maritimo' => $paquetesMaritimo->sum('monto_calculado'),
+            'libras_aereo' => $paquetesAereo->sum('peso_lb'),
+            'libras_maritimo' => $paquetesMaritimo->sum('peso_lb'),
         ];
     }
     // Gráfico de pastel: paquetes del mes agrupados por tipo de servicio
@@ -78,6 +100,7 @@ Route::prefix('clientes')->group(function () {
     Route::get('/{id}/editar', [ClienteController::class, 'edit'])->name('clientes.edit');
     Route::put('/{id}', [ClienteController::class, 'update'])->name('clientes.update');
     Route::delete('/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy');
+    Route::get('/{id}', [ClienteController::class, 'show'])->name('clientes.show');
 });
 
 // Rutas para facturación
@@ -143,3 +166,9 @@ Route::delete('tarifas-clientes/{id}', [TarifaClienteController::class, 'destroy
 
 // Historial de inventario
 Route::get('logs-inventario', [LogInventarioController::class, 'index'])->name('logs_inventario.index');
+
+// API AJAX para dashboard: estadísticas de paquetes
+Route::middleware(['auth'])->get('/dashboard/estadisticas-paquetes', [DashboardController::class, 'estadisticasPaquetes'])->name('dashboard.estadisticas-paquetes');
+
+// API AJAX para estadísticas por cliente con filtro de fechas y tipo de servicio
+Route::middleware(['auth'])->get('/dashboard/estadisticas-paquetes-cliente', [App\Http\Controllers\DashboardController::class, 'estadisticasPaquetesCliente'])->name('dashboard.estadisticas-paquetes-cliente');

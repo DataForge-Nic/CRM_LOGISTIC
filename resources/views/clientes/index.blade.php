@@ -53,12 +53,13 @@
                                 <div class="fw-semibold" style="font-size:1.08rem;">{{ \Carbon\Carbon::parse($cliente->fecha_registro)->format('Y-m-d') }}</div>
                                 <div class="text-muted" style="font-size:0.95rem;">{{ \Carbon\Carbon::parse($cliente->fecha_registro)->format('H:i:s') }}</div>
                             </td>
-                            <td>
-                                <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn-client-action btn-client-edit" title="Editar"><i class="fas fa-edit"></i></a>
-                                <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" style="display:inline">
+                            <td class="text-center">
+                                <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-info btn-sm me-1" title="Previsualizar"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-primary btn-sm me-1" title="Editar"><i class="fas fa-edit"></i></a>
+                                <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn-client-action btn-client-delete" onclick="return confirm('¿Eliminar cliente?')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar cliente?')" title="Eliminar"><i class="fas fa-trash"></i></button>
                                 </form>
                             </td>
                         </tr>
