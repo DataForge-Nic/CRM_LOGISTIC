@@ -31,7 +31,33 @@ Route::get('/', function () {
         ->latest('fecha_ingreso')
         ->take(5)
         ->get();
-    return view('welcome', compact('totalClientes', 'totalUsuarios', 'totalFacturas', 'totalPaquetes', 'ultimosPaquetes'));
+
+    // Clientes para el select
+    $clientes = \App\Models\Cliente::orderBy('nombre_completo')->get();
+    // Datos de paquetes e ingresos por cliente en el mes actual
+    $clientesData = [];
+    $inicioMes = \Carbon\Carbon::now()->startOfMonth()->toDateString();
+    $finMes = \Carbon\Carbon::now()->endOfMonth()->toDateString();
+    foreach ($clientes as $cliente) {
+        $paquetes = \App\Models\Inventario::where('cliente_id', $cliente->id)
+            ->whereBetween('fecha_ingreso', [$inicioMes, $finMes])
+            ->get();
+        $clientesData[$cliente->id] = [
+            'paquetes' => $paquetes->count(),
+            'ingresos' => $paquetes->sum('monto_calculado'),
+        ];
+    }
+    // Gráfico de pastel: paquetes del mes agrupados por tipo de servicio
+    $serviciosMes = \App\Models\Inventario::with('servicio')
+        ->whereBetween('fecha_ingreso', [$inicioMes, $finMes])
+        ->get();
+    $serviciosPieData = $serviciosMes->groupBy(function($item) {
+        return $item->servicio->tipo_servicio ?? 'Sin tipo';
+    })->map(function($group) {
+        return $group->count();
+    });
+
+    return view('welcome', compact('totalClientes', 'totalUsuarios', 'totalFacturas', 'totalPaquetes', 'ultimosPaquetes', 'clientes', 'clientesData', 'serviciosPieData'));
 })->name('welcome');
 
 // Rutas para usuarios

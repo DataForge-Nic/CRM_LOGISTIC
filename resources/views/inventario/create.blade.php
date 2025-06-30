@@ -8,20 +8,19 @@
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h3 mb-0 text-dark fw-bold">
-                        <i class="fas fa-plus-circle me-2 text-primary"></i>
-                        Registrar Nuevo Paquete
-                    </h1>
-                    <p class="text-muted mb-0">Completa la información del paquete para agregarlo al inventario</p>
+            <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <i class="fas fa-plus-circle text-primary" style="font-size:2.2rem;"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">Registrar Nuevo Paquete</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Completa la información del paquete para agregarlo al inventario</p>
+                    </div>
                 </div>
-                <div>
-                    <a href="{{ route('inventario.index') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>
-                        Volver al Inventario
-                    </a>
-                </div>
+                <a href="{{ route('inventario.index') }}" class="btn btn-outline-light fw-semibold shadow-sm px-4">
+                    <i class="fas fa-arrow-left me-2"></i> Volver al Inventario
+                </a>
             </div>
         </div>
     </div>

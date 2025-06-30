@@ -182,7 +182,7 @@
             </div>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive">
+            <div class="table-responsive-md">
                 <table class="table inventario-table table-hover align-middle mb-0" id="inventarioTable">
                     <thead class="table-light">
                         <tr>
@@ -206,7 +206,7 @@
                                 <i class="fas fa-info-circle me-1 text-muted"></i>
                                 Estado
                             </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark d-none d-md-table-cell">
                                 <i class="fas fa-calendar me-1 text-muted"></i>
                                 Ingreso
                             </th>
@@ -214,7 +214,7 @@
                                 <i class="fas fa-dollar-sign me-1 text-muted"></i>
                                 Monto
                             </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
+                            <th class="border-0 px-4 py-3 fw-semibold text-dark d-none d-md-table-cell">
                                 <i class="fas fa-dollar-sign me-1 text-muted"></i>
                                 Precio Unitario
                             </th>
@@ -234,7 +234,7 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold text-dark">{{ $item->cliente->nombre_completo }}</div>
-                                            <small class="text-muted">{{ $item->cliente->email ?? 'Sin email' }}</small>
+                                            <small class="text-muted d-none d-lg-block">{{ $item->cliente->email ?? 'Sin email' }}</small>
                                         </div>
                                     </div>
                                 </td>
@@ -272,7 +272,7 @@
                                         {{ ucfirst(str_replace('_', ' ', $item->estado)) }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-3 d-none d-md-table-cell">
                                     <div class="text-muted">
                                         {{ \Carbon\Carbon::parse($item->fecha_ingreso)->format('d/m/Y') }}
                                     </div>
@@ -283,7 +283,7 @@
                                 <td class="px-4 py-3">
                                     <div class="fw-bold text-success">${{ number_format($item->monto_calculado, 2) }}</div>
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-3 d-none d-md-table-cell">
                                     ${{ number_format($item->tarifa_manual ?? ($item->tarifa ?? 1.00), 2) }}
                                 </td>
                                 <td class="px-4 py-3 text-center">
@@ -577,6 +577,32 @@
     background: #5C6AC4;
     color: #fff;
     border-color: #5C6AC4;
+}
+@media (max-width: 1200px) {
+    .inventario-table thead th,
+    .inventario-table tbody td {
+        padding: 8px 6px !important;
+        font-size: 0.95rem;
+    }
+    .btn-inv-action {
+        min-width: 28px;
+        min-height: 28px;
+        font-size: 0.95rem;
+        padding: 0 6px;
+    }
+}
+@media (max-width: 992px) {
+    .inventario-table thead th,
+    .inventario-table tbody td {
+        padding: 6px 4px !important;
+        font-size: 0.90rem;
+    }
+    .btn-inv-action {
+        min-width: 24px;
+        min-height: 24px;
+        font-size: 0.90rem;
+        padding: 0 4px;
+    }
 }
 </style>
 

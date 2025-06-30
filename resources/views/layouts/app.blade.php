@@ -167,10 +167,20 @@
         }
         /* Responsive sidebar */
         @media (max-width: 991.98px) {
-            .sidebar {
-                width: 100%;
-                position: relative;
-                min-height: 60px;
+            #sidebar {
+                position: static !important;
+                width: 100% !important;
+                height: auto !important;
+                border-radius: 0;
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+            .sidebar-logo img {
+                height: 70px !important;
+                max-width: 120px;
+            }
+            .flex-grow-1 {
+                margin-left: 0 !important;
             }
         }
     </style>
@@ -191,59 +201,59 @@
     <div class="d-flex">
         @if(!$hideSidebar && !request()->routeIs('inventario.edit'))
         <!-- Sidebar -->
-        <nav id="sidebar" class="sidebar d-flex flex-column p-3 min-vh-100">
-            <div class="sidebar-logo">
-                <img src="/logo_skylinkone.png" alt="SkyLink One Logo">
+        <nav id="sidebar" class="sidebar d-flex flex-column p-3" style="background: #fff; box-shadow: 2px 0 10px rgba(26,46,117,0.04); position: fixed; top: 0; left: 0; height: 100vh; width: 260px; z-index: 1040;">
+            <div class="sidebar-logo d-flex justify-content-center align-items-center" style="background: #fff; border-radius: 1.5rem; margin-bottom: 2.5rem; padding-top: 2.5rem; padding-bottom: 2.5rem;">
+                <img src="/logo_skylinkone.png" alt="SkyLink One Logo" style="height: 150px; max-width: 220px; width: auto; display: block;">
             </div>
-            <ul class="nav nav-pills flex-column mb-auto">
+            <ul class="nav nav-pills flex-column mb-auto gap-2">
                 <li class="nav-item">
-                    <a href="{{ route('welcome') }}" class="nav-link @if(request()->routeIs('welcome')) active @endif">
-                        <i class="fas fa-home"></i> Dashboard
+                    <a href="{{ route('welcome') }}" class="nav-link @if(request()->routeIs('welcome')) active @endif sidebar-link">
+                        <i class="fas fa-home"></i> <span class="sidebar-link-text">Dashboard</span>
                     </a>
                 </li>
                 @if($user && in_array($user->rol, ['admin', 'contador', 'agente']))
                 <li>
-                    <a href="{{ route('clientes.index') }}" class="nav-link @if(request()->routeIs('clientes.*')) active @endif">
-                        <i class="fas fa-users"></i> Clientes
+                    <a href="{{ route('clientes.index') }}" class="nav-link @if(request()->routeIs('clientes.*')) active @endif sidebar-link">
+                        <i class="fas fa-users"></i> <span class="sidebar-link-text">Clientes</span>
                     </a>
                 </li>
                 @endif
                 @if($user && in_array($user->rol, ['admin', 'agente']))
                 <li>
-                    <a href="{{ route('inventario.index') }}" class="nav-link @if(request()->routeIs('inventario.*')) active @endif">
-                        <i class="fas fa-boxes"></i> Inventario
+                    <a href="{{ route('inventario.index') }}" class="nav-link @if(request()->routeIs('inventario.*')) active @endif sidebar-link">
+                        <i class="fas fa-boxes"></i> <span class="sidebar-link-text">Inventario</span>
                     </a>
                 </li>
                 @endif
                 <li>
-                    <a href="{{ route('tracking.dashboard') }}" class="nav-link @if(request()->routeIs('tracking.*')) active @endif">
-                        <i class="fas fa-stopwatch"></i> Tracking
+                    <a href="{{ route('tracking.dashboard') }}" class="nav-link @if(request()->routeIs('tracking.*')) active @endif sidebar-link">
+                        <i class="fas fa-stopwatch"></i> <span class="sidebar-link-text">Tracking</span>
                     </a>
                 </li>
                 @if($user && in_array($user->rol, ['admin', 'contador']))
                 <li>
-                    <a href="{{ route('facturacion.index') }}" class="nav-link @if(request()->routeIs('facturacion.*')) active @endif">
-                        <i class="fas fa-file-invoice-dollar"></i> Facturación
+                    <a href="{{ route('facturacion.index') }}" class="nav-link @if(request()->routeIs('facturacion.*')) active @endif sidebar-link">
+                        <i class="fas fa-file-invoice-dollar"></i> <span class="sidebar-link-text">Facturación</span>
                     </a>
                 </li>
                 @endif
                 @if($user && in_array($user->rol, ['admin', 'contador', 'agente']))
                 <li>
-                    <a href="{{ route('notificaciones.index') }}" class="nav-link @if(request()->routeIs('notificaciones.*')) active @endif">
-                        <i class="fas fa-bell"></i> Notificaciones
+                    <a href="{{ route('notificaciones.index') }}" class="nav-link @if(request()->routeIs('notificaciones.*')) active @endif sidebar-link">
+                        <i class="fas fa-bell"></i> <span class="sidebar-link-text">Notificaciones</span>
                     </a>
                 </li>
                 @endif
                 @if($user && $user->rol === 'admin')
                 <li>
-                    <a href="{{ route('usuarios.index') }}" class="nav-link @if(request()->routeIs('usuarios.*')) active @endif">
-                        <i class="fas fa-user-cog"></i> Usuarios
+                    <a href="{{ route('usuarios.index') }}" class="nav-link @if(request()->routeIs('usuarios.*')) active @endif sidebar-link">
+                        <i class="fas fa-user-cog"></i> <span class="sidebar-link-text">Usuarios</span>
                     </a>
                 </li>
                 <li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <a href="{{ route('logs_inventario.index') }}" class="nav-link @if(request()->routeIs('logs_inventario.*')) active @endif" style="display: flex; align-items: center; gap: 8px;">
+                    <a href="{{ route('logs_inventario.index') }}" class="nav-link @if(request()->routeIs('logs_inventario.*')) active @endif sidebar-link" style="display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-history"></i>
-                        <span style="font-size: 1rem;">Historial Inventario</span>
+                        <span class="sidebar-link-text" style="font-size: 1rem;">Historial Inventario</span>
                     </a>
                 </li>
                 @endif
@@ -251,16 +261,16 @@
         </nav>
         @endif
         <!-- Main content -->
-        <div class="flex-grow-1">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 py-2" style="z-index:1050;">
+        <div class="flex-grow-1" style="margin-left: 260px;">
+            <nav class="navbar navbar-expand-lg px-4 py-2 sticky-top bg-white shadow-sm" style="color: #1A2E75; z-index:1050;">
                 <div class="container-fluid">
-                    <span class="navbar-brand fw-bold">SkylinkOne CRM</span>
+                    <span class="navbar-brand fw-bold" style="font-size: 1.45rem; letter-spacing: 1px; color: #1A2E75;">SkylinkOne CRM</span>
                     @if(!$hideSidebar)
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
                         <li class="nav-item dropdown position-relative">
-                            <a class="nav-link" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link position-relative" style="color: #1A2E75;" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-bell"></i>
-                                <span class="notification-badge" id="notificationCount">0</span>
+                                <span class="notification-badge" id="notificationCount" style="background:#BF1E2E; color:#fff;">0</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
                                 <li><h6 class="dropdown-header">Notificaciones</h6></li>
@@ -274,7 +284,7 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" style="color: #1A2E75;" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle"></i> {{ $user->nombre ?? 'Usuario' }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
@@ -299,6 +309,7 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Cargar notificaciones no leídas
         function loadNotifications() {
@@ -358,5 +369,6 @@
         });
     </script>
     @yield('scripts')
+    @stack('scripts')
 </body>
 </html>
