@@ -11,10 +11,39 @@ use Illuminate\Support\Facades\Auth;
 
 class InventarioController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $inventarios = Inventario::with(['cliente', 'servicio'])->latest()->paginate(10);
-        return view('inventario.index', compact('inventarios'));
+        $query = Inventario::with(['cliente', 'servicio']);
+        $clientes = \App\Models\Cliente::orderBy('nombre_completo')->get();
+        $servicios = \App\Models\Servicio::orderBy('tipo_servicio')->get();
+
+        $busqueda = $request->input('busqueda');
+        $cliente_id = $request->input('cliente_id');
+        $servicio_id = $request->input('servicio_id');
+        $estado = $request->input('estado');
+
+        if ($busqueda) {
+            $query->where(function($q) use ($busqueda) {
+                $q->whereHas('cliente', function($qc) use ($busqueda) {
+                    $qc->where('nombre_completo', 'like', "%$busqueda%")
+                       ->orWhere('correo', 'like', "%$busqueda%")
+                       ->orWhere('telefono', 'like', "%$busqueda%") ;
+                })
+                ->orWhere('tracking_codigo', 'like', "%$busqueda%")
+                ->orWhere('numero_guia', 'like', "%$busqueda%") ;
+            });
+        }
+        if ($cliente_id) {
+            $query->where('cliente_id', $cliente_id);
+        }
+        if ($servicio_id) {
+            $query->where('servicio_id', $servicio_id);
+        }
+        if ($estado) {
+            $query->where('estado', $estado);
+        }
+        $inventarios = $query->latest()->paginate(10)->appends($request->all());
+        return view('inventario.index', compact('inventarios', 'clientes', 'servicios', 'busqueda', 'cliente_id', 'servicio_id', 'estado'));
     }
 
     public function create()

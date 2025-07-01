@@ -27,10 +27,10 @@
         <div class="col-lg-10">
             <div class="card p-4">
                 <div class="row g-0 align-items-stretch">
-                    <div class="col-lg-6 p-3 border-end" style="min-width:320px;">
-                        <form id="cliente-form" method="POST" action="{{ route('clientes.update', $cliente->id) }}">
-                            @csrf
-                            @method('PUT')
+                    <form id="cliente-form" method="POST" action="{{ route('clientes.update', $cliente->id) }}" class="d-flex flex-wrap">
+                        @csrf
+                        @method('PUT')
+                        <div class="col-lg-6 p-3 border-end" style="min-width:320px;">
                             <div class="mb-3">
                                 <label for="nombre_completo" class="form-label fw-semibold">Nombre completo</label>
                                 <input type="text" class="form-control form-control-lg rounded-3" id="nombre_completo" name="nombre_completo" value="{{ old('nombre_completo', $cliente->nombre_completo) }}" required>
@@ -59,31 +59,29 @@
                                 </select>
                                 @error('tipo_cliente') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
-                            <div class="d-flex gap-3 justify-content-end mt-3">
-                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow-sm" id="btn_actualizar"><i class="fas fa-save me-2"></i>Actualizar Cliente</button>
+                        </div>
+                        <div class="col-lg-6 p-3 d-flex flex-column justify-content-between" style="min-width:320px;">
+                            <div>
+                                <h5 class="fw-bold mb-3"><i class="fas fa-dollar-sign text-primary me-2"></i>Tarifas por Servicio</h5>
+                                <div class="mb-3 d-flex align-items-center gap-3">
+                                    <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-plane text-primary"></i></span>
+                                    <label class="form-label mb-0 flex-grow-1">Aéreo <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_aereo" name="tarifa_aereo" placeholder="0.00" required style="max-width:120px;" value="{{ $tarifas->first(function($t){ return str_replace(['á','é','í','ó','ú'],['a','e','i','o','u'], strtolower($t->servicio->tipo_servicio ?? '')) === 'aereo'; })->tarifa ?? '' }}">
+                                </div>
+                                <div class="mb-3 d-flex align-items-center gap-3">
+                                    <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-ship text-primary"></i></span>
+                                    <label class="form-label mb-0 flex-grow-1">Marítimo <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_maritimo" name="tarifa_maritimo" placeholder="0.00" required style="max-width:120px;" value="{{ $tarifas->first(function($t){ return str_replace(['á','é','í','ó','ú'],['a','e','i','o','u'], strtolower($t->servicio->tipo_servicio ?? '')) === 'maritimo'; })->tarifa ?? '' }}">
+                                </div>
+                                <div class="mb-3 d-flex align-items-center gap-3">
+                                    <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-bolt text-primary"></i></span>
+                                    <label class="form-label mb-0 flex-grow-1">Express</label>
+                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_express" name="tarifa_express" placeholder="0.00" style="max-width:120px;" value="{{ $tarifas->first(function($t){ return str_replace(['á','é','í','ó','ú'],['a','e','i','o','u'], strtolower($t->servicio->tipo_servicio ?? '')) === 'express'; })->tarifa ?? '' }}">
+                                </div>
                             </div>
-                        </form>
-                    </div>
-                    <div class="col-lg-6 p-3" style="min-width:320px;">
-                        <h5 class="fw-bold mb-3"><i class="fas fa-dollar-sign text-primary me-2"></i>Tarifas por Servicio</h5>
-                        <form id="tarifas-form" autocomplete="off">
-                            <div class="mb-3 d-flex align-items-center gap-3">
-                                <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-plane text-primary"></i></span>
-                                <label class="form-label mb-0 flex-grow-1">Aéreo <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_aereo" name="tarifa_aereo" placeholder="0.00" required style="max-width:120px;" value="{{ $tarifas['aereo'] ?? '' }}">
-                            </div>
-                            <div class="mb-3 d-flex align-items-center gap-3">
-                                <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-ship text-primary"></i></span>
-                                <label class="form-label mb-0 flex-grow-1">Marítimo <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_maritimo" name="tarifa_maritimo" placeholder="0.00" required style="max-width:120px;" value="{{ $tarifas['maritimo'] ?? '' }}">
-                            </div>
-                            <div class="mb-3 d-flex align-items-center gap-3">
-                                <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-bolt text-primary"></i></span>
-                                <label class="form-label mb-0 flex-grow-1">Express</label>
-                                <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_express" name="tarifa_express" placeholder="0.00" style="max-width:120px;" value="{{ $tarifas['express'] ?? '' }}">
-                            </div>
-                        </form>
-                    </div>
+                            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow-sm w-100 mt-4 align-self-end" id="btn_actualizar"><i class="fas fa-save me-2"></i>Actualizar Cliente</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

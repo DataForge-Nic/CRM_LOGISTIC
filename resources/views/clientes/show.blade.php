@@ -58,17 +58,23 @@
                         <div class="mb-3 d-flex align-items-center gap-3">
                             <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-plane text-primary"></i></span>
                             <label class="form-label mb-0 flex-grow-1">Aéreo</label>
-                            <div class="form-control bg-light" style="max-width:120px;">${{ number_format(optional($tarifas->firstWhere('servicio.tipo_servicio', 'aereo'))->tarifa, 2) }}</div>
+                            <div class="form-control bg-light" style="max-width:120px;">
+                                ${{ number_format(optional($tarifas->first(function($t){ return str_replace(['á','é','í','ó','ú'],['a','e','i','o','u'], strtolower($t->servicio->tipo_servicio ?? '')) === 'aereo'; }))->tarifa, 2) }}
+                            </div>
                         </div>
                         <div class="mb-3 d-flex align-items-center gap-3">
                             <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-ship text-primary"></i></span>
                             <label class="form-label mb-0 flex-grow-1">Marítimo</label>
-                            <div class="form-control bg-light" style="max-width:120px;">${{ number_format(optional($tarifas->firstWhere('servicio.tipo_servicio', 'maritimo'))->tarifa, 2) }}</div>
+                            <div class="form-control bg-light" style="max-width:120px;">
+                                ${{ number_format(optional($tarifas->first(function($t){ return str_replace(['á','é','í','ó','ú'],['a','e','i','o','u'], strtolower($t->servicio->tipo_servicio ?? '')) === 'maritimo'; }))->tarifa, 2) }}
+                            </div>
                         </div>
                         <div class="mb-3 d-flex align-items-center gap-3">
                             <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-bolt text-primary"></i></span>
                             <label class="form-label mb-0 flex-grow-1">Express</label>
-                            <div class="form-control bg-light" style="max-width:120px;">${{ number_format(optional($tarifas->firstWhere('servicio.tipo_servicio', 'express'))->tarifa, 2) }}</div>
+                            <div class="form-control bg-light" style="max-width:120px;">
+                                ${{ number_format(optional($tarifas->first(function($t){ return str_replace(['á','é','í','ó','ú'],['a','e','i','o','u'], strtolower($t->servicio->tipo_servicio ?? '')) === 'express'; }))->tarifa, 2) }}
+                            </div>
                         </div>
                     </div>
                 </div>

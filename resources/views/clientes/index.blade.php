@@ -17,16 +17,30 @@
                         <p class="mb-0 text-white-50" style="font-size:1.1rem;">Gestión de clientes registrados en el sistema</p>
                     </div>
                 </div>
-                <a href="{{ route('clientes.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff;">
-                    <i class="fas fa-plus me-2"></i> Nuevo Cliente
-                </a>
+                <a href="{{ route('clientes.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff; border-radius:12px; font-size:1.15rem;"><i class="fas fa-plus me-2"></i> Nuevo Cliente</a>
             </div>
         </div>
     </div>
-    <div class="card p-3">
+    <div class="card p-4" style="border-radius:22px; box-shadow:0 2px 8px rgba(26,46,117,0.06);">
+        <form class="row mb-3 align-items-center" method="GET" action="{{ route('clientes.index') }}">
+            <div class="col-md-6 mb-2 mb-md-0">
+                <input type="text" id="busqueda_cliente" name="busqueda" class="form-control form-control-lg rounded-3" placeholder="Buscar por nombre, correo o teléfono..." value="{{ request('busqueda', $busqueda ?? '') }}">
+            </div>
+            <div class="col-md-3">
+                <select id="filtro_tipo_cliente" name="tipo" class="form-select form-select-lg rounded-3">
+                    <option value="" {{ !request('tipo', $tipo ?? '') ? 'selected' : '' }}>Todos los tipos</option>
+                    <option value="normal" {{ request('tipo', $tipo ?? '') == 'normal' ? 'selected' : '' }}>Normal</option>
+                    <option value="casillero" {{ request('tipo', $tipo ?? '') == 'casillero' ? 'selected' : '' }}>Casillero</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-search me-1"></i>Buscar</button>
+                <a href="{{ route('clientes.index') }}" class="btn btn-outline-secondary px-4"><i class="fas fa-eraser me-1"></i>Limpiar</a>
+            </div>
+        </form>
         <div class="table-responsive">
-            <table class="table clientes-table table-hover align-middle mb-0">
-                <thead class="table-light">
+            <table class="table clientes-table table-hover align-middle mb-0" style="border-radius:16px; overflow:hidden;" id="tabla_clientes">
+                <thead class="table-primary">
                     <tr>
                         <th>Nombre completo</th>
                         <th>Correo</th>
@@ -38,15 +52,15 @@
                 </thead>
                 <tbody>
                     @forelse ($clientes as $cliente)
-                        <tr>
-                            <td>{{ $cliente->nombre_completo }}</td>
-                            <td>{{ $cliente->correo }}</td>
-                            <td>{{ $cliente->telefono }}</td>
+                        <tr data-nombre="{{ strtolower($cliente->nombre_completo) }}" data-correo="{{ strtolower($cliente->correo) }}" data-telefono="{{ strtolower($cliente->telefono) }}" data-tipo="{{ strtolower($cliente->tipo_cliente) }}">
+                            <td class="fw-semibold" style="font-size:1.08rem;">{{ $cliente->nombre_completo }}</td>
+                            <td style="font-size:1.07rem;">{{ $cliente->correo }}</td>
+                            <td style="font-size:1.07rem;">{{ $cliente->telefono }}</td>
                             <td>
                                 @if($cliente->tipo_cliente == 'casillero')
-                                    <span class="badge bg-accent">Casillero</span>
+                                    <span class="badge bg-accent text-white px-3 py-2 rounded-pill" style="font-size:1.01rem; letter-spacing:0.5px; background:#5C6AC4;">Casillero</span>
                                 @else
-                                    <span class="badge bg-primary">Normal</span>
+                                    <span class="badge bg-primary text-white px-3 py-2 rounded-pill" style="font-size:1.01rem; letter-spacing:0.5px; background:#1A2E75;">Normal</span>
                                 @endif
                             </td>
                             <td>
@@ -54,12 +68,12 @@
                                 <div class="text-muted" style="font-size:0.95rem;">{{ \Carbon\Carbon::parse($cliente->fecha_registro)->format('H:i:s') }}</div>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-info btn-sm me-1" title="Previsualizar"><i class="fas fa-eye"></i></a>
-                                <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-primary btn-sm me-1" title="Editar"><i class="fas fa-edit"></i></a>
+                                <a href="{{ route('clientes.show', $cliente->id) }}" class="btn btn-info btn-client-action me-1" title="Previsualizar"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route('clientes.edit', $cliente->id) }}" class="btn btn-primary btn-client-action me-1" title="Editar"><i class="fas fa-edit"></i></a>
                                 <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar cliente?')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                                    <button type="submit" class="btn btn-danger btn-client-action" onclick="return confirm('¿Eliminar cliente?')" title="Eliminar"><i class="fas fa-trash"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -85,6 +99,7 @@
         font-weight: 600;
         letter-spacing: 0.5px;
         border-right: 1px solid #e3e6f0 !important;
+        font-size: 1rem;
     }
     .clientes-table thead th:last-child {
         border-right: none !important;
@@ -93,41 +108,48 @@
         border-radius: 0 !important;
     }
     .clientes-table {
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(26,46,117,0.04);
     }
     .clientes-table tbody tr {
         background: #fff;
-        transition: background 0.2s;
+        transition: background 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1px 4px rgba(26,46,117,0.03);
     }
     .clientes-table tbody td {
         border-right: 1px solid #e3e6f0 !important;
+        font-size: 0.97rem;
     }
     .clientes-table tbody td:last-child {
         border-right: none !important;
     }
     .clientes-table tbody tr:hover {
         background: #F5F7FA !important;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.08);
     }
     .btn-client-action {
-        border-radius: 8px !important;
-        min-width: 38px;
-        min-height: 38px;
-        padding: 0 12px;
-        font-size: 1.1rem;
+        border-radius: 10px !important;
+        min-width: 34px;
+        min-height: 34px;
+        padding: 0 10px;
+        font-size: 1rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         border: none;
         box-shadow: none;
-        transition: background 0.15s;
+        transition: background 0.15s, color 0.15s;
     }
-    .btn-client-edit {
+    .btn-info.btn-client-action {
+        background: #00B6E5;
+        color: #fff;
+    }
+    .btn-primary.btn-client-action {
         background: #1A2E75;
         color: #fff;
     }
-    .btn-client-delete {
+    .btn-danger.btn-client-action {
         background: #BF1E2E;
         color: #fff;
     }
@@ -137,10 +159,28 @@
     }
     .card {
         transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border-radius: 22px;
     }
     .card:hover {
         transform: translateY(-2px);
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .badge.bg-primary {
+        background: #1A2E75 !important;
+        color: #fff !important;
+        font-size: 0.97rem;
+        padding: 0.45em 1.1em;
+    }
+    .badge.bg-accent {
+        background: #5C6AC4 !important;
+        color: #fff !important;
+        font-size: 0.97rem;
+        padding: 0.45em 1.1em;
+    }
+    #busqueda_cliente, #filtro_tipo_cliente {
+        font-size: 1rem !important;
+        padding: 0.6rem 1rem !important;
+        border-radius: 8px !important;
     }
 </style>
 

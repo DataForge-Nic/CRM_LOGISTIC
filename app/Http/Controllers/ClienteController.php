@@ -9,10 +9,23 @@ use Illuminate\Support\Facades\Auth;
 class ClienteController extends Controller
 {
     // Mostrar lista de clientes
-    public function index()
+    public function index(Request $request)
     {
-        $clientes = Cliente::orderBy('nombre_completo')->paginate(10);
-        return view('clientes.index', compact('clientes'));
+        $query = Cliente::query();
+        $busqueda = $request->input('busqueda');
+        $tipo = $request->input('tipo');
+        if ($busqueda) {
+            $query->where(function($q) use ($busqueda) {
+                $q->where('nombre_completo', 'like', "%$busqueda%")
+                  ->orWhere('correo', 'like', "%$busqueda%")
+                  ->orWhere('telefono', 'like', "%$busqueda%") ;
+            });
+        }
+        if ($tipo) {
+            $query->where('tipo_cliente', $tipo);
+        }
+        $clientes = $query->orderBy('nombre_completo')->paginate(10)->appends($request->all());
+        return view('clientes.index', compact('clientes', 'busqueda', 'tipo'));
     }
 
     // Formulario para crear cliente
@@ -52,7 +65,12 @@ class ClienteController extends Controller
         ];
         foreach ($map as $tipo => $input) {
             $servicio = $servicios->first(function($s) use ($tipo) {
-                return strtolower($s->tipo_servicio) === $tipo;
+                $normalize = function($str) {
+                    $str = strtolower($str);
+                    $str = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $str);
+                    return $str;
+                };
+                return $normalize($s->tipo_servicio) === $tipo;
             });
             $valor = $request->input($input);
             if ($servicio && $valor !== null && $valor !== '') {
@@ -112,7 +130,12 @@ class ClienteController extends Controller
         ];
         foreach ($map as $tipo => $input) {
             $servicio = $servicios->first(function($s) use ($tipo) {
-                return strtolower($s->tipo_servicio) === $tipo;
+                $normalize = function($str) {
+                    $str = strtolower($str);
+                    $str = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $str);
+                    return $str;
+                };
+                return $normalize($s->tipo_servicio) === $tipo;
             });
             $valor = $request->input($input);
             if ($servicio && $valor !== null && $valor !== '') {

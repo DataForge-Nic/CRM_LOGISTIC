@@ -183,45 +183,46 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive-md">
+                <div class="card mb-3 p-3 shadow-sm border-0" style="border-radius: 16px;">
+                    <form class="row g-2 align-items-center flex-nowrap w-100" method="GET" action="{{ route('inventario.index') }}" style="gap:0.5rem 0;">
+                        <div class="col-12 col-md-4 d-flex align-items-center">
+                            <input type="text" name="busqueda" class="form-control rounded-3 filtro-sm" placeholder="Buscar cliente, tracking, guía..." value="{{ request('busqueda', $busqueda ?? '') }}">
+                        </div>
+                        <div class="col-6 col-md-3 d-flex align-items-center">
+                            <select name="servicio_id" class="form-select form-select-lg rounded-3 filtro-sm">
+                                <option value="">Todos los servicios</option>
+                                @foreach($servicios as $s)
+                                    <option value="{{ $s->id }}" {{ request('servicio_id', $servicio_id ?? '') == $s->id ? 'selected' : '' }}>{{ $s->tipo_servicio }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3 d-flex align-items-center">
+                            <select name="estado" class="form-select form-select-lg rounded-3 filtro-sm">
+                                <option value="">Todos los estados</option>
+                                <option value="recibido" {{ request('estado', $estado ?? '') == 'recibido' ? 'selected' : '' }}>Recibido</option>
+                                <option value="en_transito" {{ request('estado', $estado ?? '') == 'en_transito' ? 'selected' : '' }}>En Tránsito</option>
+                                <option value="entregado" {{ request('estado', $estado ?? '') == 'entregado' ? 'selected' : '' }}>Entregado</option>
+                                <option value="en_oficina" {{ request('estado', $estado ?? '') == 'en_oficina' ? 'selected' : '' }}>En Oficina</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-2 d-flex gap-2 align-items-center">
+                            <button type="submit" class="btn btn-primary px-4 filtro-sm d-flex align-items-center justify-content-center" style="height:48px;width:48px;"><i class="fas fa-search"></i></button>
+                            <a href="{{ route('inventario.index') }}" class="btn btn-outline-secondary px-3 filtro-sm d-flex align-items-center justify-content-center" style="height:48px;width:48px;"><i class="fas fa-eraser"></i></a>
+                        </div>
+                    </form>
+                </div>
                 <table class="table inventario-table table-hover align-middle mb-0" id="inventarioTable">
-                    <thead class="table-light">
+                    <thead class="table-light align-middle">
                         <tr>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
-                                <i class="fas fa-user me-1 text-muted"></i>
-                                Cliente
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
-                                <i class="fas fa-shipping-fast me-1 text-muted"></i>
-                                Servicio
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
-                                <i class="fas fa-weight-hanging me-1 text-muted"></i>
-                                Peso
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
-                                <i class="fas fa-barcode me-1 text-muted"></i>
-                                Warehouse
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
-                                <i class="fas fa-info-circle me-1 text-muted"></i>
-                                Estado
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark d-none d-md-table-cell">
-                                <i class="fas fa-calendar me-1 text-muted"></i>
-                                Ingreso
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark">
-                                <i class="fas fa-dollar-sign me-1 text-muted"></i>
-                                Monto
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark d-none d-md-table-cell">
-                                <i class="fas fa-dollar-sign me-1 text-muted"></i>
-                                Precio Unitario
-                            </th>
-                            <th class="border-0 px-4 py-3 fw-semibold text-dark text-center">
-                                <i class="fas fa-cogs me-1 text-muted"></i>
-                                Acciones
-                            </th>
+                            <th class="text-nowrap align-middle" style="min-width:120px;"><span class="d-inline-flex align-items-center"><i class="fas fa-user me-2"></i>Cliente</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:90px;"><span class="d-inline-flex align-items-center"><i class="fas fa-shipping-fast me-2"></i>Servicio</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:70px;"><span class="d-inline-flex align-items-center"><i class="fas fa-balance-scale me-2"></i>Peso</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:90px;"><span class="d-inline-flex align-items-center"><i class="fas fa-barcode me-2"></i>Warehouse</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:90px;"><span class="d-inline-flex align-items-center"><i class="fas fa-info-circle me-2"></i>Estado</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:90px;"><span class="d-inline-flex align-items-center"><i class="fas fa-calendar-alt me-2"></i>Ingreso</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:80px;"><span class="d-inline-flex align-items-center"><i class="fas fa-dollar-sign me-2"></i>Monto</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:70px;"><span class="d-inline-flex align-items-center"><i class="fas fa-dollar-sign me-2"></i>P. Unit.</span></th>
+                            <th class="text-nowrap align-middle" style="min-width:80px;"><span class="d-inline-flex align-items-center"><i class="fas fa-cogs me-2"></i>Acciones</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -438,46 +439,80 @@
     border-collapse: separate;
     border-spacing: 0;
 }
-.inventario-table thead th {
+.inventario-table th, .inventario-table td {
+    padding: 0.55rem 0.5rem !important;
+    font-size: 0.98rem;
+    white-space: nowrap;
+    vertical-align: middle !important;
+}
+.inventario-table th {
+    font-size: 1.01rem;
+    font-weight: 600;
     background: #1A2E75 !important;
     color: #fff !important;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    border: none !important;
-    padding: 12px 14px !important;
-    font-size: 1.05rem;
-    vertical-align: middle;
-    white-space: nowrap;
+    border-bottom: 3px solid #5C6AC4;
 }
-.inventario-table thead th i {
+.inventario-table th .fa {
     color: #fff !important;
-    font-size: 1.15em;
-    margin-right: 4px;
+    opacity: 0.92;
+}
+.inventario-table td {
     vertical-align: middle;
-    display: inline-block;
 }
-.inventario-table thead th:first-child {
-    border-top-left-radius: 16px;
+.inventario-table thead th span {
+    display: flex;
+    align-items: center;
+    gap: 0.35em;
+    justify-content: flex-start;
 }
-.inventario-table thead th:last-child {
-    border-top-right-radius: 16px;
-}
-.inventario-table thead tr {
-    border-radius: 0 !important;
-}
-.inventario-table tbody tr {
+.card.mb-3.p-3 {
     background: #fff;
-    transition: background 0.2s;
-    border-bottom: 1.5px solid #e3e6f0;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(26,46,117,0.07);
+    margin-bottom: 1.5rem;
 }
-.inventario-table tbody td {
-    border: none !important;
-    padding: 10px 14px !important;
-    vertical-align: middle !important;
-    font-size: 1.01rem;
+.card.mb-3.p-3 form .filtro-sm {
+    font-size: 0.97rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    height: 48px !important;
+    box-shadow: none !important;
 }
-.inventario-table tbody tr:hover {
-    background: #F0F4FF !important;
+.card.mb-3.p-3 form .form-select.filtro-sm, .card.mb-3.p-3 form .form-control.filtro-sm {
+    min-width: 0;
+    width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: visible;
+    height: 48px !important;
+}
+.card.mb-3.p-3 form .btn.filtro-sm {
+    height: 48px !important;
+    width: 48px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    padding: 0 !important;
+}
+.card.mb-3.p-3 form .input-group-text {
+    display: none !important;
+}
+.card.mb-3.p-3 form .d-flex.align-items-center {
+    margin-bottom: 0 !important;
+}
+@media (max-width: 992px) {
+    .card.mb-3.p-3 form .filtro-sm {
+        font-size: 0.93rem !important;
+        height: 42px !important;
+    }
+    .card.mb-3.p-3 form .form-select.filtro-sm, .card.mb-3.p-3 form .form-control.filtro-sm {
+        height: 42px !important;
+    }
+    .card.mb-3.p-3 form .btn.filtro-sm {
+        height: 42px !important;
+        width: 42px !important;
+    }
 }
 .btn-inv-action {
     border-radius: 8px !important;
@@ -577,32 +612,6 @@
     background: #5C6AC4;
     color: #fff;
     border-color: #5C6AC4;
-}
-@media (max-width: 1200px) {
-    .inventario-table thead th,
-    .inventario-table tbody td {
-        padding: 8px 6px !important;
-        font-size: 0.95rem;
-    }
-    .btn-inv-action {
-        min-width: 28px;
-        min-height: 28px;
-        font-size: 0.95rem;
-        padding: 0 6px;
-    }
-}
-@media (max-width: 992px) {
-    .inventario-table thead th,
-    .inventario-table tbody td {
-        padding: 6px 4px !important;
-        font-size: 0.90rem;
-    }
-    .btn-inv-action {
-        min-width: 24px;
-        min-height: 24px;
-        font-size: 0.90rem;
-        padding: 0 4px;
-    }
 }
 </style>
 

@@ -27,9 +27,9 @@
         <div class="col-lg-10">
             <div class="card p-4">
                 <div class="row g-0 align-items-stretch">
-                    <div class="col-lg-6 p-3 border-end" style="min-width:320px;">
-                        <form id="cliente-form" method="POST" action="#">
-                            @csrf
+                    <form id="cliente-form" method="POST" action="#" class="d-flex flex-wrap">
+                        @csrf
+                        <div class="col-lg-6 p-3 border-end" style="min-width:320px;">
                             <div class="mb-3">
                                 <label for="nombre_completo" class="form-label fw-semibold">Nombre completo</label>
                                 <input type="text" class="form-control form-control-lg rounded-3" id="nombre_completo" name="nombre_completo" required>
@@ -53,32 +53,29 @@
                                     <option value="VIP">VIP</option>
                                 </select>
                             </div>
-                            <div class="d-flex gap-3 justify-content-end mt-3">
-                                <button type="button" class="btn btn-primary px-4 py-2 fw-bold shadow-sm" id="btn_siguiente"><i class="fas fa-arrow-right me-2"></i>Siguiente</button>
+                        </div>
+                        <div class="col-lg-6 p-3 d-flex flex-column justify-content-between" style="min-width:320px;">
+                            <div>
+                                <h5 class="fw-bold mb-3"><i class="fas fa-dollar-sign text-primary me-2"></i>Tarifas por Servicio</h5>
+                                <div class="mb-3 d-flex align-items-center gap-3">
+                                    <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-plane text-primary"></i></span>
+                                    <label class="form-label mb-0 flex-grow-1">Aéreo <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_aereo" name="tarifa_aereo" placeholder="0.00" required style="max-width:120px;">
+                                </div>
+                                <div class="mb-3 d-flex align-items-center gap-3">
+                                    <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-ship text-primary"></i></span>
+                                    <label class="form-label mb-0 flex-grow-1">Marítimo <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_maritimo" name="tarifa_maritimo" placeholder="0.00" required style="max-width:120px;">
+                                </div>
+                                <div class="mb-3 d-flex align-items-center gap-3">
+                                    <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-bolt text-primary"></i></span>
+                                    <label class="form-label mb-0 flex-grow-1">Express</label>
+                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_express" name="tarifa_express" placeholder="0.00" style="max-width:120px;">
+                                </div>
                             </div>
-                        </form>
-                    </div>
-                    <div class="col-lg-6 p-3" style="min-width:320px;">
-                        <h5 class="fw-bold mb-3"><i class="fas fa-dollar-sign text-primary me-2"></i>Tarifas por Servicio</h5>
-                        <form id="tarifas-form" autocomplete="off">
-                            <div class="mb-3 d-flex align-items-center gap-3">
-                                <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-plane text-primary"></i></span>
-                                <label class="form-label mb-0 flex-grow-1">Aéreo <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_aereo" placeholder="0.00" required disabled style="max-width:120px;">
-                            </div>
-                            <div class="mb-3 d-flex align-items-center gap-3">
-                                <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-ship text-primary"></i></span>
-                                <label class="form-label mb-0 flex-grow-1">Marítimo <span class="text-danger">*</span></label>
-                                <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_maritimo" placeholder="0.00" required disabled style="max-width:120px;">
-                            </div>
-                            <div class="mb-3 d-flex align-items-center gap-3">
-                                <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-bolt text-primary"></i></span>
-                                <label class="form-label mb-0 flex-grow-1">Express</label>
-                                <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_express" placeholder="0.00" disabled style="max-width:120px;">
-                            </div>
-                            <button type="button" class="btn btn-success w-100 mt-4" id="btn_finalizar_registro" disabled><i class="fas fa-check"></i> Registrar Cliente</button>
-                        </form>
-                    </div>
+                            <button type="button" class="btn btn-success w-100 mt-4 align-self-end" id="btn_finalizar_registro" disabled><i class="fas fa-check"></i> Registrar Cliente</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -87,50 +84,25 @@
 <script>
 let clienteFormData = null;
 
-// Deshabilita sección tarifa al inicio
-function setTarifaSectionEnabled(enabled) {
-    document.querySelectorAll('.tarifa-input').forEach(inp => inp.disabled = !enabled);
-}
-setTarifaSectionEnabled(false);
-document.getElementById('btn_finalizar_registro').disabled = true;
-
-// Paso 1: Validar y guardar datos generales localmente
-
-document.getElementById('btn_siguiente').addEventListener('click', function() {
+// Mantener solo la validación de campos obligatorios
+function checkCamposObligatorios() {
     const form = document.getElementById('cliente-form');
-    // Validación simple
     let valid = true;
     form.querySelectorAll('[required]').forEach(function(input) {
         if (!input.value.trim()) {
-            input.classList.add('is-invalid');
             valid = false;
-        } else {
-            input.classList.remove('is-invalid');
         }
     });
-    if (!valid) {
-        alert('Por favor, completa todos los campos obligatorios.');
-        return;
-    }
-    // Guarda los datos localmente
-    clienteFormData = new FormData(form);
-    setTarifaSectionEnabled(true);
-    document.getElementById('btn_siguiente').disabled = true;
-});
-
-// Habilita botón registrar solo si aereo y maritimo tienen valor
-const tarifaInputs = [document.getElementById('tarifa_aereo'), document.getElementById('tarifa_maritimo')];
-tarifaInputs.forEach(inp => inp.addEventListener('input', checkTarifasObligatorias));
-function checkTarifasObligatorias() {
-    const aereo = document.getElementById('tarifa_aereo').value;
-    const maritimo = document.getElementById('tarifa_maritimo').value;
-    document.getElementById('btn_finalizar_registro').disabled = !(aereo && maritimo);
+    document.getElementById('btn_finalizar_registro').disabled = !valid;
 }
-
-// Guardar cliente y tarifas al hacer click en registrar
+document.querySelectorAll('#cliente-form [required]').forEach(inp => {
+    inp.addEventListener('input', checkCamposObligatorios);
+});
+checkCamposObligatorios();
 
 document.getElementById('btn_finalizar_registro').addEventListener('click', function() {
-    if (!clienteFormData) return;
+    const form = document.getElementById('cliente-form');
+    clienteFormData = new FormData(form);
     fetch('/clientes', {
         method: 'POST',
         body: clienteFormData,
@@ -139,33 +111,8 @@ document.getElementById('btn_finalizar_registro').addEventListener('click', func
     .then(r => r.json())
     .then(data => {
         if (data.id) {
-            // Guarda tarifas (aereo, maritimo, express si aplica)
-            const tarifas = [
-                { tipo: 'aereo', valor: document.getElementById('tarifa_aereo').value },
-                { tipo: 'maritimo', valor: document.getElementById('tarifa_maritimo').value }
-            ];
-            const express = document.getElementById('tarifa_express').value;
-            if (express) tarifas.push({ tipo: 'express', valor: express });
-            const promesas = tarifas.map(t => {
-                const formTarifa = new FormData();
-                formTarifa.append('cliente_id', data.id);
-                // Buscar el id del servicio por nombre
-                let servicioId = null;
-                document.querySelectorAll('#servicio_id option').forEach(opt => {
-                    if (opt.text.toLowerCase().includes(t.tipo)) servicioId = opt.value;
-                });
-                formTarifa.append('servicio_id', servicioId);
-                formTarifa.append('tarifa', t.valor);
-                return fetch('/tarifas-clientes', {
-                    method: 'POST',
-                    body: formTarifa,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
-            });
-            Promise.all(promesas).then(() => {
-                alert('Cliente y tarifas registradas correctamente.');
-                window.location.href = '/clientes';
-            });
+            alert('Cliente y tarifas registradas correctamente.');
+            window.location.href = '/clientes';
         } else {
             alert('Error al guardar el cliente.');
         }

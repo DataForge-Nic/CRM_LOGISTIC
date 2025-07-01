@@ -9,11 +9,11 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
-                <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
                     <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:70px; height:70px; box-shadow:0 2px 8px rgba(0,0,0,0.10);">
                         <i class="fas fa-chart-line text-primary" style="font-size:2.7rem;"></i>
                     </div>
-                    <div>
+                <div>
                         <h1 class="h2 mb-1 fw-bold text-white" style="letter-spacing:1px;">SkyLink One CRM</h1>
                         <p class="mb-0 text-white-50" style="font-size:1.15rem;">Panel ejecutivo</p>
                     </div>
@@ -225,17 +225,17 @@
 
 <style>
 .dashboard-module-card {
-    border-radius: 18px;
-    background: #fff;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
     transition: transform 0.2s, box-shadow 0.2s, background 0.18s;
 }
 .module-card:hover .dashboard-module-card {
     transform: translateY(-4px) scale(1.03);
     box-shadow: 0 1.5rem 2.5rem rgba(13,110,253,0.13), 0 4px 16px 0 rgba(0,0,0,0.10);
-    background: #f8fafc;
-    z-index: 2;
-}
+        background: #f8fafc;
+        z-index: 2;
+    }
 .dashboard-stats-card {
     border-radius: 18px;
     box-shadow: 0 2px 8px rgba(26,46,117,0.04);
@@ -474,7 +474,7 @@
 }
 @media (max-width: 767px) {
     .dashboard-stats-card.pie-card { min-height: 160px; padding-top: 0.7rem; padding-bottom: 0.7rem; }
-}
+    }
 </style>
 
 @push('scripts')
@@ -604,19 +604,19 @@ const pieData = Object.values(serviciosPieData);
 const pieColors = skylinkPalette.slice(0, pieLabels.length);
 let chartPie = new Chart(ctxPie, {
     type: 'doughnut',
-    data: {
+        data: {
         labels: pieLabels,
-        datasets: [{
+            datasets: [{
             data: pieData,
             backgroundColor: pieColors,
             borderColor: '#fff',
-            borderWidth: 2,
+                borderWidth: 2,
             hoverOffset: 10
-        }]
-    },
-    options: {
+            }]
+        },
+        options: {
         cutout: '65%',
-        plugins: {
+            plugins: {
             legend: {
                 display: true,
                 position: 'bottom',
@@ -642,9 +642,9 @@ let chartPie = new Chart(ctxPie, {
                 borderWidth: 1.5,
                 padding: 12
             }
+            }
         }
-    }
-});
+    });
 
 // --- Flatpickr para rango de fechas ---
 let fechaDesde = null;
