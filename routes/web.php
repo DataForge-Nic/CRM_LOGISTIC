@@ -158,6 +158,7 @@ Route::prefix('tracking')->group(function () {
     Route::get('/buscar', [TrackingController::class, 'buscarPorCodigo'])->name('tracking.buscar');
     Route::get('/proximos-vencer', [TrackingController::class, 'proximosVencer'])->name('tracking.proximos-vencer');
     Route::get('/verificar-recordatorios', [TrackingController::class, 'verificarRecordatorios'])->name('tracking.verificar-recordatorios');
+    Route::post('/{id}/completar', [TrackingController::class, 'completar'])->name('tracking.completar');
 });
 
 // Tarifas

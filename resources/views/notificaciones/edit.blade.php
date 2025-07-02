@@ -1,85 +1,82 @@
 @extends('layouts.app')
 
+@section('title', 'Editar Notificación - SkylinkOne CRM')
+
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="max-w-2xl mx-auto">
-        <div class="flex items-center mb-6">
-            <a href="{{ route('notificaciones.index') }}" 
-               class="text-blue-600 hover:text-blue-800 mr-4">
-                <i class="fas fa-arrow-left"></i> Volver
-            </a>
-            <h1 class="text-3xl font-bold text-gray-900">Editar Notificación</h1>
+<div class="container-fluid px-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <i class="fas fa-bell text-primary" style="font-size:2.2rem;"></i>
+                    </div>
+                    <div>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">Editar Notificación</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Modifica los datos de la notificación seleccionada</p>
+                    </div>
+                </div>
+                <a href="{{ route('notificaciones.index') }}" class="btn btn-outline-light fw-semibold shadow-sm px-4">
+                    <i class="fas fa-arrow-left me-2"></i> Volver a Notificaciones
+                </a>
+            </div>
         </div>
-
-        <div class="bg-white shadow-lg rounded-lg p-6">
-            <form action="{{ route('notificaciones.update', $notificacion) }}" method="POST">
-                @csrf
-                @method('PUT')
-                
-                <div class="mb-6">
-                    <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">
-                        Usuario Destinatario *
-                    </label>
-                    <select name="user_id" id="user_id" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 @error('user_id') border-red-500 @enderror">
-                        <option value="">Selecciona un usuario</option>
-                        @foreach($usuarios as $usuario)
-                            <option value="{{ $usuario->id }}" 
-                                    {{ (old('user_id', $notificacion->user_id) == $usuario->id) ? 'selected' : '' }}>
-                                {{ $usuario->name }} ({{ $usuario->email }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('user_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form action="{{ route('notificaciones.update', $notificacion) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="row g-4">
+                            <div class="col-md-12">
+                                <label for="user_id" class="form-label fw-semibold">Usuario Destinatario *</label>
+                                <select name="user_id" id="user_id" class="form-select @error('user_id') is-invalid @enderror">
+                                    <option value="">Selecciona un usuario</option>
+                                    @foreach($usuarios as $usuario)
+                                        <option value="{{ $usuario->id }}" {{ (old('user_id', $notificacion->user_id) == $usuario->id) ? 'selected' : '' }}>
+                                            {{ $usuario->name }} ({{ $usuario->email }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('user_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-12">
+                                <label for="titulo" class="form-label fw-semibold">Título *</label>
+                                <input type="text" name="titulo" id="titulo" value="{{ old('titulo', $notificacion->titulo) }}" class="form-control @error('titulo') is-invalid @enderror" placeholder="Ingresa el título de la notificación">
+                                @error('titulo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-12">
+                                <label for="mensaje" class="form-label fw-semibold">Mensaje *</label>
+                                <textarea name="mensaje" id="mensaje" rows="6" class="form-control @error('mensaje') is-invalid @enderror" placeholder="Ingresa el mensaje de la notificación">{{ old('mensaje', $notificacion->mensaje) }}</textarea>
+                                @error('mensaje')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input type="checkbox" name="leido" value="1" id="leido" class="form-check-input" {{ $notificacion->leido ? 'checked' : '' }}>
+                                    <label for="leido" class="form-check-label">Marcar como leída</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ route('notificaciones.index') }}" class="btn btn-outline-secondary px-4">
+                                <i class="fas fa-times me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Actualizar Notificación
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="mb-6">
-                    <label for="titulo" class="block text-sm font-medium text-gray-700 mb-2">
-                        Título *
-                    </label>
-                    <input type="text" name="titulo" id="titulo" 
-                           value="{{ old('titulo', $notificacion->titulo) }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 @error('titulo') border-red-500 @enderror"
-                           placeholder="Ingresa el título de la notificación">
-                    @error('titulo')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="mb-6">
-                    <label for="mensaje" class="block text-sm font-medium text-gray-700 mb-2">
-                        Mensaje *
-                    </label>
-                    <textarea name="mensaje" id="mensaje" rows="6"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 @error('mensaje') border-red-500 @enderror"
-                              placeholder="Ingresa el mensaje de la notificación">{{ old('mensaje', $notificacion->mensaje) }}</textarea>
-                    @error('mensaje')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="mb-6">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="leido" value="1" 
-                               {{ $notificacion->leido ? 'checked' : '' }}
-                               class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-gray-700">Marcar como leída</span>
-                    </label>
-                </div>
-
-                <div class="flex justify-end space-x-4">
-                    <a href="{{ route('notificaciones.index') }}" 
-                       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Cancelar
-                    </a>
-                    <button type="submit" 
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        <i class="fas fa-save mr-2"></i>Actualizar Notificación
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

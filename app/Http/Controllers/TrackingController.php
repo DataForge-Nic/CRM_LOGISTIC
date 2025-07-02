@@ -68,9 +68,9 @@ class TrackingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Tracking $tracking)
+    public function show($id)
     {
-        $tracking->load(['cliente', 'creador']);
+        $tracking = Tracking::with('cliente')->findOrFail($id);
         return view('tracking.show', compact('tracking'));
     }
 
@@ -113,12 +113,11 @@ class TrackingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tracking $tracking)
+    public function destroy($id)
     {
+        $tracking = Tracking::findOrFail($id);
         $tracking->delete();
-
-        return redirect()->route('tracking.index')
-            ->with('success', 'Tracking eliminado exitosamente.');
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -177,6 +176,7 @@ class TrackingController extends Controller
         $trackings = Tracking::with(['cliente', 'creador'])
             ->where('recordatorio_fecha', '>', now())
             ->where('recordatorio_fecha', '<=', now()->addDays(7))
+            ->where('estado', '!=', 'completado')
             ->orderBy('recordatorio_fecha', 'asc')
             ->get();
 
@@ -236,6 +236,7 @@ class TrackingController extends Controller
         $proximosVencer = Tracking::with(['cliente'])
             ->where('recordatorio_fecha', '>', now())
             ->where('recordatorio_fecha', '<=', now()->addDays(7))
+            ->where('estado', '!=', 'completado')
             ->orderBy('recordatorio_fecha', 'asc')
             ->take(5)
             ->get();
@@ -247,5 +248,13 @@ class TrackingController extends Controller
             'trackingsCompletados',
             'proximosVencer'
         ));
+    }
+
+    public function completar($id)
+    {
+        $tracking = Tracking::findOrFail($id);
+        $tracking->estado = 'completado';
+        $tracking->save();
+        return response()->json(['success' => true]);
     }
 } 

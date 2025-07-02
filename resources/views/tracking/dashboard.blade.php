@@ -24,6 +24,9 @@
                     <a href="{{ route('tracking.index') }}" class="btn btn-outline-secondary btn-lg fw-semibold shadow-sm px-4">
                         <i class="fas fa-list me-2"></i> Ver Todos
                     </a>
+                    <a href="{{ route('tracking.index', ['estado' => 'completado']) }}" class="btn btn-success btn-lg fw-semibold shadow-sm px-4">
+                        <i class="fas fa-check-circle me-2"></i> Ver Completados
+                    </a>
                 </div>
             </div>
         </div>
@@ -333,19 +336,20 @@ function verTracking(id) {
 // Función para marcar como completado
 function marcarCompletado(id) {
     if (confirm('¿Estás seguro de que quieres marcar este tracking como completado?')) {
-        fetch(`/tracking/${id}/actualizar-estado`, {
+        fetch(`/tracking/${id}/completar`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({ estado: 'completado' })
+            }
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 mostrarAlerta('Tracking marcado como completado', 'success');
-                setTimeout(() => location.reload(), 1500);
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                mostrarAlerta('No se pudo completar el tracking', 'danger');
             }
         })
         .catch(error => {
