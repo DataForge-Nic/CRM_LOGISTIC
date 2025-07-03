@@ -62,7 +62,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="numero_acta" class="form-label fw-semibold">Número de Acta</label>
-                                <input type="text" name="numero_acta" class="form-control" value="{{ old('numero_acta') }}">
+                                <input type="text" name="numero_acta" class="form-control" value="{{ old('numero_acta') }}" required>
                                 @error('numero_acta') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                             <div class="mb-3">
@@ -113,6 +113,26 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de confirmación para paquetes pendientes -->
+<div class="modal fade" id="modalPendientes" tabindex="-1" aria-labelledby="modalPendientesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPendientesLabel"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Paquetes Pendientes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        El cliente aún tiene paquetes <b>pendientes de pago</b>. ¿Está seguro que desea proceder con la nueva factura?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmarPendientes">Sí, proceder</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @push('head')
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @endpush
@@ -125,6 +145,7 @@ $(document).ready(function() {
         width: '100%'
     });
     let paquetesSeleccionados = [];
+    let hayPendientesCliente = false;
     function mostrarSpinner(contenedor) {
         $(contenedor).html('<div class="text-center py-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>');
     }
@@ -208,6 +229,7 @@ $(document).ready(function() {
                     hist += '</tbody></table></div></div>';
                     $('#facturas_historial').html(hist);
                 }
+                revisarPendientesCliente(resp.historial);
             },
             error: function() {
                 $('#cliente_resumen').html('<div class="alert alert-danger">Error al cargar los datos del cliente.</div>');
@@ -220,6 +242,29 @@ $(document).ready(function() {
     // Manejo de selección de paquetes
     $(document).on('change', '.paquete-checkbox', function() {
         paquetesSeleccionados = $('.paquete-checkbox:checked').map(function(){ return this.value; }).get();
+        // Lógica de alerta por paquetes no pagados
+        if (paquetesSeleccionados.length > 1) {
+            let hayPendientes = false;
+            let paquetePendiente = null;
+            paquetesSeleccionados.forEach(id => {
+                var fila = $(".paquete-checkbox[value='"+id+"']").closest('tr');
+                // Suponiendo que el estado está en la columna 8 (ajusta si es necesario)
+                var estado = fila.find('td').eq(8).text().trim().toLowerCase();
+                if (estado === 'pendiente' || estado === 'no pagado') {
+                    hayPendientes = true;
+                    paquetePendiente = id;
+                }
+            });
+            if (hayPendientes) {
+                if (!confirm('El cliente aún tiene paquetes sin cancelar. ¿Está seguro que desea proceder?')) {
+                    // Desmarcar el último paquete seleccionado
+                    $(this).prop('checked', false);
+                    paquetesSeleccionados = $('.paquete-checkbox:checked').map(function(){ return this.value; }).get();
+                    actualizarMontosFactura();
+                    return;
+                }
+            }
+        }
         // Actualiza inputs ocultos
         let inputs = '';
         paquetesSeleccionados.forEach(id => {
@@ -309,6 +354,26 @@ $(document).ready(function() {
     $('#cliente_id').on('change', function() { setTimeout(updatePreview, 300); });
     $(document).on('change', '.paquete-checkbox', function() { setTimeout(updatePreview, 300); });
     $('#factura-form').on('input change', 'input, select, textarea', function() { setTimeout(updatePreview, 300); });
+
+    // Cuando se carga el historial del cliente, detecta si hay facturas pendientes
+    function revisarPendientesCliente(historial) {
+        hayPendientesCliente = false;
+        if (historial && Array.isArray(historial)) {
+            hayPendientesCliente = historial.some(f => f.estado_pago === 'pendiente' || f.estado_pago === 'no pagado');
+        }
+    }
+    // Intercepta el submit del formulario
+    $('#factura-form').on('submit', function(e) {
+        if (hayPendientesCliente) {
+            e.preventDefault();
+            var modal = new bootstrap.Modal(document.getElementById('modalPendientes'));
+            modal.show();
+            $('#btnConfirmarPendientes').off('click').on('click', function() {
+                modal.hide();
+                $('#factura-form')[0].submit();
+            });
+        }
+    });
 });
 </script>
 @endsection

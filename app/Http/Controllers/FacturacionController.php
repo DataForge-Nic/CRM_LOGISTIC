@@ -48,7 +48,7 @@ class FacturacionController extends Controller
         $request->validate([
             'cliente_id'     => 'required|exists:clientes,id',
             'fecha_factura'  => 'required|date',
-            'numero_acta'    => 'nullable|string|max:100',
+            'numero_acta'    => 'required|string|max:100',
             'moneda'         => 'required|in:USD,NIO',
             'tasa_cambio'    => 'nullable|numeric',
             'monto_local'    => 'required|numeric',
