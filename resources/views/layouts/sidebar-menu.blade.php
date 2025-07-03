@@ -21,6 +21,12 @@
         </li>
     @endif
     <li class="nav-item">
+        <a class="nav-link d-flex @if(request()->is('clientes*')) active @endif" href="{{ url('/clientes') }}">
+            <i class="fas fa-users"></i>
+            <span>Clientes</span>
+        </a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link d-flex @if(request()->is('inventario*')) active @endif" href="{{ url('/inventario') }}">
             <i class="fas fa-box"></i>
             <span>Inventario</span>
