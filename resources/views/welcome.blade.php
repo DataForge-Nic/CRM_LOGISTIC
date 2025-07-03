@@ -112,8 +112,9 @@
                             <label for="servicioSelect" class="form-label fw-semibold mb-1">Tipo de servicio:</label>
                             <select id="servicioSelect" class="form-select filtro-select">
                                 <option value="todos">Todos</option>
-                                <option value="maritimo">Marítimo</option>
                                 <option value="aereo">Aéreo</option>
+                                <option value="maritimo">Marítimo</option>
+                                <option value="pie_cubico">Pie cúbico</option>
                             </select>
                         </div>
                         <div class="filtro-item">
@@ -510,6 +511,8 @@ function setClienteStats(data, servicio) {
         idsCliente.total.textContent = '-';
         idsCliente.dinero.textContent = '-';
         idsCliente.libras.textContent = '-';
+        document.getElementById('noClienteDataMsg').style.display = '';
+        document.getElementById('noClienteDataMsg').textContent = 'No hay paquetes registrados para este cliente en el rango de fechas seleccionado.';
         return;
     }
     let total = 0, dinero = 0, libras = 0;
@@ -530,9 +533,16 @@ function setClienteStats(data, servicio) {
         dinero = data.ingresos_pie_cubico ?? 0;
         libras = data.libras_pie_cubico ?? 0;
     }
-    idsCliente.total.textContent = total;
-    idsCliente.dinero.textContent = dinero.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-    idsCliente.libras.textContent = libras.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    idsCliente.total.textContent = (typeof total === 'number' && !isNaN(total)) ? total : '-';
+    idsCliente.dinero.textContent = (typeof dinero === 'number' && !isNaN(dinero)) ? dinero.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
+    idsCliente.libras.textContent = (typeof libras === 'number' && !isNaN(libras)) ? libras.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
+    // Mostrar mensaje solo si no hay datos
+    if (total === 0) {
+        document.getElementById('noClienteDataMsg').style.display = '';
+        document.getElementById('noClienteDataMsg').textContent = 'No hay paquetes registrados para este cliente en el rango de fechas seleccionado.';
+    } else {
+        document.getElementById('noClienteDataMsg').style.display = 'none';
+    }
 }
 
 function showSuggestions(term) {
@@ -687,19 +697,24 @@ flatpickr('#fechaRango', {
     }
 });
 
-servicioSelect.addEventListener('change', fetchClienteStats);
-input.addEventListener('change', fetchClienteStats);
-
 function setClienteStatsAjax(data) {
     if (!data) {
         idsCliente.total.textContent = '-';
         idsCliente.dinero.textContent = '-';
         idsCliente.libras.textContent = '-';
+        document.getElementById('noClienteDataMsg').style.display = '';
+        document.getElementById('noClienteDataMsg').textContent = 'No hay paquetes registrados para este cliente en el rango de fechas seleccionado.';
         return;
     }
     idsCliente.total.textContent = data.total ?? '-';
     idsCliente.dinero.textContent = data.dinero !== undefined ? parseFloat(data.dinero).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
     idsCliente.libras.textContent = data.libras !== undefined ? parseFloat(data.libras).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
+    if ((data.total ?? 0) === 0) {
+        document.getElementById('noClienteDataMsg').style.display = '';
+        document.getElementById('noClienteDataMsg').textContent = 'No hay paquetes registrados para este cliente en el rango de fechas seleccionado.';
+    } else {
+        document.getElementById('noClienteDataMsg').style.display = 'none';
+    }
 }
 function setClienteStatsLoading() {
     idsCliente.total.textContent = '...';

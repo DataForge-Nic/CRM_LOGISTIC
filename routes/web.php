@@ -17,13 +17,13 @@ use App\Http\Controllers\LogInventarioController;
 use App\Http\Controllers\DashboardController;
 
 // Login
-// Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
-// Route::post('login', [AuthController::class, 'login']);
-// Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 // Todas las rutas accesibles sin autenticación ni roles
 // RUTA PRINCIPAL ÚNICA PARA DASHBOARD
-Route::get('/', function () {
+Route::middleware(['auth', 'role:admin,agente'])->get('/', function () {
     $totalClientes = \App\Models\Cliente::count();
     $totalUsuarios = \App\Models\User::count();
     $totalFacturas = \App\Models\Facturacion::count();
@@ -50,7 +50,6 @@ Route::get('/', function () {
     foreach ($clientes as $cliente) {
         $paquetes = \App\Models\Inventario::with('servicio')
             ->where('cliente_id', $cliente->id)
-            ->whereBetween('fecha_ingreso', [$inicioMes, $finMes])
             ->get();
 
         $paquetesAereo = $paquetes->filter(function($p) {
@@ -180,4 +179,4 @@ Route::get('logs-inventario', [LogInventarioController::class, 'index'])->name('
 Route::middleware(['auth'])->get('/dashboard/estadisticas-paquetes', [DashboardController::class, 'estadisticasPaquetes'])->name('dashboard.estadisticas-paquetes');
 
 // API AJAX para estadísticas por cliente con filtro de fechas y tipo de servicio
-Route::middleware(['auth'])->get('/dashboard/estadisticas-paquetes-cliente', [App\Http\Controllers\DashboardController::class, 'estadisticasPaquetesCliente'])->name('dashboard.estadisticas-paquetes-cliente');
+Route::middleware(['auth', 'role:admin,agente'])->get('/dashboard/estadisticas-paquetes-cliente', [App\Http\Controllers\DashboardController::class, 'estadisticasPaquetesCliente'])->name('dashboard.estadisticas-paquetes-cliente');

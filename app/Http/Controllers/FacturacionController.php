@@ -52,7 +52,7 @@ class FacturacionController extends Controller
             'moneda'         => 'required|in:USD,NIO',
             'tasa_cambio'    => 'nullable|numeric',
             'monto_local'    => 'required|numeric',
-            'estado_pago'    => 'required|in:pendiente,parcial,pagado',
+            'estado_pago'    => 'required|in:pendiente,parcial,pagado,entregado_pagado,entregado_sin_pagar,pagado_sin_entregar',
             'nota'           => 'nullable|string',
             'paquetes'       => 'required|array|min:1',
             'paquetes.*'     => 'exists:inventario,id',
@@ -94,6 +94,10 @@ class FacturacionController extends Controller
 
         // Asociar paquetes seleccionados a la factura
         \App\Models\Inventario::whereIn('id', $paquetes->pluck('id'))->update(['factura_id' => $factura->id]);
+        // Si el estado de pago es entregado_pagado o entregado_sin_pagar, cambiar estado de los paquetes a 'entregado'
+        if (in_array($request->estado_pago, ['entregado_pagado', 'entregado_sin_pagar'])) {
+            \App\Models\Inventario::whereIn('id', $paquetes->pluck('id'))->update(['estado' => 'entregado']);
+        }
 
         return redirect()->route('facturacion.index')->with('success', 'Factura registrada correctamente.');
     }
@@ -119,7 +123,7 @@ class FacturacionController extends Controller
             'moneda'         => 'required|in:USD,NIO',
             'tasa_cambio'    => 'nullable|numeric',
             'monto_local'    => 'required|numeric',
-            'estado_pago'    => 'required|in:pendiente,parcial,pagado',
+            'estado_pago'    => 'required|in:pendiente,parcial,pagado,entregado_pagado,entregado_sin_pagar,pagado_sin_entregar',
             'nota'           => 'nullable|string',
             'delivery'       => 'nullable|numeric',
         ]);
@@ -283,7 +287,7 @@ class FacturacionController extends Controller
     {
         $factura = Facturacion::findOrFail($id);
         $request->validate([
-            'estado_pago' => 'required|in:pendiente,parcial,pagado',
+            'estado_pago' => 'required|in:pendiente,parcial,pagado,entregado_pagado,entregado_sin_pagar,pagado_sin_entregar',
         ]);
         $factura->estado_pago = $request->estado_pago;
         $factura->save();

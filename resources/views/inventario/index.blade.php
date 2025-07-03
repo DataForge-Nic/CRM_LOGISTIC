@@ -48,9 +48,7 @@
                         <select class="form-select" id="statusFilter">
                             <option value="">Todos</option>
                             <option value="recibido">Recibido</option>
-                            <option value="en_transito">En Tránsito</option>
                             <option value="entregado">Entregado</option>
-                            <option value="pendiente">Pendiente</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -94,7 +92,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="card-title text-muted mb-1">Total Paquetes</h6>
-                            <h4 class="mb-0 fw-bold text-dark">{{ $inventarios->count() }}</h4>
+                            <h4 class="mb-0 fw-bold text-dark">{{ $totalPaquetes }}</h4>
                         </div>
                     </div>
                 </div>
@@ -106,12 +104,12 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="bg-warning bg-opacity-10 rounded-circle p-3">
-                                <i class="fas fa-clock text-warning fs-4"></i>
+                                <i class="fas fa-check-circle text-warning fs-4"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="card-title text-muted mb-1">En Tránsito</h6>
-                            <h4 class="mb-0 fw-bold text-dark">{{ $inventarios->where('estado', 'en_transito')->count() }}</h4>
+                            <h6 class="card-title text-muted mb-1">Recibidos</h6>
+                            <h4 class="mb-0 fw-bold text-dark">{{ $totalRecibidos }}</h4>
                         </div>
                     </div>
                 </div>
@@ -145,7 +143,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="card-title text-muted mb-1">Valor Total</h6>
-                            <h4 class="mb-0 fw-bold text-dark">${{ number_format($inventarios->sum('monto_calculado'), 2) }}</h4>
+                            <h4 class="mb-0 fw-bold text-dark">${{ number_format($valorTotal, 2) }}</h4>
                         </div>
                     </div>
                 </div>
@@ -195,9 +193,7 @@
                             <select name="estado" class="form-select form-select-lg rounded-3 filtro-sm">
                                 <option value="">Todos los estados</option>
                                 <option value="recibido" {{ request('estado', $estado ?? '') == 'recibido' ? 'selected' : '' }}>Recibido</option>
-                                <option value="en_transito" {{ request('estado', $estado ?? '') == 'en_transito' ? 'selected' : '' }}>En Tránsito</option>
                                 <option value="entregado" {{ request('estado', $estado ?? '') == 'entregado' ? 'selected' : '' }}>Entregado</option>
-                                <option value="en_oficina" {{ request('estado', $estado ?? '') == 'en_oficina' ? 'selected' : '' }}>En Oficina</option>
                             </select>
                         </div>
                         <div class="col-6 col-md-2 d-flex gap-2 align-items-center">
@@ -249,9 +245,9 @@
                                 <td class="px-4 py-3">
                                     @php
                                         $statusColors = [
-                                            'recibido' => 'success',
+                                            'recibido' => 'skylink-orange',
                                             'en_transito' => 'warning',
-                                            'entregado' => 'primary',
+                                            'entregado' => 'skylink-green',
                                             'pendiente' => 'secondary'
                                         ];
                                         $statusIcons = [
@@ -263,7 +259,7 @@
                                         $color = $statusColors[$item->estado] ?? 'secondary';
                                         $icon = $statusIcons[$item->estado] ?? 'question-circle';
                                     @endphp
-                                    <span class="badge bg-{{ $color }} bg-opacity-10 text-{{ $color }} border border-{{ $color }}">
+                                    <span class="badge badge-estado-fixed @if($item->estado=='recibido') badge-skylink-orange @elseif($item->estado=='entregado') badge-skylink-green @else bg-{{ $color }} bg-opacity-10 text-{{ $color }} border border-{{ $color }} @endif">
                                         <i class="fas fa-{{ $icon }} me-1"></i>
                                         {{ ucfirst(str_replace('_', ' ', $item->estado)) }}
                                     </span>
@@ -608,6 +604,29 @@
     color: #fff;
     border-color: #5C6AC4;
 }
+.badge-skylink-orange {
+    background: #F59E0B !important;
+    color: #fff !important;
+    border: 1.5px solid #F59E0B !important;
+}
+.badge-skylink-green {
+    background: #10B981 !important;
+    color: #fff !important;
+    border: 1.5px solid #10B981 !important;
+}
+.badge-estado-fixed {
+    min-width: 120px;
+    max-width: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.98rem;
+    font-weight: 600;
+    padding: 0.45em 0;
+    border-radius: 8px !important;
+    text-align: center;
+    gap: 0.4em;
+}
 </style>
 
 <script>
@@ -642,11 +661,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusFilter = document.getElementById('statusFilter');
     statusFilter.addEventListener('change', function() {
         const selectedStatus = this.value.toLowerCase();
-        
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
             const statusCell = row.querySelector('td:nth-child(6)');
-            
             if (statusCell) {
                 const status = statusCell.textContent.toLowerCase();
                 if (!selectedStatus || status.includes(selectedStatus)) {

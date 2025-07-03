@@ -183,6 +183,13 @@
                 margin-left: 0 !important;
             }
         }
+        html, body { height: 100%; }
+        body { min-height: 100vh; }
+        @if(Auth::check())
+        body { overflow: auto !important; }
+        @else
+        body { overflow: hidden; }
+        @endif
     </style>
     @yield('head')
 </head>
@@ -190,14 +197,8 @@
     @php
         $hideSidebar = request()->routeIs('facturacion.create') || request()->routeIs('facturacion.edit');
         $user = Auth::user();
-        // Para desarrollo sin login, simular usuario admin
-        if (!$user) {
-            $user = (object)[
-                'nombre' => 'Usuario',
-                'rol' => 'admin',
-            ];
-        }
     @endphp
+    @if(Auth::check())
     <div class="d-flex">
         @if(!$hideSidebar && !request()->routeIs('inventario.edit'))
         <!-- Sidebar -->
@@ -205,59 +206,7 @@
             <div class="sidebar-logo d-flex justify-content-center align-items-center" style="background: #fff; border-radius: 1.5rem; margin-bottom: 2.5rem; padding-top: 3.5rem; padding-bottom: 3.5rem;">
                 <img src="/logo_skylinkone.png" alt="SkyLink One Logo" style="height: 200px; max-width: 260px; width: auto; display: block;">
             </div>
-            <ul class="nav nav-pills flex-column mb-auto gap-2">
-                <li class="nav-item">
-                    <a href="{{ route('welcome') }}" class="nav-link @if(request()->routeIs('welcome')) active @endif sidebar-link">
-                        <i class="fas fa-home"></i> <span class="sidebar-link-text">Dashboard</span>
-                    </a>
-                </li>
-                @if($user && in_array($user->rol, ['admin', 'contador', 'agente']))
-                <li>
-                    <a href="{{ route('clientes.index') }}" class="nav-link @if(request()->routeIs('clientes.*')) active @endif sidebar-link">
-                        <i class="fas fa-users"></i> <span class="sidebar-link-text">Clientes</span>
-                    </a>
-                </li>
-                @endif
-                @if($user && in_array($user->rol, ['admin', 'agente']))
-                <li>
-                    <a href="{{ route('inventario.index') }}" class="nav-link @if(request()->routeIs('inventario.*')) active @endif sidebar-link">
-                        <i class="fas fa-boxes"></i> <span class="sidebar-link-text">Inventario</span>
-                    </a>
-                </li>
-                @endif
-                <li>
-                    <a href="{{ route('tracking.dashboard') }}" class="nav-link @if(request()->routeIs('tracking.*')) active @endif sidebar-link">
-                        <i class="fas fa-stopwatch"></i> <span class="sidebar-link-text">Tracking</span>
-                    </a>
-                </li>
-                @if($user && in_array($user->rol, ['admin', 'contador']))
-                <li>
-                    <a href="{{ route('facturacion.index') }}" class="nav-link @if(request()->routeIs('facturacion.*')) active @endif sidebar-link">
-                        <i class="fas fa-file-invoice-dollar"></i> <span class="sidebar-link-text">Facturación</span>
-                    </a>
-                </li>
-                @endif
-                @if($user && in_array($user->rol, ['admin', 'contador', 'agente']))
-                <li>
-                    <a href="{{ route('notificaciones.index') }}" class="nav-link @if(request()->routeIs('notificaciones.*')) active @endif sidebar-link">
-                        <i class="fas fa-bell"></i> <span class="sidebar-link-text">Notificaciones</span>
-                    </a>
-                </li>
-                @endif
-                @if($user && $user->rol === 'admin')
-                <li>
-                    <a href="{{ route('usuarios.index') }}" class="nav-link @if(request()->routeIs('usuarios.*')) active @endif sidebar-link">
-                        <i class="fas fa-user-cog"></i> <span class="sidebar-link-text">Usuarios</span>
-                    </a>
-                </li>
-                <li style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                    <a href="{{ route('logs_inventario.index') }}" class="nav-link @if(request()->routeIs('logs_inventario.*')) active @endif sidebar-link" style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-history"></i>
-                        <span class="sidebar-link-text" style="font-size: 1rem;">Historial Inventario</span>
-                    </a>
-                </li>
-                @endif
-            </ul>
+            @include('layouts.sidebar-menu', ['user' => $user])
         </nav>
         @endif
         <!-- Main content -->
@@ -265,40 +214,7 @@
             <nav class="navbar navbar-expand-lg px-4 py-2 sticky-top shadow-sm" style="background: #f4f6fb; color: #1A2E75; z-index:1050;">
                 <div class="container-fluid">
                     @if(!$hideSidebar)
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
-                        <li class="nav-item dropdown position-relative">
-                            <a class="nav-link position-relative" style="color: #1A2E75;" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-bell"></i>
-                                <span class="notification-badge" id="notificationCount" style="background:#BF1E2E; color:#fff;">0</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationDropdown">
-                                <li><h6 class="dropdown-header">Notificaciones</h6></li>
-                                <div id="notificationList">
-                                    <li class="dropdown-item text-center text-muted">
-                                        <small>Cargando notificaciones...</small>
-                                    </li>
-                                </div>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-center" href="{{ route('notificaciones.index') }}">Ver todas</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" style="color: #1A2E75;" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle"></i> {{ $user->nombre ?? 'Usuario' }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="#">Perfil</a></li>
-                                @if(Route::has('logout'))
-                                <li class="dropdown-item">
-                                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline text-danger" style="text-decoration:none;">Cerrar sesión</button>
-                                    </form>
-                                </li>
-                                @endif
-                            </ul>
-                        </li>
-                    </ul>
+                    @include('layouts.navbar-menu', ['user' => $user])
                     @endif
                 </div>
             </nav>
@@ -307,6 +223,14 @@
             </main>
         </div>
     </div>
+    @else
+    <div class="d-flex flex-column min-vh-100 justify-content-start align-items-center" style="background: #f4f6fb;">
+        <img src="/logo_skylinkone.png" alt="SkyLink One Logo" style="height: 230px; max-width: 420px; width: auto; display: block; margin-top: 2.5rem; margin-bottom: 0;">
+        <main class="w-100 d-flex justify-content-center align-items-start" style="min-height: 300px; margin-top: -12rem;">
+            @yield('content')
+        </main>
+    </div>
+    @endif
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

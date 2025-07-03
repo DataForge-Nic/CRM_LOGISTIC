@@ -44,8 +44,16 @@ class InventarioController extends Controller
         if ($estado) {
             $query->where('estado', $estado);
         }
+
+        // Clonar query para totales globales (sin paginar)
+        $queryTotales = clone $query;
+        $totalPaquetes = $queryTotales->count();
+        $totalEntregados = (clone $queryTotales)->where('estado', 'entregado')->count();
+        $totalRecibidos = (clone $queryTotales)->where('estado', 'recibido')->count();
+        $valorTotal = (clone $queryTotales)->sum('monto_calculado');
+
         $inventarios = $query->latest()->paginate(10)->appends($request->all());
-        return view('inventario.index', compact('inventarios', 'clientes', 'servicios', 'busqueda', 'cliente_id', 'servicio_id', 'estado'));
+        return view('inventario.index', compact('inventarios', 'clientes', 'servicios', 'busqueda', 'cliente_id', 'servicio_id', 'estado', 'totalPaquetes', 'totalEntregados', 'totalRecibidos', 'valorTotal'));
     }
 
     public function create()

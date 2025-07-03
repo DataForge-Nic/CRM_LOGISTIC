@@ -133,21 +133,10 @@
                                         <i class="fas fa-info-circle me-1 text-muted"></i>
                                         Estado *
                                     </label>
-                                    <select name="estado" class="form-select @error('estado') is-invalid @enderror" required>
-                                        <option value="">Seleccione el estado</option>
-                                        <option value="recibido" {{ old('estado') == 'recibido' ? 'selected' : '' }}>
-                                            📦 Recibido
-                                        </option>
-                                        <option value="en_transito" {{ old('estado') == 'en_transito' ? 'selected' : '' }}>
-                                            🚚 En Tránsito
-                                        </option>
-                                        <option value="entregado" {{ old('estado') == 'entregado' ? 'selected' : '' }}>
-                                            ✅ Entregado
-                                        </option>
-                                        <option value="en_oficina" {{ old('estado') == 'en_oficina' ? 'selected' : '' }}>
-                                            🏢 En Oficina
-                                        </option>
+                                    <select name="estado" class="form-select @error('estado') is-invalid @enderror" required disabled>
+                                        <option value="recibido" selected>📦 Recibido (entrada)</option>
                                     </select>
+                                    <input type="hidden" name="estado" value="recibido">
                                     @error('estado')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -276,16 +265,8 @@
                         <small class="text-muted">Recibido - Paquete en almacén</small>
                     </div>
                     <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-warning bg-opacity-10 text-warning me-2">🚚</span>
-                        <small class="text-muted">En Tránsito - En camino</small>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
                         <span class="badge bg-primary bg-opacity-10 text-primary me-2">✅</span>
                         <small class="text-muted">Entregado - Completado</small>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-secondary bg-opacity-10 text-secondary me-2">🏢</span>
-                        <small class="text-muted">En Oficina - Pendiente de envío</small>
                     </div>
                 </div>
             </div>

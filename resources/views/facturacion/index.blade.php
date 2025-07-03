@@ -44,9 +44,9 @@
                 <label class="form-label">Estado</label>
                 <select name="estado" class="form-select">
                     <option value="">Todos</option>
-                    <option value="pagado" {{ request('estado')=='pagado'?'selected':'' }}>Pagado</option>
-                    <option value="parcial" {{ request('estado')=='parcial'?'selected':'' }}>Parcial</option>
-                    <option value="pendiente" {{ request('estado')=='pendiente'?'selected':'' }}>Pendiente</option>
+                    <option value="entregado_pagado" {{ request('estado')=='entregado_pagado'?'selected':'' }}>Entregado y Pagado</option>
+                    <option value="entregado_sin_pagar" {{ request('estado')=='entregado_sin_pagar'?'selected':'' }}>Entregado sin Pagar</option>
+                    <option value="pagado_sin_entregar" {{ request('estado')=='pagado_sin_entregar'?'selected':'' }}>Pagado sin Entregar</option>
                 </select>
             </div>
             <div class="col-md-3 filter-btn-group">
@@ -185,10 +185,10 @@
                             <td>
                                 <form method="POST" action="{{ route('facturacion.cambiar-estado', $factura->id) }}" class="d-inline">
                                     @csrf
-                                    <select name="estado_pago" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()" @if($factura->estado_pago=='pagado') disabled @endif>
-                                        <option value="pendiente" {{ $factura->estado_pago=='pendiente'?'selected':'' }}>Pendiente</option>
-                                        <option value="parcial" {{ $factura->estado_pago=='parcial'?'selected':'' }}>Parcial</option>
-                                        <option value="pagado" {{ $factura->estado_pago=='pagado'?'selected':'' }}>Pagado</option>
+                                    <select name="estado_pago" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()" @if($factura->estado_pago=='entregado_pagado') disabled @endif>
+                                        <option value="entregado_pagado" {{ $factura->estado_pago=='entregado_pagado'?'selected':'' }}>Entregado y Pagado</option>
+                                        <option value="entregado_sin_pagar" {{ $factura->estado_pago=='entregado_sin_pagar'?'selected':'' }}>Entregado sin Pagar</option>
+                                        <option value="pagado_sin_entregar" {{ $factura->estado_pago=='pagado_sin_entregar'?'selected':'' }}>Pagado sin Entregar</option>
                                     </select>
                                 </form>
                             </td>

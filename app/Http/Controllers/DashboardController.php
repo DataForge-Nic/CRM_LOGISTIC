@@ -43,31 +43,28 @@ class DashboardController extends Controller
         $desde = $request->input('desde');
         $hasta = $request->input('hasta');
 
+        \Log::info('Filtro dashboard', [
+            'cliente_id' => $clienteId,
+            'tipo_servicio' => $tipoServicio,
+            'desde' => $desde,
+            'hasta' => $hasta,
+        ]);
+
         $query = \App\Models\Inventario::with('servicio')
             ->where('cliente_id', $clienteId);
         if ($desde && $hasta) {
             $query->whereBetween('fecha_ingreso', [$desde, $hasta]);
         }
+        if ($tipoServicio !== 'todos') {
+            $tipoServicioNormalizado = strtolower(str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $tipoServicio));
+            $query->whereHas('servicio', function($q) use ($tipoServicioNormalizado) {
+                $q->whereRaw(
+                    "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(tipo_servicio, 'á', 'a'), 'é', 'e'), 'í', 'i'), 'ó', 'o'), 'ú', 'u')) = ?",
+                    [$tipoServicioNormalizado]
+                );
+            });
+        }
         $paquetes = $query->get();
-        // Normaliza tipo de servicio
-        function normalizarServicio($tipo) {
-            $tipo = strtolower($tipo ?? '');
-            $tipo = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $tipo);
-            return $tipo;
-        }
-        if ($tipoServicio === 'aereo') {
-            $paquetes = $paquetes->filter(function($p) {
-                return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'aereo';
-            });
-        } elseif ($tipoServicio === 'maritimo') {
-            $paquetes = $paquetes->filter(function($p) {
-                return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'maritimo';
-            });
-        } elseif ($tipoServicio === 'pie_cubico') {
-            $paquetes = $paquetes->filter(function($p) {
-                return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'pie_cubico';
-            });
-        }
         $total = $paquetes->count();
         $dinero = $paquetes->sum('monto_calculado');
         $libras = $paquetes->sum('peso_lb');
