@@ -127,6 +127,10 @@
                     <td><strong>N° de factura:</strong></td>
                     <td>{{ $factura->id }}</td>
                 </tr>
+                <tr>
+                    <td><strong>N° de acta:</strong></td>
+                    <td>{{ $factura->numero_acta }}</td>
+                </tr>
             </table>
         </div>
     </div>

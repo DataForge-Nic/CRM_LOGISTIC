@@ -303,6 +303,8 @@ $(document).ready(function() {
         formData.set('cliente_nombre', cliente.nombre_completo || '');
         formData.set('cliente_direccion', cliente.direccion || '');
         formData.set('cliente_telefono', cliente.telefono || '');
+        // Enviar número de acta
+        formData.set('numero_acta', form.numero_acta.value || '');
 
         // Si no hay paquetes seleccionados, limpiar el PDF y no enviar nada
         if ($('.paquete-checkbox:checked').length === 0) {
