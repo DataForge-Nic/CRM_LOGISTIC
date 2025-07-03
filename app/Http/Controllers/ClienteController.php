@@ -61,7 +61,7 @@ class ClienteController extends Controller
         $map = [
             'aereo' => 'tarifa_aereo',
             'maritimo' => 'tarifa_maritimo',
-            'express' => 'tarifa_express',
+            'pie_cubico' => 'tarifa_pie_cubico',
         ];
         foreach ($map as $tipo => $input) {
             $servicio = $servicios->first(function($s) use ($tipo) {
@@ -126,7 +126,7 @@ class ClienteController extends Controller
         $map = [
             'aereo' => 'tarifa_aereo',
             'maritimo' => 'tarifa_maritimo',
-            'express' => 'tarifa_express',
+            'pie_cubico' => 'tarifa_pie_cubico',
         ];
         foreach ($map as $tipo => $input) {
             $servicio = $servicios->first(function($s) use ($tipo) {

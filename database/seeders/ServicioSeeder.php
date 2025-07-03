@@ -20,7 +20,7 @@ class ServicioSeeder extends Seeder
         ]);
 
         Servicio::create([
-            'tipo_servicio' => 'Express',
+            'tipo_servicio' => 'Pie Cúbico',
             'descripcion' => 'Entrega rápida',
         ]);
     }

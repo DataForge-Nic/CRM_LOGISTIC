@@ -69,8 +69,8 @@
                                 </div>
                                 <div class="mb-3 d-flex align-items-center gap-3">
                                     <span class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width:38px; height:38px;"><i class="fas fa-bolt text-primary"></i></span>
-                                    <label class="form-label mb-0 flex-grow-1">Express</label>
-                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_express" name="tarifa_express" placeholder="0.00" style="max-width:120px;">
+                                    <label class="form-label mb-0 flex-grow-1">Pie Cúbico</label>
+                                    <input type="number" step="0.01" min="0" class="form-control tarifa-input" id="tarifa_pie_cubico" name="tarifa_pie_cubico" placeholder="0.00" style="max-width:120px;">
                                 </div>
                             </div>
                             <button type="button" class="btn btn-success w-100 mt-4 align-self-end" id="btn_finalizar_registro" disabled><i class="fas fa-check"></i> Registrar Cliente</button>

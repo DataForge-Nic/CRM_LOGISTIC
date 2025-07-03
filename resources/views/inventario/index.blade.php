@@ -57,7 +57,7 @@
                         <label class="form-label fw-semibold">Servicio</label>
                         <select class="form-select" id="serviceFilter">
                             <option value="">Todos</option>
-                            <option value="express">Express</option>
+                            <option value="express">Pie Cúbico</option>
                             <option value="estandar">Estándar</option>
                             <option value="economico">Económico</option>
                         </select>
@@ -162,20 +162,15 @@
                     Lista de Paquetes
                 </h5>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" id="exportBtn">
-                        <i class="fas fa-download me-1"></i>
-                        Exportar
-                    </button>
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-cog me-1"></i>
                             Acciones
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-print me-2"></i>Imprimir</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-file-excel me-2"></i>Exportar Excel</a></li>
+                            <li><a class="dropdown-item" href="{{ route('inventario.export-excel') }}"><i class="fas fa-file-excel me-2 text-success"></i>Exportar Excel</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="printInventarioTable(); return false;"><i class="fas fa-print me-2 text-primary"></i>Imprimir</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
                         </ul>
                     </div>
                 </div>
@@ -235,7 +230,7 @@
                                         </div>
                                         <div>
                                             <div class="fw-semibold text-dark">{{ $item->cliente->nombre_completo }}</div>
-                                            <small class="text-muted d-none d-lg-block">{{ $item->cliente->email ?? 'Sin email' }}</small>
+                                            <small class="text-muted d-none d-lg-block">{{ $item->cliente->correo ?? 'Sin email' }}</small>
                                         </div>
                                     </div>
                                 </td>
@@ -684,5 +679,36 @@ function confirmDelete(id) {
     form.action = `/inventario/${id}`;
     modal.show();
 }
+
+// Imprimir solo la tabla de inventario
+function printInventarioTable() {
+    const table = document.getElementById('inventarioTable').outerHTML;
+    const win = window.open('', '', 'width=900,height=700');
+    win.document.write(`
+        <html>
+        <head>
+            <title>Imprimir Inventario</title>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <style>
+                body { background: #f4f6fb; padding: 2rem; }
+                table { font-size: 0.98rem; }
+                th, td { padding: 0.55rem 0.5rem !important; }
+                th { background: #1A2E75 !important; color: #fff !important; }
+                .table { border-radius: 16px; overflow: hidden; }
+            </style>
+        </head>
+        <body>
+            <h2 style="color:#1A2E75; font-weight:700; margin-bottom:1.5rem;">Inventario de Paquetes</h2>
+            ${table}
+        </body>
+        </html>
+    `);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 500);
+}
+
+document.getElementById('printBtn').addEventListener('click', printInventarioTable);
 </script>
 @endsection

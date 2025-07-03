@@ -7,6 +7,8 @@ use App\Models\Cliente;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\FacturaMailable;
 
 class FacturacionController extends Controller
 {
@@ -286,5 +288,20 @@ class FacturacionController extends Controller
         $factura->estado_pago = $request->estado_pago;
         $factura->save();
         return redirect()->route('facturacion.index')->with('success', 'Estado de la factura actualizado.');
+    }
+
+    public function enviarCorreo($id)
+    {
+        $factura = \App\Models\Facturacion::with('cliente')->findOrFail($id);
+        $correo = $factura->cliente->correo ?? null;
+        if (!$correo) {
+            return back()->with('error', 'El cliente no tiene correo.');
+        }
+        // Generar PDF temporal
+        $pdf = \PDF::loadView('facturacion.pdf', ['factura' => $factura]);
+        $pdfContent = $pdf->output();
+        // Enviar correo
+        Mail::to($correo)->send(new FacturaMailable($factura, $pdfContent));
+        return back()->with('success', 'Factura enviada correctamente a ' . $correo);
     }
 }

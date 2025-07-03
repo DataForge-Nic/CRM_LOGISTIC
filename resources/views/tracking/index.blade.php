@@ -4,6 +4,12 @@
 
 @section('content')
 <div class="container-fluid px-4">
+    <!-- Botón Volver al Dashboard -->
+    <div class="mb-3">
+        <a href="{{ route('tracking.dashboard') }}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm" style="font-size:1.01em; border-radius:0.75rem;">
+            <i class="fas fa-arrow-left me-1"></i> Volver al Dashboard
+        </a>
+    </div>
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -13,13 +19,13 @@
                         <i class="fas fa-clock text-primary" style="font-size:2.2rem;"></i>
                     </div>
                     <div>
-                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px;">Lista de Trackings</h1>
-                        <p class="mb-0 text-white-50" style="font-size:1.1rem;">Gestión completa de seguimientos y temporizadores</p>
+                        <h1 class="h3 mb-1 fw-bold text-white" style="letter-spacing:1px; font-size:1.15em;">Lista de Trackings</h1>
+                        <p class="mb-0 text-white-50" style="font-size:1.01em;">Gestión completa de seguimientos y temporizadores</p>
                     </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('tracking.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff;">
-                        <i class="fas fa-plus me-2"></i> Nuevo Tracking
+                <div class="d-flex gap-2 align-items-center">
+                    <a href="{{ route('tracking.create') }}" class="btn btn-primary d-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm" style="font-size:1.01em; border-radius:0.75rem;">
+                        <i class="fas fa-plus me-1"></i> Nuevo Tracking
                     </a>
                 </div>
             </div>
@@ -386,6 +392,18 @@
     background: #5C6AC4;
     color: #fff;
     border-color: #5C6AC4;
+}
+.card-title, .card-body h6, .card-header h6 {
+    font-size: 0.98rem !important;
+}
+.btn, .btn-lg, .btn-primary, .btn-outline-secondary, .btn-outline-info, .btn-success {
+    font-size: 0.97rem !important;
+    border-radius: 0.75rem !important;
+}
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5em 0.75em;
+    border-radius: 0.75rem;
 }
 </style>
 

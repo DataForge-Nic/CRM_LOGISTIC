@@ -139,9 +139,15 @@
             </tr>
             <tr>
                 <td>
-                    {{ is_object($factura->cliente) ? ($factura->cliente->nombre_completo ?? '') : ($factura->cliente['nombre_completo'] ?? '') }}<br>
-                    {{ is_object($factura->cliente) ? ($factura->cliente->direccion ?? '') : ($factura->cliente['direccion'] ?? '') }}<br>
-                    {{ is_object($factura->cliente) ? ($factura->cliente->telefono ?? '') : ($factura->cliente['telefono'] ?? '') }}
+                    @if(!empty($factura->cliente->nombre_completo))
+                        {{ $factura->cliente->nombre_completo }}<br>
+                    @endif
+                    @if(!empty($factura->cliente->direccion))
+                        {{ $factura->cliente->direccion }}<br>
+                    @endif
+                    @if(!empty($factura->cliente->telefono))
+                        {{ $factura->cliente->telefono }}
+                    @endif
                 </td>
                 <td>
                     SkyLink One<br>

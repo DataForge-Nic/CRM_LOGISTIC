@@ -229,7 +229,7 @@
         background: #fff;
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.07);
     transition: transform 0.2s, box-shadow 0.2s, background 0.18s;
-}
+    }
 .module-card:hover .dashboard-module-card {
     transform: translateY(-4px) scale(1.03);
     box-shadow: 0 1.5rem 2.5rem rgba(13,110,253,0.13), 0 4px 16px 0 rgba(0,0,0,0.10);
@@ -514,9 +514,9 @@ function setClienteStats(data, servicio) {
     }
     let total = 0, dinero = 0, libras = 0;
     if (servicio === 'todos') {
-        total = (data.paquetes_aereo ?? 0) + (data.paquetes_maritimo ?? 0);
-        dinero = (data.ingresos_aereo ?? 0) + (data.ingresos_maritimo ?? 0);
-        libras = (data.libras_aereo ?? 0) + (data.libras_maritimo ?? 0);
+        total = (data.paquetes_aereo ?? 0) + (data.paquetes_maritimo ?? 0) + (data.paquetes_pie_cubico ?? 0);
+        dinero = (data.ingresos_aereo ?? 0) + (data.ingresos_maritimo ?? 0) + (data.ingresos_pie_cubico ?? 0);
+        libras = (data.libras_aereo ?? 0) + (data.libras_maritimo ?? 0) + (data.libras_pie_cubico ?? 0);
     } else if (servicio === 'aereo') {
         total = data.paquetes_aereo ?? 0;
         dinero = data.ingresos_aereo ?? 0;
@@ -525,6 +525,10 @@ function setClienteStats(data, servicio) {
         total = data.paquetes_maritimo ?? 0;
         dinero = data.ingresos_maritimo ?? 0;
         libras = data.libras_maritimo ?? 0;
+    } else if (servicio === 'pie_cubico') {
+        total = data.paquetes_pie_cubico ?? 0;
+        dinero = data.ingresos_pie_cubico ?? 0;
+        libras = data.libras_pie_cubico ?? 0;
     }
     idsCliente.total.textContent = total;
     idsCliente.dinero.textContent = dinero.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -577,14 +581,31 @@ function renderClienteStats(clienteId) {
     const data = clientesData[clienteId] || null;
     setClienteStats(data, servicioSelect.value);
     document.getElementById('noClienteDataMsg').style.display = data && (
-        (servicioSelect.value === 'todos' && ((data.paquetes_aereo ?? 0) + (data.paquetes_maritimo ?? 0) > 0)) ||
+        (servicioSelect.value === 'todos' && ((data.paquetes_aereo ?? 0) + (data.paquetes_maritimo ?? 0) + (data.paquetes_pie_cubico ?? 0) > 0)) ||
         (servicioSelect.value === 'aereo' && (data.paquetes_aereo ?? 0) > 0) ||
-        (servicioSelect.value === 'maritimo' && (data.paquetes_maritimo ?? 0) > 0)
+        (servicioSelect.value === 'maritimo' && (data.paquetes_maritimo ?? 0) > 0) ||
+        (servicioSelect.value === 'pie_cubico' && (data.paquetes_pie_cubico ?? 0) > 0)
     ) ? 'none' : '';
 }
 
 servicioSelect.addEventListener('change', function() {
-    if (selectedClienteId) renderClienteStats(selectedClienteId);
+    if (selectedClienteId) {
+        // Si no hay rango de fechas, usar clientesData (sin AJAX)
+        if (!fechaDesde && !fechaHasta) {
+            renderClienteStats(selectedClienteId);
+        } else {
+            fetchClienteStats();
+        }
+    }
+});
+
+input.addEventListener('change', function() {
+    // Si no hay rango de fechas, usar clientesData (sin AJAX)
+    if (!fechaDesde && !fechaHasta) {
+        if (selectedClienteId) renderClienteStats(selectedClienteId);
+    } else {
+        fetchClienteStats();
+    }
 });
 
 window.addEventListener('DOMContentLoaded', function() {

@@ -202,8 +202,8 @@
         @if(!$hideSidebar && !request()->routeIs('inventario.edit'))
         <!-- Sidebar -->
         <nav id="sidebar" class="sidebar d-flex flex-column p-3" style="background: #fff; box-shadow: 2px 0 10px rgba(26,46,117,0.04); position: fixed; top: 0; left: 0; height: 100vh; width: 260px; z-index: 1040;">
-            <div class="sidebar-logo d-flex justify-content-center align-items-center" style="background: #fff; border-radius: 1.5rem; margin-bottom: 2.5rem; padding-top: 2.5rem; padding-bottom: 2.5rem;">
-                <img src="/logo_skylinkone.png" alt="SkyLink One Logo" style="height: 150px; max-width: 220px; width: auto; display: block;">
+            <div class="sidebar-logo d-flex justify-content-center align-items-center" style="background: #fff; border-radius: 1.5rem; margin-bottom: 2.5rem; padding-top: 3.5rem; padding-bottom: 3.5rem;">
+                <img src="/logo_skylinkone.png" alt="SkyLink One Logo" style="height: 200px; max-width: 260px; width: auto; display: block;">
             </div>
             <ul class="nav nav-pills flex-column mb-auto gap-2">
                 <li class="nav-item">
@@ -262,9 +262,8 @@
         @endif
         <!-- Main content -->
         <div class="flex-grow-1" style="margin-left: 260px;">
-            <nav class="navbar navbar-expand-lg px-4 py-2 sticky-top bg-white shadow-sm" style="color: #1A2E75; z-index:1050;">
+            <nav class="navbar navbar-expand-lg px-4 py-2 sticky-top shadow-sm" style="background: #f4f6fb; color: #1A2E75; z-index:1050;">
                 <div class="container-fluid">
-                    <span class="navbar-brand fw-bold" style="font-size: 1.45rem; letter-spacing: 1px; color: #1A2E75;">SkylinkOne CRM</span>
                     @if(!$hideSidebar)
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
                         <li class="nav-item dropdown position-relative">

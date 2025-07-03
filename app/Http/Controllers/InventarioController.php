@@ -8,6 +8,8 @@ use App\Models\Servicio;
 use App\Models\LogInventario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\InventarioExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class InventarioController extends Controller
 {
@@ -188,5 +190,10 @@ class InventarioController extends Controller
             ->where('servicio_id', $servicioId)
             ->first();
         return response()->json(['tarifa' => $tarifa ? $tarifa->tarifa : null]);
+    }
+
+    public function exportExcel()
+    {
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\InventarioExport, 'inventario.xlsx');
     }
 }

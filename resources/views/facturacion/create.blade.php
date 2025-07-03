@@ -4,14 +4,11 @@
 @section('page-title', '')
 
 @section('content')
-<div class="container-fluid px-4 pt-4">
+<div class="container-fluid px-4">
     <div class="row mb-4">
         <div class="col-12">
             <div class="rounded-4 shadow-sm px-4 py-4 mb-4 d-flex align-items-center justify-content-between" style="background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%); min-height:90px;">
                 <div class="d-flex align-items-center gap-3">
-                    <a href="{{ route('facturacion.index') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#fff; color:#1A2E75; border:2px solid #1A2E75; box-shadow:0 2px 8px rgba(26,46,117,0.08); font-size:1.2rem;">
-                        <i class="fas fa-arrow-left me-2"></i> Volver
-                    </a>
                     <div class="bg-white rounded-circle d-flex align-items-center justify-content-center" style="width:60px; height:60px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                         <i class="fas fa-file-invoice-dollar text-primary" style="font-size:2.2rem;"></i>
                     </div>
@@ -20,18 +17,9 @@
                         <p class="mb-0 text-white-50" style="font-size:1.1rem;">Completa los datos para registrar una nueva factura</p>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    <a class="nav-link position-relative" href="#" title="Notificaciones"><i class="fas fa-bell fa-lg text-white"></i></a>
-                    <div class="dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" id="userDropdownHeader" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle fa-lg me-1"></i> Usuario
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownHeader">
-                            <li><a class="dropdown-item" href="#">Perfil</a></li>
-                            <li><a class="dropdown-item" href="#">Cerrar sesión</a></li>
-                        </ul>
-                    </div>
-                </div>
+                <a href="{{ route('facturacion.index') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#fff; color:#1A2E75; border:2px solid #1A2E75; box-shadow:0 2px 8px rgba(26,46,117,0.08); font-size:1.2rem;">
+                    <i class="fas fa-arrow-left me-2"></i> Volver
+                </a>
             </div>
         </div>
     </div>
@@ -42,25 +30,34 @@
                     <div class="col-lg-6 p-3 border-end" style="min-width:320px;">
                         <form id="factura-form" action="{{ route('facturacion.store') }}" method="POST">
                             @csrf
-                            <div class="mb-3">
+                            <div class="mb-3 position-relative">
                                 <label for="cliente_id" class="form-label fw-semibold">Cliente</label>
-                                <select id="cliente_id" name="cliente_id" class="form-select select2" required>
-                                    <option value="">Seleccione un cliente</option>
-                                    @foreach($clientes as $cliente)
-                                        <option value="{{ $cliente->id }}">{{ $cliente->nombre_completo }}</option>
-                                    @endforeach
-                                </select>
+                                <div class="d-flex align-items-center" style="gap: 8px;">
+                                    <span class="bg-white d-flex align-items-center justify-content-center" style="width: 38px; height: 48px; border: 1.5px solid #e3e8f0; border-radius: 8px; color: #1A2E75; font-size: 1.1rem;"><i class="fas fa-user"></i></span>
+                                    <select id="cliente_id" name="cliente_id" class="form-select select2" required style="flex:1; min-width:0;">
+                                        <option value="">Seleccione un cliente</option>
+                                        @foreach($clientes as $cliente)
+                                            <option value="{{ $cliente->id }}">{{ $cliente->nombre_completo }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                             <div id="cliente_resumen" class="mb-3"></div>
                             <div id="paquetes_container" class="mb-3"></div>
                             <div id="facturas_historial" class="mb-3"></div>
-                            <div class="mb-3">
+                            <div class="mb-3 position-relative">
                                 <label for="delivery" class="form-label fw-semibold">Costo Delivery (opcional)</label>
-                                <input type="number" step="0.01" min="0" name="delivery" id="delivery" class="form-control" value="{{ old('delivery') }}">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-truck text-success"></i></span>
+                                    <input type="number" step="0.01" min="0" name="delivery" id="delivery" class="form-control" value="{{ old('delivery') }}">
+                                </div>
                             </div>
-                            <div class="mb-3">
+                            <div class="mb-3 position-relative">
                                 <label for="fecha_factura" class="form-label fw-semibold">Fecha de Factura</label>
-                                <input type="date" name="fecha_factura" class="form-control" value="{{ old('fecha_factura', date('Y-m-d')) }}">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="fas fa-calendar-alt text-primary"></i></span>
+                                    <input type="date" name="fecha_factura" class="form-control" value="{{ old('fecha_factura', date('Y-m-d')) }}">
+                                </div>
                                 @error('fecha_factura') <div class="text-danger">{{ $message }}</div> @enderror
                             </div>
                             <div class="mb-3">
@@ -94,16 +91,22 @@
                             <input type="hidden" name="monto_total" id="monto_total" value="0">
                             <input type="hidden" name="monto_local" id="monto_local" value="0">
                             <div class="d-flex gap-2 justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary" id="btn_guardar_factura">
-                                    <i class="fas fa-save me-1"></i> Guardar
+                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow-sm" id="btn_guardar_factura" style="border-radius:8px;">
+                                    <i class="fas fa-save me-2"></i> Guardar
                                 </button>
-                                <a href="{{ route('facturacion.index') }}" class="btn btn-secondary">Cancelar</a>
+                                <a href="{{ route('facturacion.index') }}" class="btn btn-outline-secondary px-4 py-2" style="border-radius:8px;">Cancelar</a>
                             </div>
                         </form>
                     </div>
-                    <div class="col-lg-6 p-3" style="min-width:320px;">
-                        <h5 class="fw-bold mb-3"><i class="fas fa-eye text-primary me-2"></i>Previsualización</h5>
-                        <iframe id="preview-pdf" src="" style="width:100%; min-height:600px; border:none; background:#fff;" allowfullscreen></iframe>
+                    <div class="col-lg-6 p-3 d-flex flex-column align-items-stretch justify-content-start" style="min-width:320px; background: #f8fafc; border-radius: 0 22px 22px 0;">
+                        <h5 class="fw-bold mb-3 d-flex align-items-center"><i class="fas fa-eye text-primary me-2"></i>Previsualización</h5>
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 600px;">
+                            <iframe id="preview-pdf" src="" style="width:100%; min-height:600px; border:none; background:#fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(26,46,117,0.04);" allowfullscreen></iframe>
+                            <div id="preview-placeholder" class="w-100 text-center text-muted position-absolute" style="display:none;">
+                                <i class="fas fa-file-pdf fa-3x mb-2"></i><br>
+                                <span>Selecciona paquetes para previsualizar la factura en PDF.</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,6 +153,7 @@ $(document).ready(function() {
                 }
                 // Resumen cliente
                 const c = resp.cliente;
+                window.ultimoClienteSeleccionado = c;
                 $('#cliente_resumen').html(`
                     <div class="resumen-cliente-card"><i class="fas fa-user resumen-cliente-icon"></i><div class="resumen-cliente-info"><p><strong>Nombre:</strong> ${c.nombre_completo ?? '-'}<br><strong>Dirección:</strong> ${c.direccion ?? '-'}<br><strong>Teléfono:</strong> ${c.telefono ?? '-'}</p></div></div>
                 `);
@@ -250,9 +254,10 @@ $(document).ready(function() {
         var form = document.getElementById('factura-form');
         var formData = new FormData(form);
         var cliente = getClienteData();
-        formData.append('cliente_nombre', cliente.nombre_completo || '');
-        formData.append('cliente_direccion', cliente.direccion || '');
-        formData.append('cliente_telefono', cliente.telefono || '');
+        // Enviar los datos del cliente en campos separados y limpios
+        formData.set('cliente_nombre', cliente.nombre_completo || '');
+        formData.set('cliente_direccion', cliente.direccion || '');
+        formData.set('cliente_telefono', cliente.telefono || '');
 
         // Si no hay paquetes seleccionados, limpiar el PDF y no enviar nada
         if ($('.paquete-checkbox:checked').length === 0) {
@@ -280,14 +285,24 @@ $(document).ready(function() {
     }
 
     function getClienteData() {
-        const clienteId = $('#cliente_id').val();
-        let cliente = {};
-        // Extraer datos del resumen del cliente si está presente
+        // Si tienes el objeto del cliente en JS, úsalo directamente
+        if (window.ultimoClienteSeleccionado) {
+            return {
+                nombre_completo: window.ultimoClienteSeleccionado.nombre_completo || '',
+                direccion: window.ultimoClienteSeleccionado.direccion || '',
+                telefono: window.ultimoClienteSeleccionado.telefono || ''
+            };
+        }
+        // Fallback: método anterior (por si acaso)
         const resumen = $('#cliente_resumen').text();
-        cliente.nombre_completo = resumen.match(/Nombre:\s*([^\n]+)/) ? resumen.match(/Nombre:\s*([^\n]+)/)[1].trim() : '';
-        cliente.direccion = resumen.match(/Dirección:\s*([^\n]+)/) ? resumen.match(/Dirección:\s*([^\n]+)/)[1].trim() : '';
-        cliente.telefono = resumen.match(/Teléfono:\s*([^\n]+)/) ? resumen.match(/Teléfono:\s*([^\n]+)/)[1].trim() : '';
-        return cliente;
+        const nombreMatch = resumen.match(/Nombre:\s*([^\n]+)/);
+        const direccionMatch = resumen.match(/Dirección:\s*([^\n]+)/);
+        const telefonoMatch = resumen.match(/Teléfono:\s*([^\n]+)/);
+        return {
+            nombre_completo: nombreMatch ? nombreMatch[1].trim() : '',
+            direccion: direccionMatch ? direccionMatch[1].trim() : '',
+            telefono: telefonoMatch ? telefonoMatch[1].trim() : ''
+        };
     }
 
     // Llamar updatePreview cuando se selecciona cliente o paquetes o cambia algún campo relevante
@@ -299,6 +314,107 @@ $(document).ready(function() {
 @endsection
 
 <style>
+    .card {
+        border-radius: 18px;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+    }
+    .form-control, .form-select {
+        border-radius: 8px !important;
+        font-size: 1.08rem;
+        padding: 0.7rem 1.1rem;
+        border: 1.5px solid #e3e8f0;
+        background: #f8fafc;
+        color: #1A2E75;
+        font-weight: 500;
+        box-shadow: none;
+        transition: border 0.18s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #5C6AC4;
+        outline: none;
+        background: #fff;
+    }
+    .btn-primary {
+        background: linear-gradient(90deg, #1A2E75 0%, #5C6AC4 100%);
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        border-radius: 8px;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background: linear-gradient(90deg, #5C6AC4 0%, #1A2E75 100%);
+        color: #fff;
+    }
+    .btn-outline-secondary {
+        border-radius: 8px;
+        border: 1.5px solid #bfc7d8;
+        color: #6c7a92;
+        background: #f8fafc;
+        font-weight: 600;
+    }
+    .btn-outline-secondary:hover, .btn-outline-secondary:focus {
+        background: #e3e8f0;
+        color: #1A2E75;
+    }
+    .input-group .input-group-text {
+        background: #f8fafc;
+        border: 1.5px solid #e3e8f0;
+        border-right: none;
+        color: #1A2E75;
+        font-size: 1.1rem;
+        border-radius: 8px 0 0 8px !important;
+        display: flex;
+        align-items: center;
+        padding: 0.7rem 0.7rem;
+        min-width: 38px;
+        justify-content: center;
+        height: 48px;
+    }
+    .input-group .input-group-text i {
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+    /* Ajuste para el select2 de cliente con icono */
+    #cliente_id.select2-hidden-accessible + .select2-container .select2-selection--single {
+        height: 48px !important;
+        display: flex;
+        align-items: center;
+        font-size: 1.08rem;
+        border-radius: 8px !important;
+        border: 1.5px solid #e3e8f0;
+        background: #f8fafc;
+    }
+    #cliente_id.select2-hidden-accessible + .select2-container {
+        flex: 1;
+        min-width: 0;
+    }
+    .resumen-cliente-card {
+        background: #fff;
+        border: 2px solid #5C6AC4;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+    .resumen-cliente-icon {
+        color: #1A2E75;
+        font-size: 2.2rem;
+        flex-shrink: 0;
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+    .resumen-cliente-info {
+        font-size: 1.08rem;
+    }
+    .resumen-cliente-info strong {
+        color: #1A2E75;
+        font-weight: 600;
+    }
     .fact-table thead th {
         background: #1A2E75 !important;
         color: #fff !important;
@@ -331,63 +447,5 @@ $(document).ready(function() {
     }
     .fact-table tbody tr:hover {
         background: #F5F7FA !important;
-    }
-    .resumen-cliente-card {
-        background: #fff;
-        border: 2px solid #5C6AC4;
-        border-radius: 14px;
-        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 18px;
-    }
-    .resumen-cliente-icon {
-        color: #1A2E75;
-        font-size: 2.2rem;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-    .resumen-cliente-info {
-        font-size: 1.08rem;
-    }
-    .resumen-cliente-info strong {
-        color: #1A2E75;
-        font-weight: 600;
-    }
-    .select2-container .select2-selection--single {
-        border-radius: 8px !important;
-        border: 1.5px solid #d1d5db;
-        min-height: 44px;
-        font-size: 1rem;
-    }
-    .form-control, .form-select, textarea {
-        border-radius: 8px !important;
-        min-height: 44px;
-        font-size: 1rem;
-    }
-    .card {
-        border-radius: 18px;
-        box-shadow: 0 2px 8px rgba(26,46,117,0.04);
-    }
-    .btn-primary {
-        background: #1A2E75;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-    }
-    .btn-primary:hover, .btn-primary:focus {
-        background: #223a7a;
-    }
-    .btn-secondary {
-        border-radius: 8px;
-    }
-    .table-primary {
-        background: #1A2E75 !important;
-        color: #fff !important;
-    }
-    .alert-secondary {
-        border-radius: 8px;
     }
 </style>

@@ -63,6 +63,10 @@ class DashboardController extends Controller
             $paquetes = $paquetes->filter(function($p) {
                 return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'maritimo';
             });
+        } elseif ($tipoServicio === 'pie_cubico') {
+            $paquetes = $paquetes->filter(function($p) {
+                return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'pie_cubico';
+            });
         }
         $total = $paquetes->count();
         $dinero = $paquetes->sum('monto_calculado');

@@ -59,14 +59,20 @@ Route::get('/', function () {
         $paquetesMaritimo = $paquetes->filter(function($p) {
             return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'maritimo';
         });
+        $paquetesPieCubico = $paquetes->filter(function($p) {
+            return normalizarServicio($p->servicio->tipo_servicio ?? '') === 'pie_cubico';
+        });
 
         $clientesData[$cliente->id] = [
             'paquetes_aereo' => $paquetesAereo->count(),
             'paquetes_maritimo' => $paquetesMaritimo->count(),
+            'paquetes_pie_cubico' => $paquetesPieCubico->count(),
             'ingresos_aereo' => $paquetesAereo->sum('monto_calculado'),
             'ingresos_maritimo' => $paquetesMaritimo->sum('monto_calculado'),
+            'ingresos_pie_cubico' => $paquetesPieCubico->sum('monto_calculado'),
             'libras_aereo' => $paquetesAereo->sum('peso_lb'),
             'libras_maritimo' => $paquetesMaritimo->sum('peso_lb'),
+            'libras_pie_cubico' => $paquetesPieCubico->sum('peso_lb'),
         ];
     }
     // Gráfico de pastel: paquetes del mes agrupados por tipo de servicio
@@ -116,6 +122,7 @@ Route::prefix('facturacion')->group(function () {
     Route::post('/preview-live', [FacturacionController::class, 'previewLivePDF'])->name('facturacion.preview-live');
     Route::get('/paquetes-por-cliente/{cliente}', [FacturacionController::class, 'paquetesPorCliente'])->name('facturacion.paquetes-por-cliente');
     Route::post('/{id}/cambiar-estado', [FacturacionController::class, 'cambiarEstado'])->name('facturacion.cambiar-estado');
+    Route::post('/{id}/enviar-correo', [FacturacionController::class, 'enviarCorreo'])->name('facturacion.enviar-correo');
 });
 
 // Rutas para inventario
@@ -123,6 +130,7 @@ Route::prefix('inventario')->group(function () {
     Route::get('/', [InventarioController::class, 'index'])->name('inventario.index');
     Route::get('/crear', [InventarioController::class, 'create'])->name('inventario.create');
     Route::post('/', [InventarioController::class, 'store'])->name('inventario.store');
+    Route::get('/export-excel', [InventarioController::class, 'exportExcel'])->name('inventario.export-excel');
     Route::get('/{id}/editar', [InventarioController::class, 'edit'])->name('inventario.edit');
     Route::put('/{id}', [InventarioController::class, 'update'])->name('inventario.update');
     Route::get('/{id}', [InventarioController::class, 'show'])->name('inventario.show');

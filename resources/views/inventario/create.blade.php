@@ -43,18 +43,15 @@
                             <!-- Cliente -->
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="cliente_id" class="form-label fw-semibold">
+                                    <label for="clienteAutocomplete" class="form-label fw-semibold">
                                         <i class="fas fa-user me-1 text-muted"></i>
-                                        Cliente *
+                                        Buscar cliente *
                                     </label>
-                                    <select name="cliente_id" class="form-select @error('cliente_id') is-invalid @enderror" required>
-                                        <option value="">Seleccione un cliente</option>
-                                        @foreach($clientes as $cliente)
-                                            <option value="{{ $cliente->id }}" {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>
-                                                {{ $cliente->nombre_completo }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="autocomplete-wrapper position-relative">
+                                        <input type="text" id="clienteAutocomplete" class="form-control filtro-input" placeholder="Escribe el nombre del cliente..." autocomplete="off" required>
+                                        <ul id="autocompleteList" class="list-group position-absolute w-100 shadow-sm" style="z-index:10; display:none; max-height:180px; overflow-y:auto;"></ul>
+                                        <input type="hidden" name="cliente_id" id="cliente_id" value="{{ old('cliente_id') }}">
+                                    </div>
                                     @error('cliente_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -90,9 +87,9 @@
                                         Peso (lb) *
                                     </label>
                                     <div class="input-group">
+                                        <span class="input-group-text">lb</span>
                                         <input type="number" step="0.01" name="peso_lb" class="form-control @error('peso_lb') is-invalid @enderror" 
                                                value="{{ old('peso_lb') }}" required placeholder="0.00">
-                                        <span class="input-group-text">lb</span>
                                     </div>
                                     @error('peso_lb')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -327,8 +324,258 @@
     background-color: #f8f9fa;
     border-color: #dee2e6;
     color: #6c757d;
+    border-radius: 0.6rem 0 0 0.6rem !important;
+    font-size: 1rem;
+    min-height: 40px !important;
+    padding: 0.45rem 0.9rem !important;
+}
+
+/* Mejoras avanzadas para Select2 y campos compactos */
+.select2-container--bootstrap4 .select2-selection {
+    min-height: 40px;
+    border-radius: 0.6rem;
+    font-size: 1rem;
+    border: 1.3px solid #ced4da;
+    padding: 0.45rem 0.9rem;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(26,46,117,0.03);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+}
+.select2-container--bootstrap4 .select2-selection:focus,
+.select2-container--bootstrap4 .select2-selection--single:focus {
+    border-color: #1A2E75;
+    box-shadow: 0 0 0 0.13rem rgba(26,46,117,0.10);
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+    color: #495057;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding-left: 0;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+    right: 14px;
+    top: 50%;
+    width: 22px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b {
+    border-color: #1A2E75 transparent transparent transparent;
+    border-width: 6px 6px 0 6px;
+    margin-top: 0;
+}
+.select2-container--bootstrap4 .select2-dropdown {
+    border-radius: 0.6rem;
+    box-shadow: 0 4px 16px rgba(26,46,117,0.08);
+    font-size: 1rem;
+    border: 1.3px solid #ced4da;
+    margin-top: 2px;
+}
+.select2-container--bootstrap4 .select2-results__option {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    margin: 2px 0;
+}
+.select2-container--bootstrap4 .select2-results__option--highlighted {
+    background: #1A2E75 !important;
+    color: #fff !important;
+}
+.select2-container--bootstrap4 .select2-results__option[aria-selected=true] {
+    background: #5C6AC4 !important;
+    color: #fff !important;
+}
+.select2-container--bootstrap4 .select2-selection__clear {
+    color: #BF1E2E;
+    font-size: 1.2em;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.select2-container--bootstrap4 .select2-selection--single {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 0 !important;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    padding-left: 0.5em;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__clear {
+    color: #BF1E2E;
+    font-size: 1.1em;
+    margin-right: 0.5em;
+    position: static;
+    display: flex;
+    align-items: center;
+    height: auto;
+    top: auto;
+    left: auto;
+    transform: none;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+    right: 14px;
+    top: 50%;
+    width: 22px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+}
+.select2-container--bootstrap4 {
+    width: 100% !important;
+}
+.select2-container--bootstrap4 .select2-selection--single {
+    height: 40px !important;
+    line-height: 40px !important;
+}
+
+/* Unifica y compacta todos los campos del formulario */
+.form-control, .form-select, textarea {
+    border-radius: 0.6rem !important;
+    border: 1.3px solid #ced4da !important;
+    font-size: 1rem !important;
+    min-height: 40px !important;
+    box-shadow: 0 1px 4px rgba(26,46,117,0.03) !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff !important;
+    padding: 0.45rem 0.9rem !important;
+}
+.form-control:focus, .form-select:focus, textarea:focus {
+    border-color: #1A2E75 !important;
+    box-shadow: 0 0 0 0.13rem rgba(26,46,117,0.10) !important;
+}
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #6c757d;
+    border-radius: 0.6rem 0 0 0.6rem !important;
+    font-size: 1rem;
+    min-height: 40px !important;
+    padding: 0.45rem 0.9rem !important;
+}
+textarea.form-control {
+    min-height: 90px !important;
+    padding-top: 0.7rem !important;
+}
+/* Alineación vertical de los campos en grid */
+.row.g-4 > [class^='col-'],
+.row.g-4 > [class*=' col-'] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.autocomplete-wrapper { position: relative; }
+#clienteAutocomplete {
+    border-radius: 0.75rem;
+    border: 1.5px solid #1A2E75;
+    font-size: 1.08rem;
+    padding: 0.5rem 1.2rem;
+    background: #f8fafc;
+    color: #1A2E75;
+    height: 48px;
+    box-shadow: none;
+    transition: border 0.18s;
+}
+#clienteAutocomplete:focus {
+    border-color: #5C6AC4;
+    box-shadow: 0 0 0 0.15rem rgba(92,106,196,0.10);
+}
+#autocompleteList {
+    border-radius: 0.75rem;
+    background: #fff;
+    margin-top: 2px;
+    border: 1.5px solid #e3e8f0;
+    font-size: 1.05rem;
+    box-shadow: 0 2px 8px rgba(26,46,117,0.07);
+    padding: 0;
+    z-index: 20;
+}
+#autocompleteList li {
+    cursor: pointer;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.13s;
+    list-style: none;
+    font-size: 1.08rem;
+    color: #1A2E75;
+    background: #fff;
+}
+#autocompleteList li:last-child { border-bottom: none; }
+#autocompleteList li:hover, #autocompleteList li.active {
+    background: #F0F4FF;
+    color: #1A2E75;
+    font-weight: 600;
 }
 </style>
+
+<script>
+const clientesList = @json($clientes ?? []);
+let selectedClienteId = null;
+const input = document.getElementById('clienteAutocomplete');
+const list = document.getElementById('autocompleteList');
+const hiddenInput = document.getElementById('cliente_id');
+
+function showSuggestions(term) {
+    list.innerHTML = '';
+    const filtered = clientesList.filter(c => c.nombre_completo.toLowerCase().includes(term.toLowerCase()));
+    if (filtered.length === 0) {
+        list.style.display = 'none';
+        return;
+    }
+    filtered.forEach(cliente => {
+        const li = document.createElement('li');
+        li.textContent = cliente.nombre_completo;
+        li.onclick = () => {
+            input.value = cliente.nombre_completo;
+            selectedClienteId = cliente.id;
+            hiddenInput.value = cliente.id;
+            list.style.display = 'none';
+            if (typeof obtenerTarifaCliente === 'function') obtenerTarifaCliente();
+            if (typeof calculateMonto === 'function') calculateMonto();
+        };
+        list.appendChild(li);
+    });
+    list.style.display = 'block';
+}
+
+input.addEventListener('input', function() {
+    const term = this.value.trim();
+    if (term.length === 0) {
+        list.style.display = 'none';
+        selectedClienteId = null;
+        hiddenInput.value = '';
+        return;
+    }
+    showSuggestions(term);
+});
+
+input.addEventListener('focus', function() {
+    if (this.value.trim().length > 0) showSuggestions(this.value.trim());
+});
+
+document.addEventListener('click', function(e) {
+    if (!list.contains(e.target) && e.target !== input) {
+        list.style.display = 'none';
+    }
+});
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -365,7 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
     tarifaManualInput.addEventListener('input', calculateMonto);
 
     function obtenerTarifaCliente() {
-        const clienteId = clienteSelect.value;
+        const clienteId = document.getElementById('cliente_id').value;
         const servicioId = servicioSelect.value;
         if (clienteId && servicioId) {
             fetch("{{ route('inventario.obtener-tarifa') }}", {
@@ -411,4 +658,143 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+@push('scripts')
+<!-- Select2 CSS y JS con tema Bootstrap4 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    $('#selectCliente').select2({
+        theme: 'bootstrap4',
+        width: '100%',
+        placeholder: 'Seleccione un cliente',
+        allowClear: true,
+        dropdownParent: $('#selectCliente').parent()
+    });
+});
+</script>
+<style>
+/* Mejoras avanzadas para Select2 y campos compactos */
+.select2-container--bootstrap4 .select2-selection {
+    min-height: 40px;
+    border-radius: 0.6rem;
+    font-size: 1rem;
+    border: 1.3px solid #ced4da;
+    padding: 0.45rem 0.9rem;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(26,46,117,0.03);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+}
+.select2-container--bootstrap4 .select2-selection:focus,
+.select2-container--bootstrap4 .select2-selection--single:focus {
+    border-color: #1A2E75;
+    box-shadow: 0 0 0 0.13rem rgba(26,46,117,0.10);
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+    color: #495057;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    padding-left: 0;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+    right: 14px;
+    top: 50%;
+    width: 22px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow b {
+    border-color: #1A2E75 transparent transparent transparent;
+    border-width: 6px 6px 0 6px;
+    margin-top: 0;
+}
+.select2-container--bootstrap4 .select2-dropdown {
+    border-radius: 0.6rem;
+    box-shadow: 0 4px 16px rgba(26,46,117,0.08);
+    font-size: 1rem;
+    border: 1.3px solid #ced4da;
+    margin-top: 2px;
+}
+.select2-container--bootstrap4 .select2-results__option {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    margin: 2px 0;
+}
+.select2-container--bootstrap4 .select2-results__option--highlighted {
+    background: #1A2E75 !important;
+    color: #fff !important;
+}
+.select2-container--bootstrap4 .select2-results__option[aria-selected=true] {
+    background: #5C6AC4 !important;
+    color: #fff !important;
+}
+.select2-container--bootstrap4 .select2-selection__clear {
+    color: #BF1E2E;
+    font-size: 1.2em;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.select2-container--bootstrap4 .select2-selection--single {
+    position: relative;
+    padding-left: 2.1em !important;
+}
+.select2-container--bootstrap4 {
+    width: 100% !important;
+}
+.select2-container--bootstrap4 .select2-selection--single {
+    height: 40px !important;
+    line-height: 40px !important;
+}
+
+/* Unifica y compacta todos los campos del formulario */
+.form-control, .form-select, textarea {
+    border-radius: 0.6rem !important;
+    border: 1.3px solid #ced4da !important;
+    font-size: 1rem !important;
+    min-height: 40px !important;
+    box-shadow: 0 1px 4px rgba(26,46,117,0.03) !important;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff !important;
+    padding: 0.45rem 0.9rem !important;
+}
+.form-control:focus, .form-select:focus, textarea:focus {
+    border-color: #1A2E75 !important;
+    box-shadow: 0 0 0 0.13rem rgba(26,46,117,0.10) !important;
+}
+.input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #6c757d;
+    border-radius: 0.6rem 0 0 0.6rem !important;
+    font-size: 1rem;
+    min-height: 40px !important;
+    padding: 0.45rem 0.9rem !important;
+}
+textarea.form-control {
+    min-height: 90px !important;
+    padding-top: 0.7rem !important;
+}
+/* Alineación vertical de los campos en grid */
+.row.g-4 > [class^='col-'],
+.row.g-4 > [class*=' col-'] {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+</style>
+@endpush
 @endsection

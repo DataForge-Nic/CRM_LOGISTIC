@@ -17,15 +17,18 @@
                         <p class="mb-0 text-white-50" style="font-size:1.1rem;">Monitoreo y control de seguimientos con temporizadores</p>
                     </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('tracking.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff;">
-                        <i class="fas fa-plus me-2"></i> Nuevo Tracking
+                <a href="{{ route('tracking.create') }}" class="btn btn-lg fw-semibold shadow-sm px-4" style="background:#1A2E75; color:#fff;">
+                    <i class="fas fa-plus me-2"></i> Nuevo Tracking
+                </a>
+            </div>
+            <!-- Botones secundarios arriba de las tarjetas de estadísticas -->
+            <div class="row mb-3">
+                <div class="col-12 d-flex justify-content-start gap-2">
+                    <a href="{{ route('tracking.index') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm" style="font-size:1.01em; border-radius:0.75rem;">
+                        <i class="fas fa-list me-1"></i> Ver Todos
                     </a>
-                    <a href="{{ route('tracking.index') }}" class="btn btn-outline-secondary btn-lg fw-semibold shadow-sm px-4">
-                        <i class="fas fa-list me-2"></i> Ver Todos
-                    </a>
-                    <a href="{{ route('tracking.index', ['estado' => 'completado']) }}" class="btn btn-success btn-lg fw-semibold shadow-sm px-4">
-                        <i class="fas fa-check-circle me-2"></i> Ver Completados
+                    <a href="{{ route('tracking.index', ['estado' => 'completado']) }}" class="btn btn-success d-flex align-items-center gap-2 px-4 py-2 fw-semibold shadow-sm" style="font-size:1.01em; border-radius:0.75rem;">
+                        <i class="fas fa-check-circle me-1"></i> Ver Completados
                     </a>
                 </div>
             </div>
@@ -218,24 +221,15 @@
 .bg-primary.bg-opacity-10, .bg-warning.bg-opacity-10, .bg-danger.bg-opacity-10, .bg-success.bg-opacity-10 {
     background-color: rgba(26,46,117,0.08) !important;
 }
-.card-title {
-    font-size: 1.05rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+.card-title, .card-body h6, .card-header h6 {
+    font-size: 0.98rem !important;
 }
-.btn-lg {
-    font-size: 1.08rem;
-    border-radius: 0.75rem;
-    padding: 0.75rem 2rem;
-}
-.btn-primary, .btn-outline-info {
-    border-radius: 0.75rem;
-}
-.btn-outline-secondary {
-    border-radius: 0.75rem;
+.btn, .btn-lg, .btn-primary, .btn-outline-secondary, .btn-outline-info, .btn-success {
+    font-size: 0.97rem !important;
+    border-radius: 0.75rem !important;
 }
 .badge {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     padding: 0.5em 0.75em;
     border-radius: 0.75rem;
 }

@@ -174,7 +174,10 @@
                     @forelse($facturas as $factura)
                         <tr>
                             <td>{{ $factura->id }}</td>
-                            <td>{{ $factura->cliente->nombre_completo ?? 'N/D' }}</td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ $factura->cliente->nombre_completo ?? 'N/D' }}</div>
+                                <small class="text-muted d-none d-lg-block">{{ $factura->cliente->correo ?? 'Sin email' }}</small>
+                            </td>
                             <td>{{ $factura->fecha_factura }}</td>
                             <td>{{ $factura->numero_acta }}</td>
                             <td><span class="fw-bold">${{ number_format($factura->monto_total, 2) }}</span></td>
@@ -192,6 +195,9 @@
                             <td class="d-flex gap-2">
                                 <a href="{{ route('facturacion.preview', $factura->id) }}" class="btn-fact btn-fact-view" title="Previsualizar" target="_blank"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('facturacion.pdf', $factura->id) }}" class="btn-fact btn-fact-pdf" title="Descargar PDF" target="_blank"><i class="fas fa-file-pdf"></i></a>
+                                <button type="button" class="btn-fact btn-fact-mail {{ $factura->cliente && $factura->cliente->correo ? '' : 'disabled' }}" title="Enviar por correo" data-bs-toggle="modal" data-bs-target="#modalEnviarCorreo" data-factura-id="{{ $factura->id }}" data-cliente-correo="{{ $factura->cliente->correo ?? '' }}" {{ $factura->cliente && $factura->cliente->correo ? '' : 'disabled' }}>
+                                    <i class="fas fa-envelope"></i>
+                                </button>
                                 <form action="{{ route('facturacion.destroy', $factura->id) }}" method="POST" style="display:inline;">
                                     @csrf @method('DELETE')
                                     <button class="btn-fact btn-fact-delete" onclick="return confirm('¿Estás seguro?')" title="Eliminar"><i class="fas fa-trash"></i></button>
@@ -287,4 +293,39 @@
     border-color: #5C6AC4;
 }
 </style>
+
+<!-- Modal para confirmar envío de correo -->
+<div class="modal fade" id="modalEnviarCorreo" tabindex="-1" aria-labelledby="modalEnviarCorreoLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEnviarCorreoLabel"><i class="fas fa-envelope me-2 text-primary"></i>Enviar factura por correo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Deseas enviar la factura a <span id="correoClienteModal" class="fw-bold text-primary"></span>?</p>
+      </div>
+      <div class="modal-footer">
+        <form id="formEnviarCorreo" method="POST" action="">
+          @csrf
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var modal = document.getElementById('modalEnviarCorreo');
+  modal.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var facturaId = button.getAttribute('data-factura-id');
+    var correo = button.getAttribute('data-cliente-correo');
+    document.getElementById('correoClienteModal').textContent = correo;
+    var form = document.getElementById('formEnviarCorreo');
+    form.action = '/facturacion/' + facturaId + '/enviar-correo';
+  });
+});
+</script>
 @endsection
