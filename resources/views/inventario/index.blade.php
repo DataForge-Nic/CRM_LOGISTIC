@@ -132,23 +132,25 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <div class="bg-info bg-opacity-10 rounded-circle p-3">
-                                <i class="fas fa-dollar-sign text-info fs-4"></i>
+        @if(auth()->check() && auth()->user()->rol === 'admin')
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-info bg-opacity-10 rounded-circle p-3">
+                                    <i class="fas fa-dollar-sign text-info fs-4"></i>
+                                </div>
                             </div>
-                        </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="card-title text-muted mb-1">Valor Total</h6>
-                            <h4 class="mb-0 fw-bold text-dark">${{ number_format($valorTotal, 2) }}</h4>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="card-title text-muted mb-1">Valor Total</h6>
+                                <h4 class="mb-0 fw-bold text-dark">${{ number_format($valorTotal, 2) }}</h4>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 
     <!-- Main Table -->

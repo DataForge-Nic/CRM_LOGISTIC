@@ -23,7 +23,7 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
 // Todas las rutas accesibles sin autenticación ni roles
 // RUTA PRINCIPAL ÚNICA PARA DASHBOARD
-Route::middleware(['auth', 'role:admin,agente'])->get('/', function () {
+Route::middleware(['auth', 'role:admin'])->get('/', function () {
     $totalClientes = \App\Models\Cliente::count();
     $totalUsuarios = \App\Models\User::count();
     $totalFacturas = \App\Models\Facturacion::count();

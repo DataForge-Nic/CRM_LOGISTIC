@@ -198,10 +198,14 @@
                                 <button type="button" class="btn-fact btn-fact-mail {{ $factura->cliente && $factura->cliente->correo ? '' : 'disabled' }}" title="Enviar por correo" data-bs-toggle="modal" data-bs-target="#modalEnviarCorreo" data-factura-id="{{ $factura->id }}" data-cliente-correo="{{ $factura->cliente->correo ?? '' }}" {{ $factura->cliente && $factura->cliente->correo ? '' : 'disabled' }}>
                                     <i class="fas fa-envelope"></i>
                                 </button>
-                                <form action="{{ route('facturacion.destroy', $factura->id) }}" method="POST" style="display:inline;">
-                                    @csrf @method('DELETE')
-                                    <button class="btn-fact btn-fact-delete" onclick="return confirm('¿Estás seguro?')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                                @php $user = Auth::user(); @endphp
+                                @if($user && $user->rol === 'admin')
+                                <form action="{{ route('facturacion.destroy', $factura->id) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta factura?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-fact btn-fact-delete" title="Eliminar"><i class="fas fa-trash"></i></button>
                                 </form>
+                                @endif
                             </td>
                         </tr>
                     @empty

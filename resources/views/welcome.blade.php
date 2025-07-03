@@ -79,21 +79,23 @@
 
         @foreach($modules as $mod)
         <div class="col-md-4 col-lg-4 col-xl-4 col-12">
-            <a href="{{ $mod['route'] }}" class="text-decoration-none module-card">
-                <div class="card border-0 shadow-sm h-100 module-card-animate dashboard-module-card">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-{{ $mod['color'] }} bg-opacity-10 text-{{ $mod['color'] }} p-4 d-flex align-items-center justify-content-center" style="font-size:2.3rem; min-width:70px; min-height:70px;">
-                            <i class="fas {{ $mod['icon'] }}"></i>
-                        </div>
-                        <div>
-                            <div class="fw-bold fs-1 mb-0 text-dark">
-                                {{ $mod['count'] !== null ? $mod['count'] : '' }}
+            @if(auth()->check() && auth()->user()->rol === 'admin')
+                <a href="{{ $mod['route'] }}" class="text-decoration-none module-card">
+                    <div class="card border-0 shadow-sm h-100 module-card-animate dashboard-module-card">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-{{ $mod['color'] }} bg-opacity-10 text-{{ $mod['color'] }} p-4 d-flex align-items-center justify-content-center" style="font-size:2.3rem; min-width:70px; min-height:70px;">
+                                <i class="fas {{ $mod['icon'] }}"></i>
                             </div>
-                            <div class="fs-4 text-{{ $mod['color'] }} fw-semibold">{{ $mod['title'] }}</div>
+                            <div>
+                                <div class="fw-bold fs-1 mb-0 text-dark">
+                                    {{ $mod['count'] !== null ? $mod['count'] : '' }}
+                                </div>
+                                <div class="fs-4 text-{{ $mod['color'] }} fw-semibold">{{ $mod['title'] }}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </a>
+                </a>
+            @endif
         </div>
         @endforeach
     </div>
