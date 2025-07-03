@@ -30,7 +30,7 @@
                 <select id="filtro_tipo_cliente" name="tipo" class="form-select form-select-lg rounded-3">
                     <option value="" {{ !request('tipo', $tipo ?? '') ? 'selected' : '' }}>Todos los tipos</option>
                     <option value="normal" {{ request('tipo', $tipo ?? '') == 'normal' ? 'selected' : '' }}>Normal</option>
-                    <option value="casillero" {{ request('tipo', $tipo ?? '') == 'casillero' ? 'selected' : '' }}>Casillero</option>
+                    <option value="Subagencia" {{ request('tipo', $tipo ?? '') == 'Subagencia' ? 'selected' : '' }}>Subagencia</option>
                 </select>
             </div>
             <div class="col-md-3 d-flex justify-content-end gap-2">
@@ -59,6 +59,8 @@
                             <td>
                                 @if($cliente->tipo_cliente == 'casillero')
                                     <span class="badge bg-accent text-white px-3 py-2 rounded-pill" style="font-size:1.01rem; letter-spacing:0.5px; background:#5C6AC4;">Casillero</span>
+                                @elseif($cliente->tipo_cliente == 'Subagencia')
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill" style="font-size:1.01rem; letter-spacing:0.5px; background:#FFD700;">Subagencia</span>
                                 @else
                                     <span class="badge bg-primary text-white px-3 py-2 rounded-pill" style="font-size:1.01rem; letter-spacing:0.5px; background:#1A2E75;">Normal</span>
                                 @endif

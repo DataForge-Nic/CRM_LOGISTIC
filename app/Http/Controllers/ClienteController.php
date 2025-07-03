@@ -43,7 +43,7 @@ class ClienteController extends Controller
             'correo'          => 'nullable|email',
             'telefono'        => 'nullable|string|max:20',
             'direccion'       => 'nullable|string|max:255',
-            'tipo_cliente'    => 'required|in:normal,casillero,Normal,VIP',
+            'tipo_cliente'    => 'required|in:normal,casillero,Normal,Subagencia',
         ]);
 
         $cliente = Cliente::create([

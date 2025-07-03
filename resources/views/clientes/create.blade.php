@@ -50,7 +50,7 @@
                                 <label for="tipo_cliente" class="form-label fw-semibold">Tipo de Cliente</label>
                                 <select class="form-select form-select-lg rounded-3" id="tipo_cliente" name="tipo_cliente">
                                     <option value="Normal">Normal</option>
-                                    <option value="VIP">VIP</option>
+                                    <option value="Subagencia">Subagencia</option>
                                 </select>
                             </div>
                         </div>
