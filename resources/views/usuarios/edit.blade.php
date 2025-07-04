@@ -47,7 +47,7 @@
                             <select name="rol" class="form-select form-select-lg rounded-3 @error('rol') is-invalid @enderror">
                                 <option value="admin" {{ old('rol', $usuario->rol) == 'admin' ? 'selected' : '' }}>Administrador</option>
                                 <option value="agente" {{ old('rol', $usuario->rol) == 'agente' ? 'selected' : '' }}>Agente</option>
-                                <option value="contador" {{ old('rol', $usuario->rol) == 'contador' ? 'selected' : '' }}>Contador</option>
+                                <option value="auditor" {{ old('rol', $usuario->rol) == 'auditor' ? 'selected' : '' }}>Auditor</option>
                             </select>
                             @error('rol') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>

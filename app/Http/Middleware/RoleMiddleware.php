@@ -19,7 +19,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = Auth::user();
-        if (!$user || !in_array($user->rol, $roles)) {
+        if (!$user || !in_array($user->rol, ['admin', 'auditor'])) {
             abort(403, 'No tienes permiso para acceder a esta sección.');
         }
         return $next($request);
