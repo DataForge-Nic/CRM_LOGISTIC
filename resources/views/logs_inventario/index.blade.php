@@ -224,7 +224,7 @@
                 </div>
             </div>
             <div class="card-footer bg-white border-0">
-                {{ $logs->links() }}
+                {{ $logs->links('vendor.pagination.custom') }}
             </div>
         </div>
     </div>
