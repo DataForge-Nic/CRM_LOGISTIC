@@ -224,9 +224,9 @@
         </div>
     </div>
     @else
-    <div class="d-flex flex-column min-vh-100 justify-content-start align-items-center" style="background: #f4f6fb;">
+    <div class="d-flex flex-column min-vh-100 justify-content-center align-items-center" style="background: #f4f6fb;">
         <img src="/logo_skylinkone.png" alt="SkyLink One Logo" style="height: 230px; max-width: 420px; width: auto; display: block; margin-top: 2.5rem; margin-bottom: 0;">
-        <main class="w-100 d-flex justify-content-center align-items-start" style="min-height: 300px; margin-top: -12rem;">
+        <main class="w-100 d-flex justify-content-center align-items-center" style="min-height: 300px; margin-top: -8rem;">
             @yield('content')
         </main>
     </div>

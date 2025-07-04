@@ -84,6 +84,24 @@
 <script>
 let clienteFormData = null;
 
+// Modal de éxito/error SkylinkOne
+function mostrarModalMensaje(mensaje, tipo = 'success') {
+    let color = tipo === 'success' ? '#1A2E75' : '#D7263D';
+    let icon = tipo === 'success' ? '<i class="fas fa-check-circle me-2"></i>' : '<i class="fas fa-times-circle me-2"></i>';
+    let modal = document.createElement('div');
+    modal.id = 'modalMensajeSkylink';
+    modal.innerHTML = `
+        <div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.18);z-index:9999;display:flex;align-items:center;justify-content:center;">
+            <div style="background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(26,46,117,0.10);padding:2.2rem 2.5rem;min-width:340px;max-width:90vw;text-align:center;">
+                <div style="font-size:2.2rem;color:${color};margin-bottom:0.5rem;">${icon}</div>
+                <div style="font-size:1.18rem;font-weight:600;color:${color};margin-bottom:0.7rem;">${mensaje}</div>
+                <button onclick="document.getElementById('modalMensajeSkylink').remove()" class="btn btn-primary px-4 py-2 fw-bold shadow-sm" style="background:${color};border:none;">Cerrar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
 // Mantener solo la validación de campos obligatorios
 function checkCamposObligatorios() {
     const form = document.getElementById('cliente-form');
@@ -111,10 +129,10 @@ document.getElementById('btn_finalizar_registro').addEventListener('click', func
     .then(r => r.json())
     .then(data => {
         if (data.id) {
-            alert('Cliente y tarifas registradas correctamente.');
-            window.location.href = '/clientes';
+            mostrarModalMensaje('Cliente y tarifas registradas correctamente.', 'success');
+            setTimeout(() => { window.location.href = '/clientes'; }, 1800);
         } else {
-            alert('Error al guardar el cliente.');
+            mostrarModalMensaje('Error al guardar el cliente.', 'error');
         }
     });
 });

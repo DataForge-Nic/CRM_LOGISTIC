@@ -125,7 +125,7 @@ Route::prefix('facturacion')->group(function () {
 });
 
 // Rutas para inventario
-Route::prefix('inventario')->group(function () {
+Route::middleware(['auth', 'role:admin,agente,basico'])->prefix('inventario')->group(function () {
     Route::get('/', [InventarioController::class, 'index'])->name('inventario.index');
     Route::get('/crear', [InventarioController::class, 'create'])->name('inventario.create');
     Route::post('/', [InventarioController::class, 'store'])->name('inventario.store');
@@ -138,7 +138,7 @@ Route::prefix('inventario')->group(function () {
 });
 
 // Rutas para notificaciones
-Route::prefix('notificaciones')->group(function () {
+Route::middleware(['auth', 'role:admin,agente,basico'])->prefix('notificaciones')->group(function () {
     Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones.index');
     Route::get('/crear', [NotificacionController::class, 'create'])->name('notificaciones.create');
     Route::post('/', [NotificacionController::class, 'store'])->name('notificaciones.store');

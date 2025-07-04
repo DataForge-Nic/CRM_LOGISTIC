@@ -12,7 +12,7 @@ return new class extends Migration
        Schema::create('clientes', function (Blueprint $table) {
            $table->id();
            $table->string('nombre_completo');
-           $table->string('correo');
+           $table->string('correo')->nullable();
            $table->string('telefono', 50);
            $table->text('direccion')->nullable();
            $table->string('tipo_cliente', 50); // normal, subagencia
