@@ -31,7 +31,7 @@ class RoleMiddleware
             }
             return $next($request);
         }
-        if (!$user || !in_array($user->rol, ['admin', 'auditor'])) {
+        if (!$user || !in_array($user->rol, ['admin', 'auditor', 'agente'])) {
             abort(403, 'No tienes permiso para acceder a esta sección.');
         }
         return $next($request);
