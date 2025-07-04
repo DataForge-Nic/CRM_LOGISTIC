@@ -118,8 +118,9 @@
                                         <i class="fas fa-barcode me-1 text-muted"></i>
                                         Número de Guía
                                     </label>
-                                    <input type="text" name="numero_guia" class="form-control @error('numero_guia') is-invalid @enderror" 
-                                           value="{{ old('numero_guia') }}" placeholder="Ingrese el número de guía">
+                                    <input type="text" name="numero_guia" id="numero_guia" class="form-control @error('numero_guia') is-invalid @enderror" 
+                                           value="{{ old('numero_guia') }}" placeholder="Debe tener exactamente 6 dígitos" required pattern="\d{6}" maxlength="6" minlength="6" title="El número de guía debe tener exactamente 6 dígitos">
+                                    <div id="guia-error" class="form-text text-danger" style="display:none;">El número de guía es obligatorio y debe tener exactamente 6 dígitos.</div>
                                     @error('numero_guia')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -635,6 +636,28 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isValid) {
             e.preventDefault();
             alert('Por favor, completa todos los campos requeridos.');
+        }
+    });
+
+    // Validación dinámica para número de guía
+    const numeroGuiaInput = document.getElementById('numero_guia');
+    const guiaError = document.getElementById('guia-error');
+    numeroGuiaInput.addEventListener('input', function() {
+        const value = numeroGuiaInput.value.trim();
+        if (value.length === 0 || !/^\d{6}$/.test(value)) {
+            guiaError.style.display = 'block';
+        } else {
+            guiaError.style.display = 'none';
+        }
+    });
+    // Validar al enviar el formulario
+    const inventarioForm = document.getElementById('inventarioForm');
+    inventarioForm.addEventListener('submit', function(e) {
+        const value = numeroGuiaInput.value.trim();
+        if (value.length !== 6 || !/^\d{6}$/.test(value)) {
+            guiaError.style.display = 'block';
+            numeroGuiaInput.focus();
+            e.preventDefault();
         }
     });
 });
